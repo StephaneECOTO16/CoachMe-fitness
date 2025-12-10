@@ -1,0 +1,233 @@
+.inputWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  width: 100%;
+}
+
+.label {
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  color: var(--text-primary);
+  cursor: pointer;
+}
+
+.label .required {
+  color: var(--secondary);
+  margin-left: var(--space-1);
+}
+
+.inputContainer {
+  position: relative;
+  width: 100%;
+}
+
+.input {
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--text-base);
+  font-family: inherit;
+  color: var(--text-primary);
+  background: var(--white);
+  border: 2px solid var(--gray-300);
+  border-radius: var(--radius-lg);
+  outline: none;
+  transition: all var(--transition-base);
+}
+
+.input::placeholder {
+  color: var(--gray-500);
+}
+
+.input:hover:not(:disabled):not(:focus) {
+  border-color: var(--gray-400);
+}
+
+.input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(49, 56, 172, 0.1);
+}
+
+.input:disabled {
+  background: var(--gray-100);
+  color: var(--gray-500);
+  cursor: not-allowed;
+  border-color: var(--gray-300);
+}
+
+.input.error {
+  border-color: var(--secondary);
+}
+
+.input.error:focus {
+  box-shadow: 0 0 0 3px rgba(190, 34, 42, 0.1);
+}
+
+.input.success {
+  border-color: var(--success);
+}
+
+.input.success:focus {
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+}
+
+.input.hasLeftIcon {
+  padding-left: var(--space-10);
+}
+
+.input.hasRightIcon {
+  padding-right: var(--space-10);
+}
+
+.leftIcon,
+.rightIcon {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--gray-500);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  pointer-events: none;
+  transition: color var(--transition-base);
+}
+
+.leftIcon svg,
+.rightIcon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.leftIcon {
+  left: var(--space-4);
+}
+
+.rightIcon {
+  right: var(--space-4);
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+.rightIcon:hover {
+  color: var(--primary);
+}
+
+.helperText {
+  font-size: var(--text-sm);
+  color: var(--gray-600);
+  transition: color var(--transition-base);
+}
+
+.helperText.errorText {
+  color: var(--secondary);
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.helperText.errorText svg {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+.helperText.successText {
+  color: var(--success);
+}
+
+.textarea {
+  min-height: 120px;
+  resize: vertical;
+  padding: var(--space-3) var(--space-4);
+  font-family: inherit;
+  line-height: 1.625;
+}
+
+/* Size variants */
+.sm .input {
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--text-sm);
+}
+
+.sm .input.hasLeftIcon {
+  padding-left: var(--space-8);
+}
+
+.sm .input.hasRightIcon {
+  padding-right: var(--space-8);
+}
+
+.sm .leftIcon {
+  left: var(--space-3);
+}
+
+.sm .leftIcon svg {
+  width: 16px;
+  height: 16px;
+}
+
+.sm .rightIcon {
+  right: var(--space-3);
+}
+
+.sm .rightIcon svg {
+  width: 16px;
+  height: 16px;
+}
+
+.lg .input {
+  padding: var(--space-4) var(--space-5);
+  font-size: var(--text-lg);
+}
+
+.lg .input.hasLeftIcon {
+  padding-left: var(--space-12);
+}
+
+.lg .input.hasRightIcon {
+  padding-right: var(--space-12);
+}
+
+.lg .leftIcon {
+  left: var(--space-5);
+}
+
+.lg .leftIcon svg {
+  width: 24px;
+  height: 24px;
+}
+
+.lg .rightIcon {
+  right: var(--space-5);
+}
+
+.lg .rightIcon svg {
+  width: 24px;
+  height: 24px;
+}
+
+/* Animation for error state */
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  10%,
+  30%,
+  50%,
+  70%,
+  90% {
+    transform: translateX(-4px);
+  }
+  20%,
+  40%,
+  60%,
+  80% {
+    transform: translateX(4px);
+  }
+}
+
+.inputContainer.shake {
+  animation: shake 0.4s ease-in-out;
+}

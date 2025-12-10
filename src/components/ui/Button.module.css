@@ -1,0 +1,200 @@
+.button {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--space-2);
+  font-family: inherit;
+  font-weight: var(--font-semibold);
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  transition: all var(--transition-base);
+  position: relative;
+  overflow: hidden;
+}
+
+.button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.button.loading {
+  pointer-events: none;
+}
+
+.button.loading .content {
+  opacity: 0;
+}
+
+.button.loading .spinner {
+  opacity: 1;
+}
+
+.content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--space-2);
+  transition: opacity var(--transition-base);
+}
+
+.spinner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  transition: opacity var(--transition-base);
+  animation: spin 0.6s linear infinite;
+}
+
+.spinner svg {
+  width: 20px;
+  height: 20px;
+}
+
+@keyframes spin {
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+/* Primary Variant */
+.primary {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  color: var(--white);
+  box-shadow: 0 4px 14px 0 rgba(49, 56, 172, 0.39);
+}
+
+.primary:hover:not(:disabled) {
+  background: linear-gradient(135deg, var(--primary-light) 0%, var(--primary) 100%);
+  box-shadow: 0 6px 20px rgba(49, 56, 172, 0.5);
+  transform: translateY(-2px);
+}
+
+.primary:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(49, 56, 172, 0.3);
+}
+
+/* Secondary Variant */
+.secondary {
+  background: linear-gradient(135deg, var(--secondary) 0%, var(--secondary-dark) 100%);
+  color: var(--white);
+  box-shadow: 0 4px 14px 0 rgba(190, 34, 42, 0.39);
+}
+
+.secondary:hover:not(:disabled) {
+  background: linear-gradient(135deg, var(--secondary-light) 0%, var(--secondary) 100%);
+  box-shadow: 0 6px 20px rgba(190, 34, 42, 0.5);
+  transform: translateY(-2px);
+}
+
+.secondary:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(190, 34, 42, 0.3);
+}
+
+/* Outline Variant */
+.outline {
+  background: transparent;
+  color: var(--primary);
+  border: 2px solid var(--primary);
+  box-shadow: none;
+}
+
+.outline:hover:not(:disabled) {
+  background: var(--primary);
+  color: var(--white);
+  box-shadow: 0 4px 14px 0 rgba(49, 56, 172, 0.39);
+  transform: translateY(-2px);
+}
+
+.outline:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+/* Ghost Variant */
+.ghost {
+  background: transparent;
+  color: var(--text-primary);
+  border: none;
+  box-shadow: none;
+}
+
+.ghost:hover:not(:disabled) {
+  background: rgba(49, 56, 172, 0.1);
+  transform: none;
+}
+
+.ghost:active:not(:disabled) {
+  background: rgba(49, 56, 172, 0.15);
+}
+
+/* Danger Variant */
+.danger {
+  background: linear-gradient(135deg, var(--secondary) 0%, var(--secondary-dark) 100%);
+  color: var(--white);
+  border: none;
+  box-shadow: 0 4px 14px 0 rgba(190, 34, 42, 0.39);
+}
+
+.danger:hover:not(:disabled) {
+  background: linear-gradient(135deg, var(--secondary-light) 0%, var(--secondary) 100%);
+  box-shadow: 0 6px 20px rgba(190, 34, 42, 0.5);
+  transform: translateY(-2px);
+}
+
+.danger:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(190, 34, 42, 0.3);
+}
+
+/* Sizes */
+.sm {
+  padding: var(--space-2) var(--space-4);
+  font-size: var(--text-sm);
+  border-radius: var(--radius-md);
+}
+
+.sm .spinner svg {
+  width: 16px;
+  height: 16px;
+}
+
+.md {
+  padding: var(--space-3) var(--space-6);
+  font-size: var(--text-base);
+  border-radius: var(--radius-lg);
+}
+
+.lg {
+  padding: var(--space-4) var(--space-8);
+  font-size: var(--text-lg);
+  border-radius: var(--radius-lg);
+}
+
+.lg .spinner svg {
+  width: 24px;
+  height: 24px;
+}
+
+/* Full Width */
+.fullWidth {
+  width: 100%;
+  justify-content: center;
+}
+
+/* Icon Only */
+.iconOnly {
+  padding: var(--space-3);
+}
+
+.iconOnly.sm {
+  padding: var(--space-2);
+}
+
+.iconOnly.lg {
+  padding: var(--space-4);
+}

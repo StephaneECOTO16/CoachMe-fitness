@@ -195,5 +195,31 @@
     "profileUpdated": "Profile updated successfully",
     "messageSent": "Message sent",
     "applicationSubmitted": "Application submitted successfully"
+  },
+  "footer": {
+    "description": "Transform your fitness journey with certified coaches who guide you every step of the way.",
+    "sections": {
+      "quickLinks": "Quick Links",
+      "resources": "Resources",
+      "legal": "Legal"
+    },
+    "links": {
+      "home": "Home",
+      "coaches": "Find Coaches",
+      "about": "About Us",
+      "contact": "Contact"
+    },
+    "resources": {
+      "faq": "FAQ",
+      "blog": "Blog",
+      "support": "Support",
+      "pricing": "Pricing"
+    },
+    "legal": {
+      "privacy": "Privacy Policy",
+      "terms": "Terms of Service",
+      "cookies": "Cookie Policy"
+    },
+    "copyright": "© {year} Mandara Fitness. All rights reserved."
   }
 }

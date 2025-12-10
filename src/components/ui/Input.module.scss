@@ -1,0 +1,239 @@
+@use '@/styles/variables' as *;
+@use '@/styles/mixins' as *;
+
+.inputWrapper {
+  @include flex-column;
+  gap: $space-2;
+  width: 100%;
+}
+
+.label {
+  font-size: $text-sm;
+  font-weight: $font-medium;
+  color: $text-primary;
+  cursor: pointer;
+
+  .required {
+    color: $secondary;
+    margin-left: $space-1;
+  }
+}
+
+.inputContainer {
+  position: relative;
+  width: 100%;
+}
+
+.input {
+  width: 100%;
+  padding: $space-3 $space-4;
+  font-size: $text-base;
+  font-family: inherit;
+  color: $text-primary;
+  background: $white;
+  border: 2px solid $gray-300;
+  border-radius: $radius-lg;
+  outline: none;
+  @include transition(all);
+
+  &::placeholder {
+    color: $gray-500;
+  }
+
+  &:hover:not(:disabled):not(:focus) {
+    border-color: $gray-400;
+  }
+
+  &:focus {
+    border-color: $primary;
+    box-shadow: 0 0 0 3px rgba($primary, 0.1);
+  }
+
+  &:disabled {
+    background: $gray-100;
+    color: $gray-500;
+    cursor: not-allowed;
+    border-color: $gray-300;
+  }
+
+  &.error {
+    border-color: $secondary;
+
+    &:focus {
+      box-shadow: 0 0 0 3px rgba($secondary, 0.1);
+    }
+  }
+
+  &.success {
+    border-color: $success;
+
+    &:focus {
+      box-shadow: 0 0 0 3px rgba($success, 0.1);
+    }
+  }
+
+  // Input with left icon
+  &.hasLeftIcon {
+    padding-left: $space-10;
+  }
+
+  // Input with right icon
+  &.hasRightIcon {
+    padding-right: $space-10;
+  }
+}
+
+// Icons
+.leftIcon,
+.rightIcon {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  color: $gray-500;
+  @include flex-center;
+  pointer-events: none;
+  @include transition(color);
+
+  svg {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+.leftIcon {
+  left: $space-4;
+}
+
+.rightIcon {
+  right: $space-4;
+  pointer-events: auto;
+  cursor: pointer;
+
+  &:hover {
+    color: $primary;
+  }
+}
+
+// Helper/Error text
+.helperText {
+  font-size: $text-sm;
+  color: $gray-600;
+  @include transition(color);
+
+  &.errorText {
+    color: $secondary;
+    @include flex-start;
+    gap: $space-2;
+
+    svg {
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+    }
+  }
+
+  &.successText {
+    color: $success;
+  }
+}
+
+// Textarea variant
+.textarea {
+  min-height: 120px;
+  resize: vertical;
+  padding: $space-3 $space-4;
+  font-family: inherit;
+  line-height: $leading-relaxed;
+}
+
+// Size variants
+.sm {
+  .input {
+    padding: $space-2 $space-3;
+    font-size: $text-sm;
+
+    &.hasLeftIcon {
+      padding-left: $space-8;
+    }
+
+    &.hasRightIcon {
+      padding-right: $space-8;
+    }
+  }
+
+  .leftIcon {
+    left: $space-3;
+
+    svg {
+      width: 16px;
+      height: 16px;
+    }
+  }
+
+  .rightIcon {
+    right: $space-3;
+
+    svg {
+      width: 16px;
+      height: 16px;
+    }
+  }
+}
+
+.lg {
+  .input {
+    padding: $space-4 $space-5;
+    font-size: $text-lg;
+
+    &.hasLeftIcon {
+      padding-left: $space-12;
+    }
+
+    &.hasRightIcon {
+      padding-right: $space-12;
+    }
+  }
+
+  .leftIcon {
+    left: $space-5;
+
+    svg {
+      width: 24px;
+      height: 24px;
+    }
+  }
+
+  .rightIcon {
+    right: $space-5;
+
+    svg {
+      width: 24px;
+      height: 24px;
+    }
+  }
+}
+
+// Animation for error state
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  10%,
+  30%,
+  50%,
+  70%,
+  90% {
+    transform: translateX(-4px);
+  }
+  20%,
+  40%,
+  60%,
+  80% {
+    transform: translateX(4px);
+  }
+}
+
+.inputContainer.shake {
+  animation: shake 0.4s ease-in-out;
+}

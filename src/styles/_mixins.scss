@@ -1,8 +1,8 @@
 // ============================================
 // MANDARA FITNESS - SCSS MIXINS & UTILITIES
 // ============================================
-
-@use 'variables' as *;
+// NOTE: This file contains only mixins. Variables must be imported separately
+// in component files using: @use '@/styles/variables' as *; @use '@/styles/mixins' as *;
 
 // ============================================
 // RESPONSIVE BREAKPOINTS
