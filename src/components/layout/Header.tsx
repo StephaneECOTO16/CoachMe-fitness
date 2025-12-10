@@ -26,13 +26,37 @@ export default function Header() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const navItems = [
-    { href: '/', label: t('home') },
-    { href: '/coaches', label: t('coaches') },
-    { href: '/about', label: t('about') },
-    { href: '/contact', label: t('contact') },
-  ];
+  // Dynamic navigation based on authentication
+  const getNavItems = () => {
+    const baseItems = [
+      { href: '/', label: t('home') },
+      { href: '/coaches', label: t('coaches') },
+    ];
 
+    if (isAuthenticated) {
+      // When logged in: Home, Coaches, Dashboard, Messages, Contact
+      return [
+        ...baseItems,
+        {
+          href: user?.role === 'ADMIN' ? '/admin/dashboard' :
+                user?.role === 'COACH' ? '/coach/dashboard' :
+                '/dashboard',
+          label: t('dashboard')
+        },
+        { href: '/messages', label: t('messages') },
+        { href: '/contact', label: t('contact') },
+      ];
+    } else {
+      // When logged out: Home, Coaches, About, Contact
+      return [
+        ...baseItems,
+        { href: '/about', label: t('about') },
+        { href: '/contact', label: t('contact') },
+      ];
+    }
+  };
+
+  const navItems = getNavItems();
   const isActive = (href: string) => pathname === href;
 
   return (
@@ -72,18 +96,26 @@ export default function Header() {
             <LanguageToggle />
             {isAuthenticated ? (
               <>
-                <Link href={
-                  user?.role === 'ADMIN' ? '/admin/dashboard' :
-                  user?.role === 'COACH' ? '/coach/dashboard' :
-                  '/dashboard'
-                }>
-                  <Button variant="outline" size="sm">
-                    {t('dashboard')}
-                  </Button>
-                </Link>
-                <Button variant="outline" size="sm" onClick={logout}>
-                  {t('logout')}
-                </Button>
+                {/* User Avatar with Dropdown */}
+                <div className={styles.userMenu}>
+                  <button className={styles.avatarButton} type="button">
+                    <div className={styles.avatar}>
+                      {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
+                    </div>
+                  </button>
+                  {/* Dropdown menu */}
+                  <div className={styles.dropdown}>
+                    <Link href="/profile" className={styles.dropdownItem}>
+                      {t('profile')}
+                    </Link>
+                    <Link href="/settings" className={styles.dropdownItem}>
+                      {t('settings')}
+                    </Link>
+                    <button onClick={logout} className={styles.dropdownItem} type="button">
+                      {t('logout')}
+                    </button>
+                  </div>
+                </div>
               </>
             ) : (
               <Link href="/login">
