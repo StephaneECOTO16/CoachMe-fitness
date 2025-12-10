@@ -49,6 +49,8 @@
     "registerButton": "Create Account",
     "loggingIn": "Signing in...",
     "registering": "Creating account...",
+    "loginSuccess": "Login successful! Redirecting...",
+    "registerSuccess": "Account created successfully! Redirecting...",
     "acceptTerms": "I accept the",
     "termsConditions": "Terms and Conditions"
   },

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { Link, usePathname } from '@/i18n/routing';
+import { useAuth } from '@/contexts/AuthContext';
 import { cn } from '@/lib/utils';
 import LanguageToggle from '../ui/LanguageToggle';
 import Button from '../ui/Button';
@@ -14,6 +15,7 @@ export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const t = useTranslations('nav');
   const pathname = usePathname();
+  const { isAuthenticated, user, logout } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -68,11 +70,28 @@ export default function Header() {
           {/* Actions */}
           <div className={styles.actions}>
             <LanguageToggle />
-            <Link href="/login">
-              <Button variant="outline" size="sm">
-                {t('login')}
-              </Button>
-            </Link>
+            {isAuthenticated ? (
+              <>
+                <Link href={
+                  user?.role === 'ADMIN' ? '/admin/dashboard' :
+                  user?.role === 'COACH' ? '/coach/dashboard' :
+                  '/dashboard'
+                }>
+                  <Button variant="outline" size="sm">
+                    {t('dashboard')}
+                  </Button>
+                </Link>
+                <Button variant="outline" size="sm" onClick={logout}>
+                  {t('logout')}
+                </Button>
+              </>
+            ) : (
+              <Link href="/login">
+                <Button variant="outline" size="sm">
+                  {t('login')}
+                </Button>
+              </Link>
+            )}
 
             {/* Mobile Menu Button */}
             <button

@@ -49,6 +49,8 @@
     "registerButton": "Créer un Compte",
     "loggingIn": "Connexion...",
     "registering": "Création du compte...",
+    "loginSuccess": "Connexion réussie! Redirection...",
+    "registerSuccess": "Compte créé avec succès! Redirection...",
     "acceptTerms": "J'accepte les",
     "termsConditions": "Conditions Générales"
   },

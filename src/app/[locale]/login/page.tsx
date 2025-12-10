@@ -8,6 +8,8 @@ import { useTranslations } from 'next-intl';
 import { Link, useRouter } from '@/i18n/routing';
 import Input from '@/components/ui/Input';
 import Button from '@/components/ui/Button';
+import PublicRoute from '@/components/auth/PublicRoute';
+import { useAuth } from '@/contexts/AuthContext';
 import { cn } from '@/lib/utils';
 import { loginSchema, type LoginInput } from '@/lib/schemas';
 import styles from './page.module.css';
@@ -15,6 +17,7 @@ import styles from './page.module.css';
 export default function LoginPage() {
   const t = useTranslations('auth');
   const router = useRouter();
+  const { login } = useAuth();
   const [apiError, setApiError] = useState('');
   const [success, setSuccess] = useState(false);
 
@@ -53,15 +56,15 @@ export default function LoginPage() {
         throw new Error(result.error || 'Login failed');
       }
 
-      // Store token
+      // Use auth context to login
       if (result.token) {
-        localStorage.setItem('token', result.token);
+        login(result.token);
       }
 
       // Show success message briefly
       setSuccess(true);
 
-      // Redirect to dashboard
+      // Auth context will handle redirect based on user role
       setTimeout(() => {
         router.push('/dashboard');
       }, 500);
@@ -71,7 +74,8 @@ export default function LoginPage() {
   };
 
   return (
-    <div className={styles.container}>
+    <PublicRoute>
+      <div className={styles.container}>
       <div className={styles.card}>
         <div className={styles.header}>
           <div className={styles.logo}>
@@ -199,5 +203,6 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
+    </PublicRoute>
   );
 }
