@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslations } from 'next-intl';
@@ -73,7 +74,15 @@ export default function LoginPage() {
     <div className={styles.container}>
       <div className={styles.card}>
         <div className={styles.header}>
-          <div className={styles.logo}>Mandara Fitness</div>
+          <div className={styles.logo}>
+            <Image
+              src="/logo.jpeg"
+              alt="CoachMe by Ecotofitness"
+              width={240}
+              height={53}
+              priority
+            />
+          </div>
           <h1 className={styles.title}>{t('loginTitle')}</h1>
           <p className={styles.subtitle}>{t('loginSubtitle')}</p>
         </div>
@@ -158,7 +167,8 @@ export default function LoginPage() {
           </Button>
         </form>
 
-        <div className={styles.divider}>
+        {/* Social Auth - Commented out for MVP */}
+        {/* <div className={styles.divider}>
           <span>{t('or')}</span>
         </div>
 
@@ -179,7 +189,7 @@ export default function LoginPage() {
             </svg>
             Continue with Facebook
           </button>
-        </div>
+        </div> */}
 
         <div className={styles.footer}>
           <p>

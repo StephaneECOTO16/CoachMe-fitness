@@ -1,6 +1,6 @@
 {
   "common": {
-    "appName": "Mandara Fitness",
+    "appName": "CoachMe",
     "loading": "Loading...",
     "error": "Error",
     "success": "Success",
@@ -32,7 +32,7 @@
   "auth": {
     "loginTitle": "Welcome Back",
     "loginSubtitle": "Sign in to your account",
-    "registerTitle": "Join Mandara Fitness",
+    "registerTitle": "Join CoachMe",
     "registerSubtitle": "Start your fitness journey today",
     "email": "Email",
     "password": "Password",
@@ -48,7 +48,9 @@
     "loginButton": "Sign In",
     "registerButton": "Create Account",
     "loggingIn": "Signing in...",
-    "registering": "Creating account..."
+    "registering": "Creating account...",
+    "acceptTerms": "I accept the",
+    "termsConditions": "Terms and Conditions"
   },
   "home": {
     "hero": {
@@ -58,7 +60,7 @@
       "ctaSecondary": "Become a Coach"
     },
     "features": {
-      "title": "Why Choose Mandara Fitness",
+      "title": "Why Choose CoachMe",
       "certifiedCoaches": {
         "title": "Certified Coaches",
         "description": "All coaches are verified and certified professionals"
@@ -220,6 +222,6 @@
       "terms": "Terms of Service",
       "cookies": "Cookie Policy"
     },
-    "copyright": "© {year} Mandara Fitness. All rights reserved."
+    "copyright": "© {year} CoachMe. All rights reserved."
   }
 }

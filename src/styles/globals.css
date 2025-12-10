@@ -1,16 +1,16 @@
 /* ============================================
-   MANDARA FITNESS - GLOBAL STYLES & CSS VARIABLES
+   COACHME BY ECOTOFITNESS - GLOBAL STYLES & CSS VARIABLES
    ============================================ */
 
 /* CSS Custom Properties (Variables) */
 :root {
-  /* Brand Colors */
-  --primary: #3138ac;
-  --primary-light: #4a52c4;
-  --primary-dark: #252d8a;
-  --secondary: #be222a;
-  --secondary-light: #d63940;
-  --secondary-dark: #9a1b22;
+  /* Brand Colors - Green & White Theme */
+  --primary: #00A650;
+  --primary-light: #00C263;
+  --primary-dark: #008A43;
+  --secondary: #005C2D;
+  --secondary-light: #007538;
+  --secondary-dark: #004524;
 
   /* Neutral Colors */
   --white: #ffffff;

@@ -3,15 +3,14 @@ import { NextIntlClientProvider } from 'next-intl';
 import { getMessages } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import { routing } from '@/i18n/routing';
-import Header from '@/components/layout/Header';
-import Footer from '@/components/layout/Footer';
+import LayoutWrapper from '@/components/layout/LayoutWrapper';
 import '@/styles/globals.css';
 
 export const metadata: Metadata = {
-  title: 'Mandara Fitness - Transform Your Fitness Journey',
+  title: 'CoachMe by Ecotofitness - Transform Your Fitness Journey',
   description:
     'Connect with certified fitness coaches who will guide you to achieve your goals. Find personal trainers, yoga instructors, and wellness coaches.',
-  keywords: 'fitness, personal training, coaching, wellness, health',
+  keywords: 'fitness, personal training, coaching, wellness, health, CoachMe, Ecotofitness',
 };
 
 export function generateStaticParams() {
@@ -40,11 +39,7 @@ export default async function LocaleLayout({
     <html lang={locale}>
       <body>
         <NextIntlClientProvider messages={messages}>
-          <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-            <Header />
-            <main style={{ flex: 1 }}>{children}</main>
-            <Footer />
-          </div>
+          <LayoutWrapper>{children}</LayoutWrapper>
         </NextIntlClientProvider>
       </body>
     </html>

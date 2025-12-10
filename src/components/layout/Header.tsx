@@ -1,10 +1,12 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { Link, usePathname } from '@/i18n/routing';
 import { cn } from '@/lib/utils';
 import LanguageToggle from '../ui/LanguageToggle';
+import Button from '../ui/Button';
 import styles from './Header.module.css';
 
 export default function Header() {
@@ -37,7 +39,14 @@ export default function Header() {
         <nav className={styles.nav}>
           {/* Logo */}
           <Link href="/" className={styles.logo}>
-            <span className={styles.logoText}>Mandara Fitness</span>
+            <Image
+              src="/logo.jpeg"
+              alt="CoachMe by Ecotofitness"
+              width={180}
+              height={40}
+              priority
+              className={styles.logoImage}
+            />
           </Link>
 
           {/* Desktop Nav Links */}
@@ -59,6 +68,11 @@ export default function Header() {
           {/* Actions */}
           <div className={styles.actions}>
             <LanguageToggle />
+            <Link href="/login">
+              <Button variant="outline" size="sm">
+                {t('login')}
+              </Button>
+            </Link>
 
             {/* Mobile Menu Button */}
             <button
