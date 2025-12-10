@@ -1,28 +1,38 @@
 'use client';
 
 import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslations } from 'next-intl';
 import { Link, useRouter } from '@/i18n/routing';
 import Input from '@/components/ui/Input';
 import Button from '@/components/ui/Button';
 import { cn } from '@/lib/utils';
+import { loginSchema, type LoginInput } from '@/lib/schemas';
 import styles from './page.module.css';
 
 export default function LoginPage() {
   const t = useTranslations('auth');
   const router = useRouter();
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-    rememberMe: false,
+  const [apiError, setApiError] = useState('');
+  const [success, setSuccess] = useState(false);
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<LoginInput>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: '',
+      password: '',
+      rememberMe: false,
+    },
   });
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-    setIsLoading(true);
+  const onSubmit = async (data: LoginInput) => {
+    setApiError('');
+    setSuccess(false);
 
     try {
       const response = await fetch('/api/auth/login', {
@@ -31,35 +41,32 @@ export default function LoginPage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          email: formData.email,
-          password: formData.password,
+          email: data.email,
+          password: data.password,
         }),
       });
 
-      const data = await response.json();
+      const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Login failed');
+        throw new Error(result.error || 'Login failed');
       }
 
       // Store token
-      localStorage.setItem('token', data.token);
+      if (result.token) {
+        localStorage.setItem('token', result.token);
+      }
+
+      // Show success message briefly
+      setSuccess(true);
 
       // Redirect to dashboard
-      router.push('/dashboard');
+      setTimeout(() => {
+        router.push('/dashboard');
+      }, 500);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
-    } finally {
-      setIsLoading(false);
+      setApiError(err instanceof Error ? err.message : 'An error occurred');
     }
-  };
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value, type, checked } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : value,
-    }));
   };
 
   return (
@@ -71,22 +78,26 @@ export default function LoginPage() {
           <p className={styles.subtitle}>{t('loginSubtitle')}</p>
         </div>
 
-        {error && (
+        {apiError && (
           <div className={cn(styles.alert, styles.error)} role="alert">
-            {error}
+            {apiError}
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className={styles.form}>
+        {success && (
+          <div className={cn(styles.alert, styles.success)} role="alert">
+            {t('loginSuccess')}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit(onSubmit)} className={styles.form}>
           <div className={styles.inputGroup}>
             <Input
               type="email"
-              name="email"
               label={t('email')}
               placeholder="name@example.com"
-              value={formData.email}
-              onChange={handleChange}
-              required
+              error={errors.email?.message}
+              {...register('email')}
               leftIcon={
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -101,12 +112,10 @@ export default function LoginPage() {
 
             <Input
               type="password"
-              name="password"
               label={t('password')}
               placeholder="••••••••"
-              value={formData.password}
-              onChange={handleChange}
-              required
+              error={errors.password?.message}
+              {...register('password')}
               leftIcon={
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -128,9 +137,7 @@ export default function LoginPage() {
               <input
                 type="checkbox"
                 id="rememberMe"
-                name="rememberMe"
-                checked={formData.rememberMe}
-                onChange={handleChange}
+                {...register('rememberMe')}
               />
               <label htmlFor="rememberMe">{t('rememberMe')}</label>
             </div>
@@ -144,10 +151,10 @@ export default function LoginPage() {
             variant="primary"
             size="lg"
             fullWidth
-            loading={isLoading}
+            loading={isSubmitting}
             className={styles.submitButton}
           >
-            {isLoading ? t('loggingIn') : t('loginButton')}
+            {isSubmitting ? t('loggingIn') : t('loginButton')}
           </Button>
         </form>
 

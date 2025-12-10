@@ -1,62 +1,40 @@
 'use client';
 
 import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslations } from 'next-intl';
 import { Link, useRouter } from '@/i18n/routing';
 import Input from '@/components/ui/Input';
 import Button from '@/components/ui/Button';
 import { cn } from '@/lib/utils';
+import { registerSchema, type RegisterInput } from '@/lib/schemas';
 import styles from '../login/page.module.css';
 
 export default function RegisterPage() {
   const t = useTranslations('auth');
   const router = useRouter();
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [formData, setFormData] = useState({
-    fullName: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
+  const [apiError, setApiError] = useState('');
+  const [success, setSuccess] = useState(false);
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<RegisterInput>({
+    resolver: zodResolver(registerSchema),
+    defaultValues: {
+      name: '',
+      email: '',
+      password: '',
+      confirmPassword: '',
+      termsAccepted: false,
+    },
   });
-  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
-  const validateForm = () => {
-    const errors: Record<string, string> = {};
-
-    if (!formData.fullName.trim()) {
-      errors.fullName = 'Full name is required';
-    }
-
-    if (!formData.email.trim()) {
-      errors.email = 'Email is required';
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      errors.email = 'Please enter a valid email';
-    }
-
-    if (!formData.password) {
-      errors.password = 'Password is required';
-    } else if (formData.password.length < 8) {
-      errors.password = 'Password must be at least 8 characters';
-    }
-
-    if (formData.password !== formData.confirmPassword) {
-      errors.confirmPassword = 'Passwords do not match';
-    }
-
-    setFieldErrors(errors);
-    return Object.keys(errors).length === 0;
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-
-    if (!validateForm()) {
-      return;
-    }
-
-    setIsLoading(true);
+  const onSubmit = async (data: RegisterInput) => {
+    setApiError('');
+    setSuccess(false);
 
     try {
       const response = await fetch('/api/auth/register', {
@@ -65,43 +43,32 @@ export default function RegisterPage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          name: formData.fullName,
-          email: formData.email,
-          password: formData.password,
+          name: data.name,
+          email: data.email,
+          password: data.password,
         }),
       });
 
-      const data = await response.json();
+      const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Registration failed');
+        throw new Error(result.error || 'Registration failed');
       }
 
       // Store token
-      localStorage.setItem('token', data.token);
+      if (result.token) {
+        localStorage.setItem('token', result.token);
+      }
+
+      // Show success message briefly
+      setSuccess(true);
 
       // Redirect to dashboard
-      router.push('/dashboard');
+      setTimeout(() => {
+        router.push('/dashboard');
+      }, 500);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-    // Clear field error when user starts typing
-    if (fieldErrors[name]) {
-      setFieldErrors((prev) => {
-        const newErrors = { ...prev };
-        delete newErrors[name];
-        return newErrors;
-      });
+      setApiError(err instanceof Error ? err.message : 'An error occurred');
     }
   };
 
@@ -114,23 +81,26 @@ export default function RegisterPage() {
           <p className={styles.subtitle}>{t('registerSubtitle')}</p>
         </div>
 
-        {error && (
+        {apiError && (
           <div className={cn(styles.alert, styles.error)} role="alert">
-            {error}
+            {apiError}
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className={styles.form}>
+        {success && (
+          <div className={cn(styles.alert, styles.success)} role="alert">
+            {t('registerSuccess')}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit(onSubmit)} className={styles.form}>
           <div className={styles.inputGroup}>
             <Input
               type="text"
-              name="fullName"
               label={t('fullName')}
               placeholder="John Doe"
-              value={formData.fullName}
-              onChange={handleChange}
-              error={fieldErrors.fullName}
-              required
+              error={errors.name?.message}
+              {...register('name')}
               leftIcon={
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -144,13 +114,10 @@ export default function RegisterPage() {
 
             <Input
               type="email"
-              name="email"
               label={t('email')}
               placeholder="name@example.com"
-              value={formData.email}
-              onChange={handleChange}
-              error={fieldErrors.email}
-              required
+              error={errors.email?.message}
+              {...register('email')}
               leftIcon={
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -165,14 +132,11 @@ export default function RegisterPage() {
 
             <Input
               type="password"
-              name="password"
               label={t('password')}
               placeholder="••••••••"
-              value={formData.password}
-              onChange={handleChange}
-              error={fieldErrors.password}
-              helperText={!fieldErrors.password ? 'At least 8 characters' : undefined}
-              required
+              error={errors.password?.message}
+              helperText={!errors.password ? 'Must contain uppercase, lowercase, and number' : undefined}
+              {...register('password')}
               leftIcon={
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -190,13 +154,10 @@ export default function RegisterPage() {
 
             <Input
               type="password"
-              name="confirmPassword"
               label={t('confirmPassword')}
               placeholder="••••••••"
-              value={formData.confirmPassword}
-              onChange={handleChange}
-              error={fieldErrors.confirmPassword}
-              required
+              error={errors.confirmPassword?.message}
+              {...register('confirmPassword')}
               leftIcon={
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -213,15 +174,36 @@ export default function RegisterPage() {
             />
           </div>
 
+          <div className={styles.rememberForgot}>
+            <div className={styles.rememberMe}>
+              <input
+                type="checkbox"
+                id="termsAccepted"
+                {...register('termsAccepted')}
+              />
+              <label htmlFor="termsAccepted">
+                {t('acceptTerms')}{' '}
+                <Link href="/terms" className={styles.forgotPassword}>
+                  {t('termsConditions')}
+                </Link>
+              </label>
+            </div>
+            {errors.termsAccepted && (
+              <span className={cn(styles.helperText, styles.errorText)}>
+                {errors.termsAccepted.message}
+              </span>
+            )}
+          </div>
+
           <Button
             type="submit"
             variant="primary"
             size="lg"
             fullWidth
-            loading={isLoading}
+            loading={isSubmitting}
             className={styles.submitButton}
           >
-            {isLoading ? t('registering') : t('registerButton')}
+            {isSubmitting ? t('registering') : t('registerButton')}
           </Button>
         </form>
 
