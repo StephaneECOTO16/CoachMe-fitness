@@ -53,7 +53,25 @@
     "loginSuccess": "Login successful! Redirecting...",
     "registerSuccess": "Account created successfully! Redirecting...",
     "acceptTerms": "I accept the",
-    "termsConditions": "Terms and Conditions"
+    "termsConditions": "Terms and Conditions",
+    "accountType": "Account Type",
+    "lookingForCoach": "I'm looking for a coach",
+    "imACoach": "I'm a fitness coach",
+    "additionalInfo": "Additional Information (Optional)",
+    "ageRange": "Age Range",
+    "selectAgeRange": "Select age range",
+    "heightCm": "Height (cm)",
+    "weightKg": "Weight (kg)",
+    "fitnessGoals": "Fitness Goals",
+    "fitnessGoalsPlaceholder": "e.g., Weight loss, muscle gain, general fitness...",
+    "coachInformation": "Coach Information",
+    "disciplineRequired": "Discipline *",
+    "selectDiscipline": "Select your discipline",
+    "bioOptional": "Bio (Optional)",
+    "bioCoachPlaceholder": "Tell us about your coaching experience and philosophy...",
+    "portfolioOptional": "Portfolio/Website (Optional)",
+    "coachPendingNotice": "Your coach account will be pending approval. You'll be able to access your dashboard, but clients won't see your profile until an admin approves your application.",
+    "passwordRequirement": "Must contain uppercase, lowercase, and number"
   },
   "home": {
     "hero": {
@@ -138,7 +156,7 @@
       "rejectedStatus": "Your application was not approved"
     }
   },
-  "prospect": {
+  "client": {
     "onboarding": {
       "title": "Complete Your Profile",
       "subtitle": "Help us personalize your experience",
@@ -166,24 +184,188 @@
     "offline": "Offline",
     "typing": "typing..."
   },
+  "profile": {
+    "title": "My Profile",
+    "loading": "Loading profile...",
+    "notFound": "Profile Not Found",
+    "unableToLoad": "Unable to load your profile data.",
+    "editProfile": "Edit Profile",
+    "accountInformation": "Account Information",
+    "coachProfile": "Coach Profile",
+    "fitnessProfile": "Fitness Profile",
+    "name": "Name",
+    "email": "Email",
+    "role": "Role",
+    "memberSince": "Member Since",
+    "discipline": "Discipline",
+    "status": "Status",
+    "bio": "Bio",
+    "portfolio": "Portfolio",
+    "ageRange": "Age Range",
+    "height": "Height",
+    "weight": "Weight",
+    "fitnessGoals": "Fitness Goals",
+    "notSet": "Not set",
+    "editModal": {
+      "title": "Edit Profile",
+      "basicInfo": "Basic Information",
+      "coachInfo": "Coach Profile",
+      "fitnessInfo": "Fitness Profile",
+      "nameLabel": "Name",
+      "namePlaceholder": "Your name",
+      "disciplineLabel": "Discipline",
+      "disciplinePlaceholder": "Select discipline",
+      "bioLabel": "Bio",
+      "bioPlaceholder": "Tell clients about yourself...",
+      "portfolioLabel": "Portfolio URL",
+      "portfolioPlaceholder": "https://your-portfolio.com",
+      "ageRangeLabel": "Age Range",
+      "ageRangePlaceholder": "Select age range",
+      "heightLabel": "Height (cm)",
+      "heightPlaceholder": "170",
+      "weightLabel": "Weight (kg)",
+      "weightPlaceholder": "70",
+      "goalsLabel": "Fitness Goals",
+      "goalsPlaceholder": "What are your fitness goals?",
+      "saving": "Saving...",
+      "saveBasicInfo": "Save Basic Info",
+      "saveCoachProfile": "Save Coach Profile",
+      "saveFitnessProfile": "Save Fitness Profile",
+      "updateSuccess": "Profile updated successfully!",
+      "updateError": "Failed to update profile. Please try again."
+    }
+  },
   "admin": {
     "dashboard": {
       "title": "Admin Dashboard",
+      "welcome": "Welcome back, {name}! Manage users, review coaches, and monitor platform activity.",
+      "platformStats": "Platform Statistics",
       "pendingCoaches": "Pending Coach Applications",
       "totalUsers": "Total Users",
+      "totalClients": "Clients",
       "totalCoaches": "Total Coaches",
-      "activeChats": "Active Chats"
+      "approvedCoaches": "Approved Coaches",
+      "pendingReviews": "Pending Reviews",
+      "activeChats": "Active Chats",
+      "viewAllCoaches": "View All Coaches",
+      "allCaughtUp": "All Caught Up!",
+      "noPendingApplications": "There are no pending coach applications to review at this time.",
+      "applied": "Applied",
+      "reviewApplication": "Review Application",
+      "loading": "Loading dashboard...",
+      "quickActions": "Quick Actions",
+      "manageCoaches": {
+        "title": "Manage Coaches",
+        "description": "Review, approve, or reject coach applications"
+      },
+      "viewAllUsers": {
+        "title": "View All Users",
+        "description": "Browse and manage all platform users"
+      },
+      "viewReports": {
+        "title": "View Reports",
+        "description": "Access detailed platform analytics"
+      }
     },
-    "coachReview": {
+    "coaches": {
       "title": "Review Coach Application",
-      "approve": "Approve",
-      "reject": "Reject",
-      "rejectionReason": "Rejection Reason",
-      "rejectionReasonPlaceholder": "Please provide a reason for rejection",
-      "approving": "Approving...",
-      "rejecting": "Rejecting...",
-      "successApproved": "Coach approved successfully",
-      "successRejected": "Coach rejected"
+      "backToDashboard": "Back to Dashboard",
+      "loading": "Loading coach details...",
+      "notFound": "Coach Not Found",
+      "profileNotExist": "This coach profile does not exist.",
+      "backToDashboardButton": "Back to Dashboard",
+      "userId": "User ID",
+      "registered": "Registered",
+      "applied": "Applied",
+      "activeChats": "Active Chats",
+      "bio": "Bio",
+      "portfolio": "Portfolio",
+      "certifications": "Certifications",
+      "certification": "Certification",
+      "viewCertificate": "View Certificate",
+      "gallery": "Gallery",
+      "videos": "Videos",
+      "reviewDecision": "Review Decision",
+      "reasonForRejection": "Reason for Rejection (Optional)",
+      "reasonPlaceholder": "Provide feedback to the coach...",
+      "approveApplication": "Approve Application",
+      "rejectApplication": "Reject Application",
+      "setPending": "Set to Pending",
+      "processing": "Processing...",
+      "confirmApprove": "Are you sure you want to approve this coach application?",
+      "confirmReject": "Are you sure you want to reject this coach application?",
+      "confirmPending": "Are you sure you want to set this application back to pending?",
+      "updateSuccess": "Coach application {status} successfully!",
+      "updateError": "Failed to update coach status. Please try again."
+    }
+  },
+  "coachDashboard": {
+    "title": "Coach Dashboard",
+    "welcome": "Welcome back, {name}!",
+    "subtitle": "Manage your coaching sessions and connect with your clients",
+    "accountPending": {
+      "title": "Account Pending Approval",
+      "message": "Your coach application is currently under review. You'll be notified once an admin approves your profile. In the meantime, you can update your profile information and prepare for your coaching journey!"
+    },
+    "accountRejected": {
+      "title": "Application Not Approved",
+      "message": "Unfortunately, your coach application was not approved. Please contact support for more information or to resubmit your application with updated credentials.",
+      "contactSupport": "Contact Support"
+    },
+    "stats": {
+      "activeClients": "Active Clients",
+      "conversations": "Conversations",
+      "accountStatus": "Account Status"
+    },
+    "yourProfile": "Your Profile",
+    "editProfile": "Edit Profile",
+    "bio": "Bio",
+    "portfolio": "Portfolio",
+    "recentConversations": "Recent Conversations",
+    "viewAll": "View All",
+    "loading": "Loading...",
+    "noConversations": "No Active Conversations",
+    "noConversationsApproved": "You don't have any active conversations yet. Clients will be able to contact you once they find your profile.",
+    "noConversationsPending": "Once your profile is approved, clients will be able to find and contact you.",
+    "quickActions": "Quick Actions",
+    "editProfileAction": {
+      "title": "Edit Profile",
+      "description": "Update your bio, credentials, and portfolio"
+    },
+    "messagesAction": {
+      "title": "Messages",
+      "description": "View and respond to client messages"
+    },
+    "browseCoachesAction": {
+      "title": "Browse Coaches",
+      "description": "See how other coaches present themselves"
+    }
+  },
+  "messages": {
+    "title": "Messages",
+    "subtitleCoach": "Connect with your clients and manage conversations",
+    "subtitleClient": "Chat with your coaches and get personalized guidance",
+    "loading": "Loading conversations...",
+    "noConversations": "No Conversations Yet",
+    "noConversationsCoach": "You don't have any active conversations yet. Clients will be able to contact you through your profile.",
+    "noConversationsClient": "You haven't started any conversations yet. Browse our coaches to find the perfect fit and start chatting!",
+    "browseCoaches": "Browse Coaches",
+    "client": "Client",
+    "message": "message",
+    "messages": "messages",
+    "conversation": {
+      "title": "Conversation",
+      "back": "Back",
+      "loading": "Loading conversation...",
+      "notFound": "Conversation Not Found",
+      "notFoundMessage": "This conversation does not exist or you don't have access to it.",
+      "backToMessages": "Back to Messages",
+      "startConversation": "Start the Conversation",
+      "startMessage": "Send a message to {name} to begin your conversation.",
+      "messagePlaceholder": "Message {name}...",
+      "send": "Send",
+      "sending": "Sending...",
+      "sendError": "Failed to send message. Please try again."
     }
   },
   "errors": {
@@ -194,12 +376,40 @@
     "required": "This field is required",
     "unauthorized": "You are not authorized to perform this action",
     "notFound": "The requested resource was not found",
-    "networkError": "Network error. Please check your connection."
+    "networkError": "Network error. Please check your connection.",
+    "rateLimit": "Too many requests. Please try again later.",
+    "authenticationFailed": "Authentication failed. Please sign in again.",
+    "sessionExpired": "Your session has expired. Please sign in again.",
+    "coachNotFound": "Coach not found or not available",
+    "coachLoadFailed": "Failed to load coach profile. Please try again.",
+    "onlyClientsCanContact": "Only clients can contact coaches. Please register as a client first.",
+    "chatInitFailed": "Failed to initiate chat. Please try again.",
+    "fetchCoachFailed": "Failed to fetch coach details. Please refresh the page.",
+    "updateCoachFailed": "Failed to update coach status. Please try again.",
+    "dashboardLoadFailed": "Failed to load dashboard. Please refresh the page.",
+    "pageError": {
+      "title": "Something went wrong!",
+      "message": "We encountered an unexpected error. Our team has been notified and is working on a fix.",
+      "detailsTitle": "Error Details (Development Only)",
+      "digest": "Digest",
+      "tryAgain": "Try Again",
+      "goHome": "Go Home"
+    },
+    "globalError": {
+      "title": "Critical Error",
+      "message": "A critical error has occurred in the application. Please refresh the page or contact support if the problem persists.",
+      "detailsTitle": "Error Details (Development Only)",
+      "digest": "Digest",
+      "tryAgain": "Try Again",
+      "goHome": "Go Home"
+    }
   },
   "success": {
     "profileUpdated": "Profile updated successfully",
     "messageSent": "Message sent",
-    "applicationSubmitted": "Application submitted successfully"
+    "applicationSubmitted": "Application submitted successfully",
+    "coachApproved": "Coach approved successfully",
+    "coachRejected": "Coach rejected successfully"
   },
   "footer": {
     "description": "Transform your fitness journey with certified coaches who guide you every step of the way.",

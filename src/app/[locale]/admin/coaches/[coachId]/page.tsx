@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Image from 'next/image';
 import { useParams, useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/routing';
@@ -161,7 +162,7 @@ export default function AdminCoachReviewPage() {
         <div className={styles.header}>
           <div className={styles.headerContent}>
             <Link href="/admin/dashboard" className={styles.backButton}>
-              ê Back to Dashboard
+              ÔøΩ Back to Dashboard
             </Link>
             <h1 className={styles.headerTitle}>Review Coach Application</h1>
             <div className={styles.statusBadge}>
@@ -246,7 +247,7 @@ export default function AdminCoachReviewPage() {
               <div className={styles.certificateGrid}>
                 {certificates.map((cert) => (
                   <div key={cert.id} className={styles.certificateCard}>
-                    <div className={styles.certificateIcon}>=‹</div>
+                    <div className={styles.certificateIcon}>=ÔøΩ</div>
                     <div className={styles.certificateInfo}>
                       <h3 className={styles.certificateName}>
                         {cert.description || 'Certification'}
@@ -273,10 +274,13 @@ export default function AdminCoachReviewPage() {
               <div className={styles.imageGrid}>
                 {images.map((image) => (
                   <div key={image.id} className={styles.imageCard}>
-                    <img
+                    <Image
                       src={image.url}
-                      alt={image.description || 'Coach image'}
+                      alt={image.description || 'Coach demonstrating fitness techniques'}
+                      width={400}
+                      height={300}
                       className={styles.image}
+                      style={{ objectFit: 'cover' }}
                     />
                     {image.description && (
                       <p className={styles.imageCaption}>{image.description}</p>
@@ -353,7 +357,7 @@ export default function AdminCoachReviewPage() {
                     onClick={() => handleStatusUpdate('PENDING')}
                     disabled={submitting}
                   >
-                    {submitting ? 'Processing...' : 'Û Set to Pending'}
+                    {submitting ? 'Processing...' : 'ÔøΩ Set to Pending'}
                   </Button>
                 )}
               </div>

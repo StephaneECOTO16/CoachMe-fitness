@@ -66,7 +66,7 @@ export default function Header() {
           {/* Logo */}
           <Link href="/" className={styles.logo}>
             <Image
-              src="/Coach-Me-Logo.svg"
+              src="/CoachMe-Logo.svg"
               alt="CoachMe by Ecotofitness"
               width={180}
               height={40}

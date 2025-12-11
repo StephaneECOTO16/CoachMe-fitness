@@ -9,7 +9,6 @@ interface ErrorProps {
 
 export default function Error({ error, reset }: ErrorProps) {
   useEffect(() => {
-    // Log the error to an error reporting service
     console.error('Application error:', error);
   }, [error]);
 
@@ -35,7 +34,7 @@ export default function Error({ error, reset }: ErrorProps) {
           fontSize: '4rem',
           marginBottom: '1rem',
         }}>
-           
+          !
         </div>
         <h1 style={{
           fontSize: '2rem',
@@ -53,7 +52,7 @@ export default function Error({ error, reset }: ErrorProps) {
         }}>
           We encountered an unexpected error. Our team has been notified and is working on a fix.
         </p>
-        {process.env.NODE_ENV === 'development' && (
+        {process.env.NODE_ENV === 'development' && error.message && (
           <details style={{
             marginBottom: '2rem',
             padding: '1rem',
@@ -85,8 +84,9 @@ export default function Error({ error, reset }: ErrorProps) {
             )}
           </details>
         )}
-        <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
+        <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
           <button
+            type="button"
             onClick={reset}
             style={{
               padding: '0.75rem 1.5rem',

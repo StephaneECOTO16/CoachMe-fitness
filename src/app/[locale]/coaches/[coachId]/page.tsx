@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Image from 'next/image';
 import { useParams, useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/routing';
@@ -34,6 +35,7 @@ export default function CoachProfilePage() {
   const params = useParams();
   const router = useRouter();
   const t = useTranslations('coach.profile');
+  const tErrors = useTranslations('errors');
   const { isAuthenticated, user } = useAuth();
   const [coach, setCoach] = useState<CoachProfile | null>(null);
   const [loading, setLoading] = useState(true);
@@ -52,18 +54,18 @@ export default function CoachProfilePage() {
         if (data.success) {
           setCoach(data.coach);
         } else {
-          setError('Coach not found or not available');
+          setError(tErrors('coachNotFound'));
         }
       } catch (err) {
         console.error('Error fetching coach:', err);
-        setError('Failed to load coach profile');
+        setError(tErrors('coachLoadFailed'));
       } finally {
         setLoading(false);
       }
     };
 
     fetchCoach();
-  }, [coachId]);
+  }, [coachId, tErrors]);
 
   const handleContactCoach = async () => {
     if (!isAuthenticated) {
@@ -72,7 +74,7 @@ export default function CoachProfilePage() {
     }
 
     if (user?.role !== 'PROSPECT') {
-      alert('Only prospects can contact coaches');
+      alert(tErrors('onlyClientsCanContact'));
       return;
     }
 
@@ -95,11 +97,11 @@ export default function CoachProfilePage() {
         // Redirect to messages with the chat
         router.push(`/messages/${data.chat.id}`);
       } else {
-        alert('Failed to initiate chat. Please try again.');
+        alert(tErrors('chatInitFailed'));
       }
     } catch (err) {
       console.error('Error initiating chat:', err);
-      alert('Failed to contact coach. Please try again.');
+      alert(tErrors('chatInitFailed'));
     }
   };
 
@@ -205,10 +207,13 @@ export default function CoachProfilePage() {
             <div className={styles.imageGrid}>
               {images.map((image) => (
                 <div key={image.id} className={styles.imageCard}>
-                  <img
+                  <Image
                     src={image.url}
-                    alt={image.description || 'Coach image'}
+                    alt={image.description || 'Coach demonstrating fitness techniques'}
+                    width={400}
+                    height={300}
                     className={styles.image}
+                    style={{ objectFit: 'cover' }}
                   />
                   {image.description && (
                     <p className={styles.imageCaption}>{image.description}</p>
