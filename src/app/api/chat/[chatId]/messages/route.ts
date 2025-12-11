@@ -42,6 +42,9 @@ export async function POST(req: Request, { params }: { params: { chatId: string 
                 senderId: payload.userId,
                 content: content.trim(),
             },
+            include: {
+                sender: { select: { id: true, name: true, email: true, role: true } }
+            }
         });
 
         // TODO: Broadcast via Pusher to real-time subscribers

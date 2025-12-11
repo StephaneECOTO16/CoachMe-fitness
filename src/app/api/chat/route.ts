@@ -77,7 +77,10 @@ export async function GET(req: Request) {
             }
             chats = await prisma.chat.findMany({
                 where: { coachId: coachProfile.id },
-                include: { client: { include: { user: { select: { id: true, name: true, email: true } } } } },
+                include: {
+                    client: { include: { user: { select: { id: true, name: true, email: true } } } },
+                    _count: { select: { messages: true } }
+                },
                 orderBy: { updatedAt: 'desc' },
             });
         } else if (payload.role === 'PROSPECT') {
@@ -87,7 +90,10 @@ export async function GET(req: Request) {
             }
             chats = await prisma.chat.findMany({
                 where: { clientId: clientProfile.id },
-                include: { coach: { include: { user: { select: { id: true, name: true, email: true } } } } },
+                include: {
+                    coach: { include: { user: { select: { id: true, name: true, email: true } } } },
+                    _count: { select: { messages: true } }
+                },
                 orderBy: { updatedAt: 'desc' },
             });
         } else {
