@@ -46,8 +46,8 @@ export const RegisterRequestSchema = z.discriminatedUnion('accountType', [
         name: z.string().min(2, 'Name must be at least 2 characters'),
         // Prospect-specific fields
         ageRange: z.string().optional(),
-        heightCm: z.number().positive('Height must be positive').optional(),
-        weightKg: z.number().positive('Weight must be positive').optional(),
+        heightCm: z.coerce.number().positive('Height must be positive').optional(),
+        weightKg: z.coerce.number().positive('Weight must be positive').optional(),
         goals: z.string().optional(),
     }),
     // COACH registration
@@ -146,8 +146,8 @@ export type RegisterInput = z.infer<typeof registerSchema>;
 export const UpdateProfileRequestSchema = z.object({
     name: z.string().min(2, 'Name must be at least 2 characters').optional(),
     ageRange: z.string().optional(),
-    heightCm: z.number().positive('Height must be positive').optional(),
-    weightKg: z.number().positive('Weight must be positive').optional(),
+    heightCm: z.coerce.number().positive('Height must be positive').optional(),
+    weightKg: z.coerce.number().positive('Weight must be positive').optional(),
 });
 
 export type UpdateProfileRequest = z.infer<typeof UpdateProfileRequestSchema>;

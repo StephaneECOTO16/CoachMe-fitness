@@ -45,6 +45,7 @@ model ClientProfile {
   ageRange  String?
   heightCm  Int?
   weightKg  Int?
+  goals     String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   chats     Chat[]   @relation("clientChats")
