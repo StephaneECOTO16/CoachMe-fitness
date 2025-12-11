@@ -2,8 +2,20 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { hashPassword } from '@/lib/auth';
 import { parseRequestBody, RegisterRequestSchema } from '@/lib/schemas';
+import { checkRateLimit } from '@/lib/rate-limit';
 
 export async function POST(req: Request) {
+    // Rate limiting: 3 registration attempts per 5 minutes per IP
+    const clientIp = req.headers.get('x-forwarded-for')?.split(',')[0] || req.headers.get('x-real-ip') || 'unknown';
+    const rateLimitKey = `register:${clientIp}`;
+
+    if (!checkRateLimit(rateLimitKey, 3, 300000)) {
+        return NextResponse.json({
+            success: false,
+            error: { code: 'RATE_LIMIT_EXCEEDED', message: 'Too many registration attempts. Please try again later.' }
+        }, { status: 429 });
+    }
+
     // Validate request body using Zod schema
     const { data, error } = await parseRequestBody(req, RegisterRequestSchema);
     if (error) {
