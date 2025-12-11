@@ -282,3 +282,129 @@
     transform: translateY(0);
   }
 }
+
+/* Account Type Selector */
+.accountTypeSelector {
+  display: flex;
+  gap: var(--space-4);
+  margin-bottom: var(--space-2);
+}
+
+.radioOption {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  padding: var(--space-4);
+  border: 2px solid var(--gray-300);
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  transition: all var(--transition-base);
+}
+
+.radioOption:hover {
+  border-color: var(--primary);
+  background: rgba(0, 166, 80, 0.05);
+}
+
+.radioOption input[type="radio"] {
+  margin-right: var(--space-3);
+  cursor: pointer;
+}
+
+.radioOption input[type="radio"]:checked + span {
+  font-weight: var(--font-semibold);
+  color: var(--primary);
+}
+
+.radioOption:has(input[type="radio"]:checked) {
+  border-color: var(--primary);
+  background: rgba(0, 166, 80, 0.1);
+}
+
+/* Form Sections */
+.sectionTitle {
+  font-size: var(--text-lg);
+  font-weight: var(--font-semibold);
+  color: var(--text-primary);
+  margin-bottom: var(--space-4);
+  padding-bottom: var(--space-3);
+  border-bottom: 2px solid var(--gray-200);
+}
+
+.formRow {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-4);
+  margin-bottom: var(--space-4);
+}
+
+@media (min-width: 640px) {
+  .formRow {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.formCol {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+/* Select and Textarea Styles */
+.select {
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  border: 2px solid var(--gray-300);
+  border-radius: var(--radius-lg);
+  font-size: var(--text-base);
+  color: var(--text-primary);
+  background: white;
+  cursor: pointer;
+  transition: all var(--transition-base);
+}
+
+.select:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(0, 166, 80, 0.1);
+}
+
+.select:hover {
+  border-color: var(--primary);
+}
+
+.selectError {
+  border-color: var(--secondary);
+}
+
+.textarea {
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  border: 2px solid var(--gray-300);
+  border-radius: var(--radius-lg);
+  font-size: var(--text-base);
+  color: var(--text-primary);
+  font-family: inherit;
+  resize: vertical;
+  transition: all var(--transition-base);
+}
+
+.textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(0, 166, 80, 0.1);
+}
+
+.textarea:hover {
+  border-color: var(--primary);
+}
+
+.textarea::placeholder {
+  color: var(--text-tertiary);
+}
+
+.alert.info {
+  background: rgba(59, 130, 246, 0.1);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  color: #1e40af;
+}
