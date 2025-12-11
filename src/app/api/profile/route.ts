@@ -24,22 +24,24 @@ export async function GET(req: Request) {
             prospect?: Record<string, unknown>;
         }
 
-        const profile: ProfileResponse = { user: { id: user.id, email: user.email, name: user.name, role: user.role } };
+        const response: any = {
+            user: { id: user.id, email: user.email, name: user.name, role: user.role, createdAt: user.createdAt }
+        };
 
         if (user.role === 'COACH') {
             const coachProfile = await prisma.coachProfile.findUnique({
                 where: { userId: user.id },
                 include: { media: true },
             });
-            profile.coach = coachProfile || undefined;
+            response.profile = coachProfile || undefined;
         } else if (user.role === 'PROSPECT') {
             const clientProfile = await prisma.clientProfile.findUnique({
                 where: { userId: user.id },
             });
-            profile.prospect = clientProfile || undefined;
+            response.profile = clientProfile || undefined;
         }
 
-        return NextResponse.json({ success: true, profile });
+        return NextResponse.json({ success: true, ...response });
     } catch (err: unknown) {
         console.error('[GET /api/profile]', err);
         return NextResponse.json({ success: false, error: { code: 'INTERNAL_ERROR' } }, { status: 500 });
@@ -51,7 +53,7 @@ export async function GET(req: Request) {
  * Update the authenticated user's profile.
  * Updates user name and role-specific profile fields.
  */
-export async function PUT(req: Request) {
+async function updateProfile(req: Request) {
     const payload = requireAuth(req);
     if (!payload) {
         return NextResponse.json({
@@ -90,35 +92,39 @@ export async function PUT(req: Request) {
             prospect?: Record<string, unknown>;
         }
 
-        const updatedProfile: UpdatedProfileResponse = { user };
+        const response: any = { user };
 
         // Update role-specific profile
         if (user.role === 'COACH') {
             const coachProfile = await prisma.coachProfile.update({
                 where: { userId: user.id },
                 data: {
-                    bio: bio || undefined,
-                    discipline: discipline || undefined,
-                    portfolio: portfolio || undefined,
+                    bio: bio !== undefined ? bio : undefined,
+                    discipline: discipline !== undefined ? discipline : undefined,
+                    portfolio: portfolio !== undefined ? portfolio : undefined,
                 },
                 include: { media: true },
             });
-            updatedProfile.coach = coachProfile;
+            response.profile = coachProfile;
         } else if (user.role === 'PROSPECT') {
             const clientProfile = await prisma.clientProfile.update({
                 where: { userId: user.id },
                 data: {
-                    ageRange: ageRange || undefined,
-                    heightCm: heightCm || undefined,
-                    weightKg: weightKg || undefined,
+                    ageRange: ageRange !== undefined ? ageRange : undefined,
+                    heightCm: heightCm !== undefined ? heightCm : undefined,
+                    weightKg: weightKg !== undefined ? weightKg : undefined,
+                    goals: body.goals !== undefined ? body.goals : undefined,
                 },
             });
-            updatedProfile.prospect = clientProfile;
+            response.profile = clientProfile;
         }
 
-        return NextResponse.json({ success: true, profile: updatedProfile });
+        return NextResponse.json({ success: true, ...response });
     } catch (err: unknown) {
         console.error('[PUT /api/profile]', err);
         return NextResponse.json({ success: false, error: { code: 'INTERNAL_ERROR' } }, { status: 500 });
     }
 }
+
+export const PUT = updateProfile;
+export const PATCH = updateProfile;
