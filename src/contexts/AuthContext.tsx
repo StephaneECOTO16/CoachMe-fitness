@@ -1,11 +1,17 @@
-'use client';
+"use client";
 
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { useRouter } from '@/i18n/routing';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+} from "react";
+import { useRouter } from "@/i18n/routing";
 
 interface User {
   userId: number;
-  role: 'PROSPECT' | 'COACH' | 'ADMIN';
+  role: "PROSPECT" | "COACH" | "ADMIN";
   email?: string;
   name?: string;
 }
@@ -31,13 +37,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Decode JWT token to get user info
   const decodeToken = useCallback((token: string): User | null => {
     try {
-      const base64Url = token.split('.')[1];
-      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const base64Url = token.split(".")[1];
+      const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
       const jsonPayload = decodeURIComponent(
         atob(base64)
-          .split('')
-          .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
-          .join('')
+          .split("")
+          .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
+          .join("")
       );
       const payload = JSON.parse(jsonPayload);
 
@@ -53,14 +59,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         name: payload.name,
       };
     } catch (error) {
-      console.error('Error decoding token:', error);
+      console.error("Error decoding token:", error);
       return null;
     }
   }, []);
 
   // Load token from localStorage on mount
   useEffect(() => {
-    const storedToken = localStorage.getItem('token');
+    const storedToken = localStorage.getItem("token");
     if (storedToken) {
       const userData = decodeToken(storedToken);
       if (userData) {
@@ -68,26 +74,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser(userData);
       } else {
         // Token is invalid or expired
-        localStorage.removeItem('token');
+        localStorage.removeItem("token");
       }
     }
     setIsLoading(false);
   }, [decodeToken]);
 
-  const login = useCallback((newToken: string) => {
-    const userData = decodeToken(newToken);
-    if (userData) {
-      localStorage.setItem('token', newToken);
-      setToken(newToken);
-      setUser(userData);
-    }
-  }, [decodeToken]);
+  const login = useCallback(
+    (newToken: string) => {
+      const userData = decodeToken(newToken);
+      if (userData) {
+        localStorage.setItem("token", newToken);
+        setToken(newToken);
+        setUser(userData);
+      }
+    },
+    [decodeToken]
+  );
 
   const logout = useCallback(() => {
-    localStorage.removeItem('token');
+    localStorage.removeItem("token");
     setToken(null);
     setUser(null);
-    router.push('/login');
+    router.push("/");
   }, [router]);
 
   const hasRole = useCallback(
@@ -113,7 +122,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 export function useAuth() {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 }

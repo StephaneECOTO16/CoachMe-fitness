@@ -1,19 +1,19 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import Image from 'next/image';
-import { useTranslations } from 'next-intl';
-import { Link, usePathname } from '@/i18n/routing';
-import { useAuth } from '@/contexts/AuthContext';
-import { cn } from '@/lib/utils';
-import LanguageToggle from '../ui/LanguageToggle';
-import Button from '../ui/Button';
-import styles from './Header.module.css';
+import { useState, useEffect } from "react";
+import Image from "next/image";
+import { useTranslations } from "next-intl";
+import { Link, usePathname } from "@/i18n/routing";
+import { useAuth } from "@/contexts/AuthContext";
+import { cn } from "@/lib/utils";
+import LanguageToggle from "../ui/LanguageToggle";
+import Button from "../ui/Button";
+import styles from "./Header.module.css";
 
 export default function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const t = useTranslations('nav');
+  const t = useTranslations("nav");
   const pathname = usePathname();
   const { isAuthenticated, user, logout } = useAuth();
 
@@ -22,15 +22,15 @@ export default function Header() {
       setScrolled(window.scrollY > 20);
     };
 
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   // Dynamic navigation based on authentication
   const getNavItems = () => {
     const baseItems = [
-      { href: '/', label: t('home') },
-      { href: '/coaches', label: t('coaches') },
+      { href: "/", label: t("home") },
+      { href: "/coaches", label: t("coaches") },
     ];
 
     if (isAuthenticated) {
@@ -38,20 +38,23 @@ export default function Header() {
       return [
         ...baseItems,
         {
-          href: user?.role === 'ADMIN' ? '/admin/dashboard' :
-                user?.role === 'COACH' ? '/coach/dashboard' :
-                '/dashboard',
-          label: t('dashboard')
+          href:
+            user?.role === "ADMIN"
+              ? "/admin/dashboard"
+              : user?.role === "COACH"
+              ? "/coach/dashboard"
+              : "/dashboard",
+          label: t("dashboard"),
         },
-        { href: '/messages', label: t('messages') },
-        { href: '/contact', label: t('contact') },
+        { href: "/messages", label: t("messages") },
+        { href: "/contact", label: t("contact") },
       ];
     } else {
       // When logged out: Home, Coaches, About, Contact
       return [
         ...baseItems,
-        { href: '/about', label: t('about') },
-        { href: '/contact', label: t('contact') },
+        { href: "/about", label: t("about") },
+        { href: "/contact", label: t("contact") },
       ];
     }
   };
@@ -66,10 +69,10 @@ export default function Header() {
           {/* Logo */}
           <Link href="/" className={styles.logo}>
             <Image
-              src="/CoachMe-Logo.svg"
+              src="/coachMe-logo.png"
               alt="CoachMe by Ecotofitness"
-              width={180}
-              height={40}
+              width={200}
+              height={100}
               priority
               className={styles.logoImage}
             />
@@ -100,19 +103,23 @@ export default function Header() {
                 <div className={styles.userMenu}>
                   <button className={styles.avatarButton} type="button">
                     <div className={styles.avatar}>
-                      {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
+                      {user?.name ? user.name.charAt(0).toUpperCase() : "U"}
                     </div>
                   </button>
                   {/* Dropdown menu */}
                   <div className={styles.dropdown}>
                     <Link href="/profile" className={styles.dropdownItem}>
-                      {t('profile')}
+                      {t("profile")}
                     </Link>
                     <Link href="/settings" className={styles.dropdownItem}>
-                      {t('settings')}
+                      {t("settings")}
                     </Link>
-                    <button onClick={logout} className={styles.dropdownItem} type="button">
-                      {t('logout')}
+                    <button
+                      onClick={logout}
+                      className={styles.dropdownItem}
+                      type="button"
+                    >
+                      {t("logout")}
                     </button>
                   </div>
                 </div>
@@ -120,7 +127,7 @@ export default function Header() {
             ) : (
               <Link href="/login">
                 <Button variant="outline" size="sm">
-                  {t('login')}
+                  {t("login")}
                 </Button>
               </Link>
             )}

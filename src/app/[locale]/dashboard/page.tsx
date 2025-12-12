@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { useTranslations } from 'next-intl';
-import { Link } from '@/i18n/routing';
-import { useAuth } from '@/contexts/AuthContext';
-import ProtectedRoute from '@/components/auth/ProtectedRoute';
-import Button from '@/components/ui/Button';
-import styles from './page.module.css';
+import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/routing";
+import { useAuth } from "@/contexts/AuthContext";
+import ProtectedRoute from "@/components/auth/ProtectedRoute";
+import Button from "@/components/ui/Button";
+import styles from "./page.module.css";
 
 interface Coach {
   id: number;
@@ -45,7 +45,7 @@ interface Chat {
 }
 
 export default function ClientDashboard() {
-  const t = useTranslations('prospect.dashboard');
+  const t = useTranslations("client.dashboard");
   const { user, token } = useAuth();
   const [coaches, setCoaches] = useState<Coach[]>([]);
   const [chats, setChats] = useState<Chat[]>([]);
@@ -57,16 +57,16 @@ export default function ClientDashboard() {
 
       try {
         // Fetch coaches
-        const coachesRes = await fetch('/api/coaches?limit=6');
+        const coachesRes = await fetch("/api/coaches?limit=6");
         const coachesData = await coachesRes.json();
         if (coachesData.success) {
           setCoaches(coachesData.coaches);
         }
 
         // Fetch user's chats
-        const chatsRes = await fetch('/api/chat', {
+        const chatsRes = await fetch("/api/chat", {
           headers: {
-            'Authorization': `Bearer ${token}`,
+            Authorization: `Bearer ${token}`,
           },
         });
         const chatsData = await chatsRes.json();
@@ -74,7 +74,7 @@ export default function ClientDashboard() {
           setChats(chatsData.chats);
         }
       } catch (error) {
-        console.error('Error fetching dashboard data:', error);
+        console.error("Error fetching dashboard data:", error);
       } finally {
         setLoading(false);
       }
@@ -84,12 +84,12 @@ export default function ClientDashboard() {
   }, [token]);
 
   return (
-    <ProtectedRoute allowedRoles={['PROSPECT']}>
+    <ProtectedRoute allowedRoles={["PROSPECT"]}>
       <div className={styles.container}>
         <div className={styles.hero}>
           <div className={styles.heroContent}>
             <h1 className={styles.title}>
-              {t('title')}, {user?.name || 'User'}! 👋
+              {t("title")}, {user?.name || "User"}! 👋
             </h1>
             <p className={styles.subtitle}>
               Ready to continue your fitness journey?
@@ -101,7 +101,7 @@ export default function ClientDashboard() {
           {/* Recent Chats Section */}
           <section className={styles.section}>
             <div className={styles.sectionHeader}>
-              <h2 className={styles.sectionTitle}>{t('recentChats')}</h2>
+              <h2 className={styles.sectionTitle}>{t("recentChats")}</h2>
               <Link href="/messages">
                 <Button variant="outline" size="sm">
                   View All
@@ -120,11 +120,11 @@ export default function ClientDashboard() {
                     className={styles.chatCard}
                   >
                     <div className={styles.chatAvatar}>
-                      {chat.coach.user.name?.[0]?.toUpperCase() || 'C'}
+                      {chat.coach.user.name?.[0]?.toUpperCase() || "C"}
                     </div>
                     <div className={styles.chatInfo}>
                       <h3 className={styles.chatName}>
-                        {chat.coach.user.name || 'Coach'}
+                        {chat.coach.user.name || "Coach"}
                       </h3>
                       <p className={styles.chatDiscipline}>
                         {chat.coach.discipline}
@@ -151,7 +151,7 @@ export default function ClientDashboard() {
           {/* Discover Coaches Section */}
           <section className={styles.section}>
             <div className={styles.sectionHeader}>
-              <h2 className={styles.sectionTitle}>{t('browseCoaches')}</h2>
+              <h2 className={styles.sectionTitle}>{t("browseCoaches")}</h2>
               <Link href="/coaches">
                 <Button variant="outline" size="sm">
                   View All
@@ -170,14 +170,12 @@ export default function ClientDashboard() {
                     className={styles.coachCard}
                   >
                     <div className={styles.coachAvatar}>
-                      {coach.user.name?.[0]?.toUpperCase() || 'C'}
+                      {coach.user.name?.[0]?.toUpperCase() || "C"}
                     </div>
                     <h3 className={styles.coachName}>
-                      {coach.user.name || 'Coach'}
+                      {coach.user.name || "Coach"}
                     </h3>
-                    <p className={styles.coachDiscipline}>
-                      {coach.discipline}
-                    </p>
+                    <p className={styles.coachDiscipline}>{coach.discipline}</p>
                     {coach.bio && (
                       <p className={styles.coachBio}>
                         {coach.bio.length > 80

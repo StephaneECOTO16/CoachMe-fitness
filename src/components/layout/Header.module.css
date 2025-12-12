@@ -1,8 +1,9 @@
 .header {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
+  /* position: fixed; */
+  /* top: 0; */
+  /* left: 0; */
+  /* right: 0; */
+  height: 120px;
   z-index: 1000;
   background: rgba(255, 255, 255, 0.8);
   backdrop-filter: blur(20px);
@@ -18,12 +19,12 @@
 }
 
 .header.scrolled .nav {
-  padding: var(--space-4) 0;
+  padding: var(--space-2) 0;
 }
 
 @media (min-width: 768px) {
   .header.scrolled .nav {
-    padding: var(--space-5) 0;
+    padding: var(--space-2) 0;
   }
 }
 
@@ -50,25 +51,21 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: var(--space-5) 0;
+  padding: var(--space-3) 0;
   transition: padding var(--transition-base);
 }
 
 @media (min-width: 768px) {
   .nav {
-    padding: var(--space-6) 0;
+    padding: 0 var(--space-2);
   }
 }
 
 .logo {
-  display: flex;
+  /* display: flex;
   justify-content: flex-start;
-  align-items: center;
-  gap: var(--space-3);
-  font-size: var(--text-xl);
-  font-weight: var(--font-bold);
-  color: var(--text-primary);
-  text-decoration: none;
+  align-items: center; */
+  /* gap: var(--space-3); */
   transition: transform var(--transition-base);
 }
 
@@ -83,7 +80,7 @@
 
 @media (min-width: 768px) {
   .logoImage {
-    height: 48px;
+    height: 150px;
   }
 }
 
@@ -120,7 +117,7 @@
 }
 
 .navLink::after {
-  content: '';
+  content: "";
   position: absolute;
   bottom: -4px;
   left: 0;
@@ -199,7 +196,7 @@
 
 .mobileMenu {
   position: fixed;
-  top: 80px;
+  top: 60px;
   left: 0;
   right: 0;
   bottom: 0;
@@ -265,16 +262,36 @@
   }
 }
 
-.mobileNavLink:nth-child(1) { animation-delay: 0.05s; }
-.mobileNavLink:nth-child(2) { animation-delay: 0.1s; }
-.mobileNavLink:nth-child(3) { animation-delay: 0.15s; }
-.mobileNavLink:nth-child(4) { animation-delay: 0.2s; }
-.mobileNavLink:nth-child(5) { animation-delay: 0.25s; }
-.mobileNavLink:nth-child(6) { animation-delay: 0.3s; }
-.mobileNavLink:nth-child(7) { animation-delay: 0.35s; }
-.mobileNavLink:nth-child(8) { animation-delay: 0.4s; }
-.mobileNavLink:nth-child(9) { animation-delay: 0.45s; }
-.mobileNavLink:nth-child(10) { animation-delay: 0.5s; }
+.mobileNavLink:nth-child(1) {
+  animation-delay: 0.05s;
+}
+.mobileNavLink:nth-child(2) {
+  animation-delay: 0.1s;
+}
+.mobileNavLink:nth-child(3) {
+  animation-delay: 0.15s;
+}
+.mobileNavLink:nth-child(4) {
+  animation-delay: 0.2s;
+}
+.mobileNavLink:nth-child(5) {
+  animation-delay: 0.25s;
+}
+.mobileNavLink:nth-child(6) {
+  animation-delay: 0.3s;
+}
+.mobileNavLink:nth-child(7) {
+  animation-delay: 0.35s;
+}
+.mobileNavLink:nth-child(8) {
+  animation-delay: 0.4s;
+}
+.mobileNavLink:nth-child(9) {
+  animation-delay: 0.45s;
+}
+.mobileNavLink:nth-child(10) {
+  animation-delay: 0.5s;
+}
 
 /* User Menu & Avatar Styles */
 .userMenu {
