@@ -170,9 +170,25 @@
     },
     "dashboard": {
       "title": "Welcome Back",
+      "welcomeBack": "Welcome back",
+      "greetingMorning": "Good Morning",
+      "greetingAfternoon": "Good Afternoon",
+      "greetingEvening": "Good Evening",
+      "subtitle": "Ready to continue your fitness journey?",
       "myCoaches": "My Coaches",
       "recentChats": "Recent Conversations",
-      "browseCoaches": "Discover New Coaches"
+      "browseCoaches": "Discover New Coaches",
+      "viewAll": "View All",
+      "noConversations": "No active conversations yet. Start by browsing coaches!",
+      "findCoach": "Find a Coach",
+      "quickActions": "Quick Actions",
+      "browseCoachesAction": "Browse Coaches",
+      "browseCoachesDesc": "Find the perfect coach for your goals",
+      "messagesAction": "Messages",
+      "messagesDesc": "Chat with your coaches",
+      "profileAction": "My Profile",
+      "profileDesc": "Update your information",
+      "viewProfile": "View Profile"
     }
   },
   "chat": {
@@ -302,7 +318,10 @@
   },
   "coachDashboard": {
     "title": "Coach Dashboard",
-    "welcome": "Welcome back, {name}!",
+    "welcomeBackCoach": "Welcome back Coach",
+    "greetingMorning": "Good Morning",
+    "greetingAfternoon": "Good Afternoon",
+    "greetingEvening": "Good Evening",
     "subtitle": "Manage your coaching sessions and connect with your clients",
     "accountPending": {
       "title": "Account Pending Approval",
@@ -316,7 +335,10 @@
     "stats": {
       "activeClients": "Active Clients",
       "conversations": "Conversations",
-      "accountStatus": "Account Status"
+      "accountStatus": "Account Status",
+      "statusApproved": "✓ Approved",
+      "statusPending": "⏳ Pending Approval",
+      "statusRejected": "✗ Rejected"
     },
     "yourProfile": "Your Profile",
     "editProfile": "Edit Profile",

@@ -8,18 +8,19 @@ datasource db {
 }
 
 model User {
-  id            Int            @id @default(autoincrement())
-  email         String         @unique
-  password      String
-  role          UserRole       @default(PROSPECT)
-  name          String?
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
-  adminReviews  AdminReview[]
-  clientProfile ClientProfile?
-  coachProfile  CoachProfile?
-  medias        Media[]
-  messagesSent  Message[]      @relation("senderMessages")
+  id                  Int                  @id @default(autoincrement())
+  email               String               @unique
+  password            String
+  role                UserRole             @default(PROSPECT)
+  name                String?
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+  adminReviews        AdminReview[]
+  clientProfile       ClientProfile?
+  coachProfile        CoachProfile?
+  medias              Media[]
+  messagesSent        Message[]            @relation("senderMessages")
+  passwordResetTokens PasswordResetToken[]
 }
 
 model CoachProfile {
@@ -110,6 +111,21 @@ model CommissionLog {
   note      String?
   createdAt DateTime     @default(now())
   coach     CoachProfile @relation(fields: [coachId], references: [id])
+}
+
+/// Stores password reset tokens for secure password recovery.
+/// Tokens expire after 1 hour and are single-use.
+model PasswordResetToken {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  token     String   @unique
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([token])
+  @@index([userId])
 }
 
 enum UserRole {

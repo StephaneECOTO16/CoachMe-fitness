@@ -1,13 +1,14 @@
-'use client';
+"use client";
 
-import { useEffect, useState, useRef } from 'react';
-import { useParams, useRouter } from 'next/navigation';
-import { useTranslations } from 'next-intl';
-import { Link } from '@/i18n/routing';
-import { useAuth } from '@/contexts/AuthContext';
-import ProtectedRoute from '@/components/auth/ProtectedRoute';
-import Button from '@/components/ui/Button';
-import styles from './page.module.css';
+import { useEffect, useState, useRef, useCallback } from "react";
+import { useParams } from "next/navigation";
+import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/routing";
+import { useAuth } from "@/contexts/AuthContext";
+import { usePusher } from "@/contexts/PusherContext";
+import ProtectedRoute from "@/components/auth/ProtectedRoute";
+import Button from "@/components/ui/Button";
+import styles from "./page.module.css";
 
 interface Message {
   id: number;
@@ -51,18 +52,19 @@ interface Chat {
 
 export default function ConversationPage() {
   const params = useParams();
-  const router = useRouter();
-  const t = useTranslations('messages');
+  const t = useTranslations("messages");
   const { user, token } = useAuth();
+  const { subscribeToChat, isConnected } = usePusher();
   const [chat, setChat] = useState<Chat | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
-  const [newMessage, setNewMessage] = useState('');
+  const [newMessage, setNewMessage] = useState("");
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const chatId = params?.chatId as string;
 
+  // Fetch initial chat data and messages
   useEffect(() => {
     const fetchChat = async () => {
       if (!token || !chatId) return;
@@ -70,7 +72,7 @@ export default function ConversationPage() {
       try {
         const response = await fetch(`/api/chat/${chatId}`, {
           headers: {
-            'Authorization': `Bearer ${token}`,
+            Authorization: `Bearer ${token}`,
           },
         });
         const data = await response.json();
@@ -79,10 +81,10 @@ export default function ConversationPage() {
           setChat(data.chat);
           setMessages(data.chat.messages || []);
         } else {
-          console.error('Failed to fetch chat');
+          console.error("Failed to fetch chat");
         }
       } catch (error) {
-        console.error('Error fetching chat:', error);
+        console.error("Error fetching chat:", error);
       } finally {
         setLoading(false);
       }
@@ -91,9 +93,40 @@ export default function ConversationPage() {
     fetchChat();
   }, [token, chatId]);
 
+  /**
+   * Handle incoming real-time messages from Pusher.
+   * Only adds message if it's not already in the list (prevents duplicates from own sends).
+   */
+  const handleIncomingMessage = useCallback((message: Message) => {
+    setMessages((prev) => {
+      // Prevent duplicate messages (e.g., from own send that was already added optimistically)
+      if (prev.some((m) => m.id === message.id)) {
+        return prev;
+      }
+      return [...prev, message];
+    });
+  }, []);
+
+  // Subscribe to real-time messages via Pusher
   useEffect(() => {
-    // Scroll to bottom when messages change
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (!chat || !isConnected) return;
+
+    // Subscribe to the chat channel for real-time updates
+    const unsubscribe = subscribeToChat(
+      parseInt(chatId),
+      chat.coachId,
+      chat.clientId,
+      handleIncomingMessage
+    );
+
+    return () => {
+      unsubscribe();
+    };
+  }, [chat, chatId, isConnected, subscribeToChat, handleIncomingMessage]);
+
+  // Scroll to bottom when messages change
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
   const handleSendMessage = async (e: React.FormEvent) => {
@@ -102,14 +135,14 @@ export default function ConversationPage() {
 
     setSending(true);
     const messageContent = newMessage.trim();
-    setNewMessage(''); // Optimistically clear input
+    setNewMessage(""); // Optimistically clear input
 
     try {
       const response = await fetch(`/api/chat/${chatId}/messages`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           content: messageContent,
@@ -122,12 +155,12 @@ export default function ConversationPage() {
         // Add the new message to the list
         setMessages((prev) => [...prev, data.message]);
       } else {
-        alert('Failed to send message. Please try again.');
+        alert("Failed to send message. Please try again.");
         setNewMessage(messageContent); // Restore message on failure
       }
     } catch (error) {
-      console.error('Error sending message:', error);
-      alert('Failed to send message. Please try again.');
+      console.error("Error sending message:", error);
+      alert("Failed to send message. Please try again.");
       setNewMessage(messageContent); // Restore message on failure
     } finally {
       setSending(false);
@@ -137,18 +170,18 @@ export default function ConversationPage() {
   const getOtherParticipant = () => {
     if (!chat) return null;
 
-    if (user?.role === 'COACH') {
+    if (user?.role === "COACH") {
       return {
-        name: chat.client.user.name || 'Client',
+        name: chat.client.user.name || "Client",
         email: chat.client.user.email,
-        avatar: chat.client.user.name?.[0]?.toUpperCase() || 'C',
-        type: 'Client',
+        avatar: chat.client.user.name?.[0]?.toUpperCase() || "C",
+        type: "Client",
       };
     } else {
       return {
-        name: chat.coach.user.name || 'Coach',
+        name: chat.coach.user.name || "Coach",
         email: chat.coach.user.email,
-        avatar: chat.coach.user.name?.[0]?.toUpperCase() || 'C',
+        avatar: chat.coach.user.name?.[0]?.toUpperCase() || "C",
         type: chat.coach.discipline,
       };
     }
@@ -156,7 +189,7 @@ export default function ConversationPage() {
 
   if (loading) {
     return (
-      <ProtectedRoute allowedRoles={['PROSPECT', 'COACH']}>
+      <ProtectedRoute allowedRoles={["PROSPECT", "COACH"]}>
         <div className={styles.container}>
           <div className={styles.loading}>
             <div className={styles.spinner}></div>
@@ -169,11 +202,13 @@ export default function ConversationPage() {
 
   if (!chat) {
     return (
-      <ProtectedRoute allowedRoles={['PROSPECT', 'COACH']}>
+      <ProtectedRoute allowedRoles={["PROSPECT", "COACH"]}>
         <div className={styles.container}>
           <div className={styles.error}>
             <h2>Conversation Not Found</h2>
-            <p>This conversation does not exist or you don't have access to it.</p>
+            <p>
+              This conversation does not exist or you don't have access to it.
+            </p>
             <Link href="/messages">
               <Button variant="primary">Back to Messages</Button>
             </Link>
@@ -186,7 +221,7 @@ export default function ConversationPage() {
   const participant = getOtherParticipant();
 
   return (
-    <ProtectedRoute allowedRoles={['PROSPECT', 'COACH']}>
+    <ProtectedRoute allowedRoles={["PROSPECT", "COACH"]}>
       <div className={styles.container}>
         {/* Header */}
         <div className={styles.header}>
@@ -214,7 +249,8 @@ export default function ConversationPage() {
                 <div className={styles.emptyIcon}>👋</div>
                 <h3 className={styles.emptyTitle}>Start the Conversation</h3>
                 <p className={styles.emptyText}>
-                  Send a message to {participant?.name} to begin your conversation.
+                  Send a message to {participant?.name} to begin your
+                  conversation.
                 </p>
               </div>
             ) : (
@@ -225,7 +261,9 @@ export default function ConversationPage() {
                     <div
                       key={message.id}
                       className={`${styles.messageWrapper} ${
-                        isOwnMessage ? styles.messageWrapperOwn : styles.messageWrapperOther
+                        isOwnMessage
+                          ? styles.messageWrapperOwn
+                          : styles.messageWrapperOther
                       }`}
                     >
                       {!isOwnMessage && (
@@ -238,13 +276,15 @@ export default function ConversationPage() {
                           isOwnMessage ? styles.messageOwn : styles.messageOther
                         }`}
                       >
-                        <p className={styles.messageContent}>{message.content}</p>
+                        <p className={styles.messageContent}>
+                          {message.content}
+                        </p>
                         <span className={styles.messageTime}>
-                          {new Date(message.createdAt).toLocaleString('en-US', {
-                            month: 'short',
-                            day: 'numeric',
-                            hour: '2-digit',
-                            minute: '2-digit',
+                          {new Date(message.createdAt).toLocaleString("en-US", {
+                            month: "short",
+                            day: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
                           })}
                         </span>
                       </div>
@@ -275,7 +315,7 @@ export default function ConversationPage() {
                 disabled={!newMessage.trim() || sending}
                 className={styles.sendButton}
               >
-                {sending ? 'Sending...' : 'Send'}
+                {sending ? "Sending..." : "Send"}
               </Button>
             </form>
           </div>

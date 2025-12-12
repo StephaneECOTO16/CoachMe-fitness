@@ -6,6 +6,7 @@ import { Bebas_Neue, Source_Sans_3 } from "next/font/google";
 import { routing } from "@/i18n/routing";
 import LayoutWrapper from "@/components/layout/LayoutWrapper";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { PusherProvider } from "@/contexts/PusherContext";
 import "@/styles/globals.css";
 
 // Bebas Neue for headings - bold, athletic, high-energy
@@ -62,7 +63,9 @@ export default async function LocaleLayout({
       <body>
         <NextIntlClientProvider messages={messages}>
           <AuthProvider>
-            <LayoutWrapper>{children}</LayoutWrapper>
+            <PusherProvider>
+              <LayoutWrapper>{children}</LayoutWrapper>
+            </PusherProvider>
           </AuthProvider>
         </NextIntlClientProvider>
       </body>

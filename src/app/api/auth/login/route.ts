@@ -42,8 +42,13 @@ export async function POST(req: Request) {
         }, { status: 401 });
     }
 
-    // Generate JWT token
-    const token = signJwt({ userId: user.id, role: user.role });
+    // Generate JWT token with user info
+    const token = signJwt({
+        userId: user.id,
+        role: user.role,
+        email: user.email,
+        name: user.name
+    });
 
     // Set HTTP-only cookie
     const response = NextResponse.json({

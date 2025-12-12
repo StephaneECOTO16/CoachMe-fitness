@@ -2,10 +2,12 @@
 
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
+import Image from "next/image";
 import { Link } from "@/i18n/routing";
 import { useAuth } from "@/contexts/AuthContext";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import Button from "@/components/ui/Button";
+import { AnimatedName } from "@/components/ui/animated-name";
 import styles from "./page.module.css";
 
 interface Coach {
@@ -87,13 +89,27 @@ export default function ClientDashboard() {
     <ProtectedRoute allowedRoles={["PROSPECT"]}>
       <div className={styles.container}>
         <div className={styles.hero}>
+          {/* Background Image */}
+          <div className={styles.heroBackground}>
+            <Image
+              src="https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?q=80&w=1740&auto=format&fit=crop"
+              alt="Fitness Training"
+              fill
+              className={styles.heroImage}
+              priority
+            />
+            <div className={styles.heroOverlay} />
+          </div>
+
           <div className={styles.heroContent}>
             <h1 className={styles.title}>
-              {t("title")}, {user?.name || "User"}! 👋
+              <AnimatedName
+                prefix={t("welcomeBack")}
+                name={user?.name?.split(" ")[0] || "User"}
+                suffix="! 👋"
+              />
             </h1>
-            <p className={styles.subtitle}>
-              Ready to continue your fitness journey?
-            </p>
+            <p className={styles.subtitle}>{t("subtitle")}</p>
           </div>
         </div>
 
@@ -104,7 +120,7 @@ export default function ClientDashboard() {
               <h2 className={styles.sectionTitle}>{t("recentChats")}</h2>
               <Link href="/messages">
                 <Button variant="outline" size="sm">
-                  View All
+                  {t("viewAll")}
                 </Button>
               </Link>
             </div>
@@ -140,9 +156,9 @@ export default function ClientDashboard() {
               </div>
             ) : (
               <div className={styles.emptyState}>
-                <p>No active conversations yet. Start by browsing coaches!</p>
+                <p>{t("noConversations")}</p>
                 <Link href="/coaches">
-                  <Button variant="primary">Find a Coach</Button>
+                  <Button variant="primary">{t("findCoach")}</Button>
                 </Link>
               </div>
             )}
@@ -154,7 +170,7 @@ export default function ClientDashboard() {
               <h2 className={styles.sectionTitle}>{t("browseCoaches")}</h2>
               <Link href="/coaches">
                 <Button variant="outline" size="sm">
-                  View All
+                  {t("viewAll")}
                 </Button>
               </Link>
             </div>
@@ -184,7 +200,7 @@ export default function ClientDashboard() {
                       </p>
                     )}
                     <Button variant="primary" size="sm" fullWidth>
-                      View Profile
+                      {t("viewProfile")}
                     </Button>
                   </Link>
                 ))}
@@ -194,28 +210,26 @@ export default function ClientDashboard() {
 
           {/* Quick Actions */}
           <section className={styles.section}>
-            <h2 className={styles.sectionTitle}>Quick Actions</h2>
+            <h2 className={styles.sectionTitle}>{t("quickActions")}</h2>
             <div className={styles.quickActions}>
               <Link href="/coaches" className={styles.actionCard}>
                 <div className={styles.actionIcon}>🔍</div>
-                <h3 className={styles.actionTitle}>Browse Coaches</h3>
+                <h3 className={styles.actionTitle}>
+                  {t("browseCoachesAction")}
+                </h3>
                 <p className={styles.actionDescription}>
-                  Find the perfect coach for your goals
+                  {t("browseCoachesDesc")}
                 </p>
               </Link>
               <Link href="/messages" className={styles.actionCard}>
                 <div className={styles.actionIcon}>💬</div>
-                <h3 className={styles.actionTitle}>Messages</h3>
-                <p className={styles.actionDescription}>
-                  Chat with your coaches
-                </p>
+                <h3 className={styles.actionTitle}>{t("messagesAction")}</h3>
+                <p className={styles.actionDescription}>{t("messagesDesc")}</p>
               </Link>
               <Link href="/profile" className={styles.actionCard}>
                 <div className={styles.actionIcon}>⚙️</div>
-                <h3 className={styles.actionTitle}>My Profile</h3>
-                <p className={styles.actionDescription}>
-                  Update your fitness goals
-                </p>
+                <h3 className={styles.actionTitle}>{t("profileAction")}</h3>
+                <p className={styles.actionDescription}>{t("profileDesc")}</p>
               </Link>
             </div>
           </section>

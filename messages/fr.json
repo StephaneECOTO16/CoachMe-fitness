@@ -170,9 +170,25 @@
     },
     "dashboard": {
       "title": "Bon Retour",
+      "welcomeBack": "Bon retour",
+      "greetingMorning": "Bonjour",
+      "greetingAfternoon": "Bon Après-midi",
+      "greetingEvening": "Bonsoir",
+      "subtitle": "Prêt(e) à continuer votre parcours fitness ?",
       "myCoaches": "Mes Coachs",
       "recentChats": "Conversations Récentes",
-      "browseCoaches": "Découvrir de Nouveaux Coachs"
+      "browseCoaches": "Découvrir de Nouveaux Coachs",
+      "viewAll": "Voir Tout",
+      "noConversations": "Aucune conversation active. Commencez par parcourir les coachs !",
+      "findCoach": "Trouver un Coach",
+      "quickActions": "Actions Rapides",
+      "browseCoachesAction": "Parcourir les Coachs",
+      "browseCoachesDesc": "Trouvez le coach parfait pour vos objectifs",
+      "messagesAction": "Messages",
+      "messagesDesc": "Discutez avec vos coachs",
+      "profileAction": "Mon Profil",
+      "profileDesc": "Mettez à jour vos informations",
+      "viewProfile": "Voir le Profil"
     }
   },
   "chat": {
@@ -302,7 +318,10 @@
   },
   "coachDashboard": {
     "title": "Tableau de Bord Coach",
-    "welcome": "Bon retour, {name}!",
+    "welcomeBackCoach": "Bon retour Coach",
+    "greetingMorning": "Bonjour",
+    "greetingAfternoon": "Bon Après-midi",
+    "greetingEvening": "Bonsoir",
     "subtitle": "Gérez vos séances de coaching et connectez-vous avec vos clients",
     "accountPending": {
       "title": "Compte en Attente d'Approbation",
@@ -316,7 +335,10 @@
     "stats": {
       "activeClients": "Clients Actifs",
       "conversations": "Conversations",
-      "accountStatus": "Statut du Compte"
+      "accountStatus": "Statut du Compte",
+      "statusApproved": "✓ Approuvé",
+      "statusPending": "⏳ En Attente d'Approbation",
+      "statusRejected": "✗ Rejeté"
     },
     "yourProfile": "Votre Profil",
     "editProfile": "Modifier le Profil",

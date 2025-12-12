@@ -1,11 +1,13 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { requireAuth } from '@/lib/auth';
+import { broadcastMessage } from '@/lib/pusher';
 
 /**
  * POST /api/chat/[chatId]/messages
  * Send a message in a chat.
  * Only participants (coach or prospect) can send messages.
+ * Broadcasts the message via Pusher for real-time delivery.
  */
 export async function POST(req: Request, { params }: { params: { chatId: string } }) {
     const payload = requireAuth(req);
@@ -35,7 +37,7 @@ export async function POST(req: Request, { params }: { params: { chatId: string 
             return NextResponse.json({ success: false, error: { code: 'FORBIDDEN', message: 'Not a participant in this chat' } }, { status: 403 });
         }
 
-        // Create message
+        // Create message in database
         const message = await prisma.message.create({
             data: {
                 chatId,
@@ -47,10 +49,15 @@ export async function POST(req: Request, { params }: { params: { chatId: string 
             }
         });
 
-        // TODO: Broadcast via Pusher to real-time subscribers
-        // const pusher = require('@/lib/pusher').pusher;
-        // const channel = `private-chat-${chat.coachId}-${chat.clientId}`;
-        // await pusher.trigger(channel, 'message', { message });
+        // Broadcast message via Pusher for real-time delivery
+        // Using coachId and clientId (profile IDs) for consistent channel naming
+        try {
+            await broadcastMessage(chat.coachId, chat.clientId, 'new-message', { message });
+        } catch (pusherError) {
+            // Log but don't fail the request if Pusher broadcast fails
+            // The message is already saved, recipient can still see it on refresh
+            console.error('[POST /api/chat/:chatId/messages] Pusher broadcast error:', pusherError);
+        }
 
         return NextResponse.json({ success: true, message });
     } catch (err: unknown) {
