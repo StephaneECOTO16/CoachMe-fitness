@@ -20,6 +20,7 @@ interface AuthContextType {
   user: User | null;
   token: string | null;
   isLoading: boolean;
+  isLoggingOut: boolean;
   login: (token: string) => void;
   logout: () => void;
   isAuthenticated: boolean;
@@ -32,6 +33,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const router = useRouter();
 
   // Decode JWT token to get user info
@@ -93,6 +95,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   );
 
   const logout = useCallback(() => {
+    setIsLoggingOut(true);
     localStorage.removeItem("token");
     setToken(null);
     setUser(null);
@@ -110,6 +113,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     user,
     token,
     isLoading,
+    isLoggingOut,
     login,
     logout,
     isAuthenticated: !!user && !!token,

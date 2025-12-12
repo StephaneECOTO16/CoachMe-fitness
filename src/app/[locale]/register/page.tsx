@@ -1,24 +1,24 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import Image from 'next/image';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useTranslations } from 'next-intl';
-import { Link, useRouter } from '@/i18n/routing';
-import Input from '@/components/ui/Input';
-import Button from '@/components/ui/Button';
-import { cn } from '@/lib/utils';
-import { registerSchema, type RegisterInput, DISCIPLINES } from '@/lib/schemas';
-import { useAuth } from '@/contexts/AuthContext';
-import PublicRoute from '@/components/auth/PublicRoute';
-import styles from '../login/page.module.css';
+import { useState } from "react";
+import Image from "next/image";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useTranslations } from "next-intl";
+import { Link, useRouter } from "@/i18n/routing";
+import Input from "@/components/ui/Input";
+import Button from "@/components/ui/Button";
+import { cn } from "@/lib/utils";
+import { registerSchema, type RegisterInput, DISCIPLINES } from "@/lib/schemas";
+import { useAuth } from "@/contexts/AuthContext";
+import PublicRoute from "@/components/auth/PublicRoute";
+import styles from "./page.module.css";
 
 export default function RegisterPage() {
-  const t = useTranslations('auth');
+  const t = useTranslations("auth");
   const router = useRouter();
   const { login } = useAuth();
-  const [apiError, setApiError] = useState('');
+  const [apiError, setApiError] = useState("");
   const [success, setSuccess] = useState(false);
 
   const {
@@ -29,28 +29,28 @@ export default function RegisterPage() {
   } = useForm<RegisterInput>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
-      accountType: 'PROSPECT',
-      name: '',
-      email: '',
-      password: '',
-      confirmPassword: '',
+      accountType: "PROSPECT",
+      name: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
       termsAccepted: false,
       // Prospect fields
-      ageRange: '',
-      heightCm: '',
-      weightKg: '',
-      goals: '',
+      ageRange: "",
+      heightCm: "",
+      weightKg: "",
+      goals: "",
       // Coach fields
-      discipline: '',
-      bio: '',
-      portfolio: '',
+      discipline: "",
+      bio: "",
+      portfolio: "",
     },
   });
 
-  const accountType = watch('accountType');
+  const accountType = watch("accountType");
 
   const onSubmit = async (data: RegisterInput) => {
-    setApiError('');
+    setApiError("");
     setSuccess(false);
 
     try {
@@ -62,21 +62,21 @@ export default function RegisterPage() {
         password: data.password,
       };
 
-      if (data.accountType === 'PROSPECT') {
+      if (data.accountType === "PROSPECT") {
         if (data.ageRange) payload.ageRange = data.ageRange;
         if (data.heightCm) payload.heightCm = parseFloat(data.heightCm);
         if (data.weightKg) payload.weightKg = parseFloat(data.weightKg);
         if (data.goals) payload.goals = data.goals;
-      } else if (data.accountType === 'COACH') {
+      } else if (data.accountType === "COACH") {
         payload.discipline = data.discipline;
         if (data.bio) payload.bio = data.bio;
         if (data.portfolio) payload.portfolio = data.portfolio;
       }
 
-      const response = await fetch('/api/auth/register', {
-        method: 'POST',
+      const response = await fetch("/api/auth/register", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(payload),
       });
@@ -84,17 +84,17 @@ export default function RegisterPage() {
       const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(result.error?.message || 'Registration failed');
+        throw new Error(result.error?.message || "Registration failed");
       }
 
       // Show success message briefly
       setSuccess(true);
 
       // Auto-login by fetching token
-      const loginResponse = await fetch('/api/auth/login', {
-        method: 'POST',
+      const loginResponse = await fetch("/api/auth/login", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           email: data.email,
@@ -109,300 +109,271 @@ export default function RegisterPage() {
 
         // Redirect based on account type
         setTimeout(() => {
-          if (data.accountType === 'COACH') {
-            router.push('/coach/dashboard');
+          if (data.accountType === "COACH") {
+            router.push("/coach/dashboard");
           } else {
-            router.push('/dashboard');
+            router.push("/dashboard");
           }
         }, 500);
       } else {
         // If auto-login fails, redirect to login page
         setTimeout(() => {
-          router.push('/login');
+          router.push("/login");
         }, 1500);
       }
     } catch (err) {
-      setApiError(err instanceof Error ? err.message : 'An error occurred');
+      setApiError(err instanceof Error ? err.message : "An error occurred");
     }
   };
 
   return (
     <PublicRoute>
       <div className={styles.container}>
-        <div className={styles.card}>
-          <div className={styles.header}>
-            <div className={styles.logo}>
-              <Image
-                src="/logo.jpeg"
-                alt="CoachMe by Ecotofitness"
-                width={240}
-                height={53}
-                priority
-              />
-            </div>
-            <h1 className={styles.title}>{t('registerTitle')}</h1>
-            <p className={styles.subtitle}>{t('registerSubtitle')}</p>
-          </div>
-
-          {apiError && (
-            <div className={cn(styles.alert, styles.error)} role="alert">
-              {apiError}
-            </div>
-          )}
-
-          {success && (
-            <div className={cn(styles.alert, styles.success)} role="alert">
-              {t('registerSuccess')}
-            </div>
-          )}
-
-          <form onSubmit={handleSubmit(onSubmit)} className={styles.form}>
-            {/* Account Type Selector */}
-            <div className={styles.inputGroup}>
-              <label className={styles.label}>Account Type</label>
-              <div className={styles.accountTypeSelector}>
-                <label className={styles.radioOption}>
-                  <input
-                    type="radio"
-                    value="PROSPECT"
-                    {...register('accountType')}
-                  />
-                  <span>I'm looking for a coach</span>
-                </label>
-                <label className={styles.radioOption}>
-                  <input
-                    type="radio"
-                    value="COACH"
-                    {...register('accountType')}
-                  />
-                  <span>I'm a fitness coach</span>
-                </label>
+        {/* Left Side - Form Section */}
+        <div className={styles.formSection}>
+          <div className={styles.card}>
+            <div className={styles.header}>
+              <div className={styles.logo}>
+                <Image
+                  src="/coachMe-logo.png"
+                  alt="CoachMe by Ecotofitness"
+                  width={400}
+                  height={180}
+                  priority
+                />
               </div>
-              {errors.accountType && (
-                <span className={cn(styles.helperText, styles.errorText)}>
-                  {errors.accountType.message}
-                </span>
-              )}
+              <h1 className={styles.title}>{t("registerTitle")}</h1>
+              <p className={styles.subtitle}>{t("registerSubtitle")}</p>
             </div>
 
-            {/* Common Fields */}
-            <div className={styles.inputGroup}>
-              <Input
-                type="text"
-                label={t('fullName')}
-                placeholder="John Doe"
-                error={errors.name?.message}
-                {...register('name')}
-                leftIcon={
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                  >
-                    <path d="M10 8a3 3 0 100-6 3 3 0 000 6zM3.465 14.493a1.23 1.23 0 00.41 1.412A9.957 9.957 0 0010 18c2.31 0 4.438-.784 6.131-2.1.43-.333.604-.903.408-1.41a7.002 7.002 0 00-13.074.003z" />
-                  </svg>
-                }
-              />
-
-              <Input
-                type="email"
-                label={t('email')}
-                placeholder="name@example.com"
-                error={errors.email?.message}
-                {...register('email')}
-                leftIcon={
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                  >
-                    <path d="M3 4a2 2 0 00-2 2v1.161l8.441 4.221a1.25 1.25 0 001.118 0L19 7.162V6a2 2 0 00-2-2H3z" />
-                    <path d="M19 8.839l-7.77 3.885a2.75 2.75 0 01-2.46 0L1 8.839V14a2 2 0 002 2h14a2 2 0 002-2V8.839z" />
-                  </svg>
-                }
-              />
-
-              <Input
-                type="password"
-                label={t('password')}
-                placeholder="••••••••"
-                error={errors.password?.message}
-                helperText={!errors.password ? 'Must contain uppercase, lowercase, and number' : undefined}
-                {...register('password')}
-                leftIcon={
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M10 1a4.5 4.5 0 00-4.5 4.5V9H5a2 2 0 00-2 2v6a2 2 0 002 2h10a2 2 0 002-2v-6a2 2 0 00-2-2h-.5V5.5A4.5 4.5 0 0010 1zm3 8V5.5a3 3 0 10-6 0V9h6z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                }
-              />
-
-              <Input
-                type="password"
-                label={t('confirmPassword')}
-                placeholder="••••••••"
-                error={errors.confirmPassword?.message}
-                {...register('confirmPassword')}
-                leftIcon={
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M10 1a4.5 4.5 0 00-4.5 4.5V9H5a2 2 0 00-2 2v6a2 2 0 002 2h10a2 2 0 002-2v-6a2 2 0 00-2-2h-.5V5.5A4.5 4.5 0 0010 1zm3 8V5.5a3 3 0 10-6 0V9h6z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                }
-              />
-            </div>
-
-            {/* Conditional Fields - PROSPECT */}
-            {accountType === 'PROSPECT' && (
-              <div className={styles.inputGroup}>
-                <h3 className={styles.sectionTitle}>Additional Information (Optional)</h3>
-
-                <div className={styles.formRow}>
-                  <div className={styles.formCol}>
-                    <label className={styles.label}>Age Range</label>
-                    <select className={styles.select} {...register('ageRange')}>
-                      <option value="">Select age range</option>
-                      <option value="18-25">18-25</option>
-                      <option value="26-35">26-35</option>
-                      <option value="36-45">36-45</option>
-                      <option value="46-55">46-55</option>
-                      <option value="56+">56+</option>
-                    </select>
-                  </div>
-
-                  <div className={styles.formCol}>
-                    <Input
-                      type="number"
-                      label="Height (cm)"
-                      placeholder="170"
-                      error={errors.heightCm?.message}
-                      {...register('heightCm')}
-                    />
-                  </div>
-                </div>
-
-                <div className={styles.formRow}>
-                  <div className={styles.formCol}>
-                    <Input
-                      type="number"
-                      label="Weight (kg)"
-                      placeholder="70"
-                      error={errors.weightKg?.message}
-                      {...register('weightKg')}
-                    />
-                  </div>
-
-                  <div className={styles.formCol}>
-                    <label className={styles.label}>Fitness Goals</label>
-                    <textarea
-                      className={styles.textarea}
-                      placeholder="e.g., Weight loss, muscle gain, general fitness..."
-                      rows={3}
-                      {...register('goals')}
-                    />
-                  </div>
-                </div>
+            {apiError && (
+              <div className={cn(styles.alert, styles.error)} role="alert">
+                {apiError}
               </div>
             )}
 
-            {/* Conditional Fields - COACH */}
-            {accountType === 'COACH' && (
+            {success && (
+              <div className={cn(styles.alert, styles.success)} role="alert">
+                {t("registerSuccess")}
+              </div>
+            )}
+
+            <form onSubmit={handleSubmit(onSubmit)} className={styles.form}>
+              {/* Account Type Selector */}
               <div className={styles.inputGroup}>
-                <h3 className={styles.sectionTitle}>Coach Information</h3>
-
-                <div className={styles.formCol}>
-                  <label className={styles.label}>Discipline *</label>
-                  <select
-                    className={cn(styles.select, errors.discipline && styles.selectError)}
-                    {...register('discipline')}
-                  >
-                    <option value="">Select your discipline</option>
-                    {DISCIPLINES.map((discipline) => (
-                      <option key={discipline} value={discipline}>
-                        {discipline}
-                      </option>
-                    ))}
-                  </select>
-                  {errors.discipline && (
-                    <span className={cn(styles.helperText, styles.errorText)}>
-                      {errors.discipline.message}
-                    </span>
-                  )}
+                <label className={styles.label}>{t("accountType")}</label>
+                <div className={styles.accountTypeSelector}>
+                  <label className={styles.radioOption}>
+                    <input
+                      type="radio"
+                      value="PROSPECT"
+                      {...register("accountType")}
+                    />
+                    <span>{t("lookingForCoach")}</span>
+                  </label>
+                  <label className={styles.radioOption}>
+                    <input
+                      type="radio"
+                      value="COACH"
+                      {...register("accountType")}
+                    />
+                    <span>{t("imACoach")}</span>
+                  </label>
                 </div>
+                {errors.accountType && (
+                  <span className={cn(styles.helperText, styles.errorText)}>
+                    {errors.accountType.message}
+                  </span>
+                )}
+              </div>
 
-                <div className={styles.formCol}>
-                  <label className={styles.label}>Bio (Optional)</label>
-                  <textarea
-                    className={styles.textarea}
-                    placeholder="Tell us about your coaching experience and philosophy..."
-                    rows={4}
-                    {...register('bio')}
-                  />
-                </div>
-
+              {/* Common Fields */}
+              <div className={styles.inputGroup}>
                 <Input
-                  type="url"
-                  label="Portfolio/Website (Optional)"
-                  placeholder="https://yourwebsite.com"
-                  error={errors.portfolio?.message}
-                  {...register('portfolio')}
+                  type="text"
+                  label={t("fullName")}
+                  placeholder="John Doe"
+                  error={errors.name?.message}
+                  {...register("name")}
                 />
 
-                <div className={cn(styles.alert, styles.info)}>
-                  ℹ️ Your coach account will be pending approval. You'll be able to access your dashboard, but clients won't see your profile until an admin approves your application.
-                </div>
+                <Input
+                  type="email"
+                  label={t("email")}
+                  placeholder="name@example.com"
+                  error={errors.email?.message}
+                  {...register("email")}
+                />
+
+                <Input
+                  type="password"
+                  label={t("password")}
+                  placeholder="••••••••"
+                  error={errors.password?.message}
+                  helperText={
+                    !errors.password ? t("passwordRequirement") : undefined
+                  }
+                  {...register("password")}
+                />
+
+                <Input
+                  type="password"
+                  label={t("confirmPassword")}
+                  placeholder="••••••••"
+                  error={errors.confirmPassword?.message}
+                  {...register("confirmPassword")}
+                />
               </div>
-            )}
 
-          <div className={styles.rememberForgot}>
-            <div className={styles.rememberMe}>
-              <input
-                type="checkbox"
-                id="termsAccepted"
-                {...register('termsAccepted')}
-              />
-              <label htmlFor="termsAccepted">
-                {t('acceptTerms')}{' '}
-                <Link href="/terms" className={styles.forgotPassword}>
-                  {t('termsConditions')}
-                </Link>
-              </label>
-            </div>
-            {errors.termsAccepted && (
-              <span className={cn(styles.helperText, styles.errorText)}>
-                {errors.termsAccepted.message}
-              </span>
-            )}
-          </div>
+              {/* Conditional Fields - PROSPECT */}
+              {accountType === "PROSPECT" && (
+                <div className={styles.inputGroup}>
+                  <h3 className={styles.sectionTitle}>{t("additionalInfo")}</h3>
 
-          <Button
-            type="submit"
-            variant="primary"
-            size="lg"
-            fullWidth
-            loading={isSubmitting}
-            className={styles.submitButton}
-          >
-            {isSubmitting ? t('registering') : t('registerButton')}
-          </Button>
-        </form>
+                  <div className={styles.formRow}>
+                    <div className={styles.formCol}>
+                      <label className={styles.label}>{t("ageRange")}</label>
+                      <select
+                        className={styles.select}
+                        {...register("ageRange")}
+                      >
+                        <option value="">{t("selectAgeRange")}</option>
+                        <option value="18-25">18-25</option>
+                        <option value="26-35">26-35</option>
+                        <option value="36-45">36-45</option>
+                        <option value="46-55">46-55</option>
+                        <option value="56+">56+</option>
+                      </select>
+                    </div>
 
-        {/* Social Auth - Commented out for MVP */}
-        {/* <div className={styles.divider}>
+                    <div className={styles.formCol}>
+                      <Input
+                        type="number"
+                        label={t("heightCm")}
+                        placeholder="170"
+                        error={errors.heightCm?.message}
+                        {...register("heightCm")}
+                      />
+                    </div>
+                  </div>
+
+                  <div className={styles.formRow}>
+                    <div className={styles.formCol}>
+                      <Input
+                        type="number"
+                        label={t("weightKg")}
+                        placeholder="70"
+                        error={errors.weightKg?.message}
+                        {...register("weightKg")}
+                      />
+                    </div>
+
+                    <div className={styles.formCol}>
+                      <label className={styles.label}>
+                        {t("fitnessGoals")}
+                      </label>
+                      <textarea
+                        className={styles.textarea}
+                        placeholder={t("fitnessGoalsPlaceholder")}
+                        rows={2}
+                        {...register("goals")}
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Conditional Fields - COACH */}
+              {accountType === "COACH" && (
+                <div className={styles.inputGroup}>
+                  <h3 className={styles.sectionTitle}>
+                    {t("coachInformation")}
+                  </h3>
+
+                  <div className={styles.formCol}>
+                    <label className={styles.label}>
+                      {t("disciplineRequired")}
+                    </label>
+                    <select
+                      className={cn(
+                        styles.select,
+                        errors.discipline && styles.selectError
+                      )}
+                      {...register("discipline")}
+                    >
+                      <option value="">{t("selectDiscipline")}</option>
+                      {DISCIPLINES.map((discipline) => (
+                        <option key={discipline} value={discipline}>
+                          {discipline}
+                        </option>
+                      ))}
+                    </select>
+                    {errors.discipline && (
+                      <span className={cn(styles.helperText, styles.errorText)}>
+                        {errors.discipline.message}
+                      </span>
+                    )}
+                  </div>
+
+                  <div className={styles.formCol}>
+                    <label className={styles.label}>{t("bioOptional")}</label>
+                    <textarea
+                      className={styles.textarea}
+                      placeholder={t("bioCoachPlaceholder")}
+                      rows={2}
+                      {...register("bio")}
+                    />
+                  </div>
+
+                  <Input
+                    type="url"
+                    label={t("portfolioOptional")}
+                    placeholder="https://yourwebsite.com"
+                    error={errors.portfolio?.message}
+                    {...register("portfolio")}
+                  />
+
+                  <div className={cn(styles.alert, styles.info)}>
+                    ℹ️ {t("coachPendingNotice")}
+                  </div>
+                </div>
+              )}
+
+              <div className={styles.rememberForgot}>
+                <div className={styles.rememberMe}>
+                  <input
+                    type="checkbox"
+                    id="termsAccepted"
+                    {...register("termsAccepted")}
+                  />
+                  <label htmlFor="termsAccepted">
+                    {t("acceptTerms")}{" "}
+                    <Link href="/terms" className={styles.forgotPassword}>
+                      {t("termsConditions")}
+                    </Link>
+                  </label>
+                </div>
+                {errors.termsAccepted && (
+                  <span className={cn(styles.helperText, styles.errorText)}>
+                    {errors.termsAccepted.message}
+                  </span>
+                )}
+              </div>
+
+              <Button
+                type="submit"
+                variant="primary"
+                size="lg"
+                fullWidth
+                loading={isSubmitting}
+                className={styles.submitButton}
+              >
+                {isSubmitting ? t("registering") : t("registerButton")}
+              </Button>
+            </form>
+
+            {/* Social Auth - Commented out for MVP */}
+            {/* <div className={styles.divider}>
           <span>{t('or')}</span>
         </div>
 
@@ -425,14 +396,26 @@ export default function RegisterPage() {
           </button>
         </div> */}
 
-        <div className={styles.footer}>
-          <p>
-            {t('hasAccount')}{' '}
-            <Link href="/login">{t('signInHere')}</Link>
-          </p>
+            <div className={styles.footer}>
+              <p>
+                {t("hasAccount")} <Link href="/login">{t("signInHere")}</Link>
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Right Side - Image Section */}
+        <div className={styles.imageSection}>
+          <Image
+            src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=1470&auto=format&fit=crop"
+            alt="Fitness Training"
+            fill
+            className={styles.heroImage}
+            priority
+          />
+          <div className={styles.imageOverlay} />
         </div>
       </div>
-    </div>
     </PublicRoute>
   );
 }
