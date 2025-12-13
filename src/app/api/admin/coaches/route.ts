@@ -35,7 +35,7 @@ export async function GET(req: Request) {
                 },
                 _count: {
                     select: {
-                        chats: true,
+                        chatsAsCoach: true,
                         media: true,
                     }
                 }

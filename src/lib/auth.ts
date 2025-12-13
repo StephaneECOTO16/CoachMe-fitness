@@ -1,17 +1,22 @@
-import jwt from 'jsonwebtoken';
+import jwt, { SignOptions } from 'jsonwebtoken';
 import { NextRequest } from 'next/server';
 import bcrypt from 'bcrypt';
 import { cookies } from 'next/headers';
 
 // JWT_SECRET is required in all environments
-const JWT_SECRET = process.env.JWT_SECRET;
-
-if (!JWT_SECRET) {
-    throw new Error('JWT_SECRET environment variable must be set. Please configure it in your .env file.');
+function getJwtSecret(): string {
+    const secret = process.env.JWT_SECRET;
+    if (!secret) {
+        throw new Error('JWT_SECRET environment variable must be set. Please configure it in your .env file.');
+    }
+    return secret;
 }
 
-export function signJwt(payload: object, expiresIn = '7d') {
-    return jwt.sign(payload, JWT_SECRET, { expiresIn });
+const JWT_SECRET = getJwtSecret();
+
+export function signJwt(payload: object, expiresIn: string | number = '7d'): string {
+    const options: SignOptions = { expiresIn };
+    return jwt.sign(payload, JWT_SECRET, options);
 }
 
 export function verifyJwt(token?: string) {

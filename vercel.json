@@ -1,0 +1,20 @@
+{
+  "buildCommand": "prisma generate && next build",
+  "env": {
+    "DATABASE_URL": "@database_url",
+    "JWT_SECRET": "@jwt_secret",
+    "R2_ENDPOINT": "@r2_endpoint",
+    "R2_REGION": "@r2_region",
+    "R2_BUCKET_NAME": "@r2_bucket_name",
+    "R2_ACCESS_KEY_ID": "@r2_access_key_id",
+    "R2_SECRET_ACCESS_KEY": "@r2_secret_access_key",
+    "R2_PUBLIC_URL": "@r2_public_url",
+    "NEXT_PUBLIC_R2_URL": "@r2_public_url",
+    "PUSHER_APP_ID": "@pusher_app_id",
+    "PUSHER_KEY": "@pusher_key",
+    "PUSHER_SECRET": "@pusher_secret",
+    "PUSHER_CLUSTER": "@pusher_cluster",
+    "NEXT_PUBLIC_PUSHER_KEY": "@pusher_key",
+    "NEXT_PUBLIC_PUSHER_CLUSTER": "@pusher_cluster"
+  }
+}

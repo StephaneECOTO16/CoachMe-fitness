@@ -41,6 +41,10 @@ export async function POST(req: Request, { params }: { params: Promise<{ coachId
         return NextResponse.json({ success: false, error }, { status: 400 });
     }
 
+    if (!data) {
+        return NextResponse.json({ success: false, error: { code: "INVALID_REQUEST" } }, { status: 400 });
+    }
+
     const { reason } = data;
 
     try {

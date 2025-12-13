@@ -24,6 +24,10 @@ export async function POST(req: Request) {
         return NextResponse.json({ success: false, error }, { status: 400 });
     }
 
+    if (!data) {
+        return NextResponse.json({ success: false, error: { code: "INVALID_REQUEST" } }, { status: 400 });
+    }
+
     const { coachId } = data;
 
     try {
@@ -68,7 +72,7 @@ export async function GET(req: Request) {
     if (!payload) return NextResponse.json({ success: false, error: { code: 'UNAUTHORIZED' } }, { status: 401 });
 
     try {
-        let chats;
+        let chats: any[] = [];
 
         if (payload.role === 'COACH') {
             const coachProfile = await prisma.coachProfile.findUnique({ where: { userId: payload.userId } });

@@ -8,7 +8,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 import { parseRequestBody } from "@/lib/schemas";
-import bcrypt from "bcryptjs";
+import bcrypt from "bcrypt";
 
 const ResetPasswordSchema = z.object({
   token: z.string().min(1, "Token is required"),
@@ -29,6 +29,10 @@ export async function POST(req: Request) {
   const { data, error } = await parseRequestBody(req, ResetPasswordSchema);
   if (error) {
     return NextResponse.json({ success: false, error }, { status: 400 });
+  }
+
+  if (!data) {
+    return NextResponse.json({ success: false, error: { code: "INVALID_REQUEST" } }, { status: 400 });
   }
 
   const { token, password } = data;
