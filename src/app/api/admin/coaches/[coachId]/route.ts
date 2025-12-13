@@ -37,7 +37,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ coachId:
                     }
                 },
                 media: true,
-                chats: {
+                chatsAsCoach: {
                     include: {
                         client: {
                             include: {

@@ -10,13 +10,7 @@ import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 import { parseRequestBody } from "@/lib/schemas";
 import { randomBytes } from "crypto";
-import { rateLimit } from "@/lib/rate-limit";
-
-// Rate limiter: 3 requests per email per 15 minutes
-const forgotPasswordLimiter = rateLimit({
-  interval: 15 * 60 * 1000, // 15 minutes
-  uniqueTokenPerInterval: 500,
-});
+import { checkRateLimit } from "@/lib/rate-limit";
 
 const ForgotPasswordSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -34,13 +28,18 @@ export async function POST(req: Request) {
     return NextResponse.json({ success: false, error }, { status: 400 });
   }
 
+  if (!data) {
+    return NextResponse.json({ success: false, error: { code: "INVALID_REQUEST" } }, { status: 400 });
+  }
+
   const { email } = data;
   const normalizedEmail = email.toLowerCase().trim();
 
-  // Apply rate limiting per email
-  try {
-    await forgotPasswordLimiter.check(3, normalizedEmail);
-  } catch {
+  // Apply rate limiting: 3 requests per email per 15 minutes
+  const rateLimitKey = `forgot-password:${normalizedEmail}`;
+  const isAllowed = checkRateLimit(rateLimitKey, 3, 15 * 60 * 1000);
+
+  if (!isAllowed) {
     // Still return success to prevent enumeration
     return NextResponse.json({
       success: true,

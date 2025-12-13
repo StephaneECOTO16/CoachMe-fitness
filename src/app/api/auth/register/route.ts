@@ -22,6 +22,10 @@ export async function POST(req: Request) {
         return NextResponse.json({ success: false, error }, { status: 400 });
     }
 
+    if (!data) {
+        return NextResponse.json({ success: false, error: { code: "INVALID_REQUEST" } }, { status: 400 });
+    }
+
     const { email, password, name, accountType } = data;
 
     // Check if user already exists
@@ -54,8 +58,8 @@ export async function POST(req: Request) {
                     data: {
                         userId: newUser.id,
                         ageRange: data.ageRange || null,
-                        heightCm: data.heightCm ? parseInt(data.heightCm as string) : null,
-                        weightKg: data.weightKg ? parseFloat(data.weightKg as string) : null,
+                        heightCm: data.heightCm || null,
+                        weightKg: data.weightKg || null,
                         goals: data.goals || null,
                     }
                 });

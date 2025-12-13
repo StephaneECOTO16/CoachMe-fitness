@@ -19,6 +19,10 @@ export async function POST(req: Request) {
         return NextResponse.json({ success: false, error }, { status: 400 });
     }
 
+    if (!data) {
+        return NextResponse.json({ success: false, error: { code: "INVALID_REQUEST" } }, { status: 400 });
+    }
+
     const { discipline, portfolio, bio } = data;
 
     // Check if coach profile already exists
