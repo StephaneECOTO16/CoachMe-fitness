@@ -5,7 +5,7 @@ import { generatePresignedUrl, getPublicUrl } from '@/lib/aws-s3';
 
 /**
  * POST /api/coach/media/presigned-url
- * Generate a presigned S3 URL for media uploads.
+ * Generate a presigned Cloudflare R2 URL for media uploads.
  * Coach can upload certificates, images, and videos.
  * Only authenticated COACH users can request presigned URLs.
  */

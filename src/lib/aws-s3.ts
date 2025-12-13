@@ -1,24 +1,26 @@
 /**
  * src/lib/aws-s3.ts
- * AWS S3 utilities for presigned URLs and object storage.
+ * Cloudflare R2 / S3-compatible storage utilities for presigned URLs and object storage.
  * Handles secure file uploads for media (certificates, images, videos).
- * Supports both AWS S3 and S3-compatible services (MinIO, Spaces, etc).
+ * Supports Cloudflare R2, AWS S3, and other S3-compatible services (MinIO, Spaces, etc).
  */
 
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
+// Cloudflare R2 configuration
 const s3Client = new S3Client({
-    region: process.env.AWS_S3_REGION || process.env.AWS_REGION || 'us-east-1',
-    ...(process.env.AWS_S3_ENDPOINT && { endpoint: process.env.AWS_S3_ENDPOINT }), // For MinIO/Spaces
+    region: process.env.R2_REGION || 'auto', // R2 uses 'auto' region
+    endpoint: process.env.R2_ENDPOINT, // e.g., https://<account_id>.r2.cloudflarestorage.com
     credentials: {
-        accessKeyId: process.env.AWS_ACCESS_KEY_ID || '',
-        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || '',
+        accessKeyId: process.env.R2_ACCESS_KEY_ID || '',
+        secretAccessKey: process.env.R2_SECRET_ACCESS_KEY || '',
     },
-    forcePathStyle: process.env.AWS_S3_FORCE_PATH_STYLE === 'true' || !!process.env.AWS_S3_ENDPOINT, // Required for MinIO
+    // R2 requires path-style addressing for API operations
+    forcePathStyle: true,
 });
 
-const BUCKET_NAME = process.env.AWS_S3_BUCKET || '';
+const BUCKET_NAME = process.env.R2_BUCKET_NAME || '';
 const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
 
 // Allowed MIME types and their corresponding MediaType enum values
@@ -63,7 +65,7 @@ export async function generatePresignedUrl(
 
     // Validate bucket is configured
     if (!BUCKET_NAME) {
-        throw new Error('AWS_S3_BUCKET not configured');
+        throw new Error('R2_BUCKET_NAME not configured');
     }
 
     // Generate a unique key: /coaches/{coachId}/{timestamp}-{fileName}
@@ -85,19 +87,20 @@ export async function generatePresignedUrl(
 }
 
 /**
- * Get the public URL for a media file stored in S3.
- * Assumes files are public or use CloudFront distribution.
- * @param key - S3 object key
+ * Get the public URL for a media file stored in R2.
+ * Uses R2 public bucket domain (e.g., https://<bucket>.r2.dev or custom domain).
+ * @param key - R2 object key
  * @returns Full URL to the object
  */
 export function getPublicUrl(key: string): string {
-    // If a custom endpoint (MinIO) is configured, use it as the base URL.
-    const endpoint = process.env.AWS_S3_ENDPOINT;
-    if (endpoint) {
-        const base = endpoint.replace(/\/$/, '');
-        return `${base}/${key}`;
+    // Cloudflare R2 public bucket URL (must enable public access on bucket)
+    // You can use either the default R2.dev domain or a custom domain
+    const publicUrl = process.env.R2_PUBLIC_URL; // e.g., https://<bucket>.r2.dev
+
+    if (!publicUrl) {
+        throw new Error('R2_PUBLIC_URL not configured. Please set up a public R2 bucket domain.');
     }
 
-    const cdnUrl = process.env.AWS_S3_CDN_URL || `https://${BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com`;
-    return `${cdnUrl}/${key}`;
+    const base = publicUrl.replace(/\/$/, '');
+    return `${base}/${key}`;
 }

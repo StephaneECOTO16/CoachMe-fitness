@@ -7,7 +7,7 @@ import { cookies } from 'next/headers';
 const JWT_SECRET = process.env.JWT_SECRET;
 
 if (!JWT_SECRET) {
-    throw new Error('JWT_SECRET environment variable must be set. Please configure it in your .env.local file.');
+    throw new Error('JWT_SECRET environment variable must be set. Please configure it in your .env file.');
 }
 
 export function signJwt(payload: object, expiresIn = '7d') {

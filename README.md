@@ -34,8 +34,8 @@ A full-stack fitness platform connecting coaches with clients. Built with Next.j
 
 2. **Configure environment:**
    ```bash
-   cp .env.example .env.local
-   # Edit .env.local with your configuration
+   cp .env.example .env
+   # Edit .env with your configuration
    # IMPORTANT: Set JWT_SECRET to a secure random value!
    ```
 
@@ -176,10 +176,40 @@ See `prisma/schema.prisma` for the complete database schema.
 openssl rand -hex 32
 
 # Copy template and configure
-cp .env.example .env.local
+cp .env.example .env
 ```
 
 See `.env.example` for all available configuration options.
+
+### Storage: Cloudflare R2
+
+This project uses the AWS S3 SDK and supports S3-compatible backends. To migrate from AWS S3 to Cloudflare R2 (low effort), update endpoint and credentials:
+
+Required env vars:
+
+```
+# Bucket configuration
+AWS_S3_BUCKET=<your_bucket_name>
+
+# Cloudflare R2 S3-compatible endpoint and region
+AWS_S3_ENDPOINT=https://<account_id>.r2.cloudflarestorage.com
+AWS_S3_REGION=auto
+AWS_S3_FORCE_PATH_STYLE=true
+
+# R2 Access Keys
+AWS_ACCESS_KEY_ID=<r2_access_key_id>
+AWS_SECRET_ACCESS_KEY=<r2_secret_access_key>
+
+# Optional: Public base URL/CDN for serving media
+# If you enabled public access, set to your bucket public domain
+# e.g. https://<bucket>.r2.dev or a custom domain via Cloudflare
+AWS_S3_CDN_URL=https://<bucket>.r2.dev
+```
+
+Notes:
+- Presigned uploads and object operations continue to work via the S3 SDK.
+- With `AWS_S3_ENDPOINT` set, path-style addressing is used automatically, so public URLs resolve to `https://<account_id>.r2.cloudflarestorage.com/<bucket>/<key>` unless `AWS_S3_CDN_URL` is provided.
+- For public access, prefer setting `AWS_S3_CDN_URL` (e.g., `https://<bucket>.r2.dev`) or a Cloudflare proxied custom domain.
 
 ## Deployment
 

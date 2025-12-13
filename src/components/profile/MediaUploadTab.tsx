@@ -118,7 +118,7 @@ export default function MediaUploadTab() {
       const presignedData = await presignedResponse.json();
       if (!presignedData.success) throw new Error('Failed to get upload URL');
 
-      // Step 2: Upload to S3 with progress tracking
+      // Step 2: Upload to R2 with progress tracking
       await new Promise<void>((resolve, reject) => {
         const xhr = new XMLHttpRequest();
 
@@ -367,7 +367,7 @@ function FileList({
         <div key={file.id} className={showPreview ? styles.gridItem : styles.listItem}>
           {showPreview && file.type === 'IMAGE' && (
             <div className={styles.previewImage}>
-              <img src={`${process.env.NEXT_PUBLIC_S3_URL}/${file.url}`} alt={file.description || 'Image'} />
+              <img src={`${process.env.NEXT_PUBLIC_R2_URL}/${file.url}`} alt={file.description || 'Image'} />
             </div>
           )}
           <div className={styles.fileInfo}>

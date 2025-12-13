@@ -4,7 +4,7 @@ import { requireAuth } from '@/lib/auth';
 
 /**
  * POST /api/coach/media
- * Register a media file in the database after successful S3 upload.
+ * Register a media file in the database after successful R2 upload.
  * Coach calls this endpoint after uploading to presigned URL.
  */
 export async function POST(req: Request) {
@@ -37,7 +37,7 @@ export async function POST(req: Request) {
             data: {
                 coachId: coachProfile.id,
                 ownerId: payload.userId,
-                url: s3Key, // Store S3 key; can be resolved to full URL when needed
+                url: s3Key, // Store R2 key; can be resolved to full URL when needed
                 type,
                 mimeType,
                 sizeBytes: sizeBytes || 0,
