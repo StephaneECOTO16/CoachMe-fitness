@@ -8,7 +8,7 @@ import { requireAuth } from '@/lib/auth';
  */
 export async function DELETE(
     req: Request,
-    { params }: { params: { mediaId: string } }
+    { params }: { params: Promise<{ mediaId: string }> }
 ) {
     const payload = requireAuth(req, ['COACH']);
     if (!payload) {
@@ -19,7 +19,8 @@ export async function DELETE(
     }
 
     try {
-        const mediaId = parseInt(params.mediaId);
+        const { mediaId: mediaIdParam } = await params;
+        const mediaId = parseInt(mediaIdParam);
 
         if (isNaN(mediaId)) {
             return NextResponse.json(

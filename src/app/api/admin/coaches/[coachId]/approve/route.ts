@@ -7,11 +7,12 @@ import { requireAuth } from '@/lib/auth';
  * Admin endpoint to approve a coach profile and make them visible.
  * Creates an AdminReview record for audit trail.
  */
-export async function POST(req: Request, { params }: { params: { coachId: string } }) {
+export async function POST(req: Request, { params }: { params: Promise<{ coachId: string }> }) {
     const payload = requireAuth(req, ['ADMIN']);
     if (!payload) return NextResponse.json({ success: false, error: { code: 'UNAUTHORIZED' } }, { status: 401 });
 
-    const coachId = parseInt(params.coachId);
+    const { coachId: coachIdParam } = await params;
+    const coachId = parseInt(coachIdParam);
     if (isNaN(coachId)) return NextResponse.json({ success: false, error: { code: 'INVALID_INPUT' } }, { status: 400 });
 
     try {

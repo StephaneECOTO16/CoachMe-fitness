@@ -110,13 +110,15 @@ export default function MediaUploadTab() {
         },
         body: JSON.stringify({
           fileName: processedFile.name,
-          fileType: processedFile.type,
-          mediaType: type,
+          mimeType: processedFile.type,
+          fileSize: processedFile.size,
         }),
       });
 
       const presignedData = await presignedResponse.json();
       if (!presignedData.success) throw new Error('Failed to get upload URL');
+
+      const { url: uploadUrl, key } = presignedData.presignedUrl;
 
       // Step 2: Upload to R2 with progress tracking
       await new Promise<void>((resolve, reject) => {
@@ -142,7 +144,7 @@ export default function MediaUploadTab() {
 
         xhr.addEventListener('error', () => reject(new Error('Upload failed')));
 
-        xhr.open('PUT', presignedData.uploadUrl);
+        xhr.open('PUT', uploadUrl);
         xhr.setRequestHeader('Content-Type', processedFile.type);
         xhr.send(processedFile);
       });
@@ -155,7 +157,7 @@ export default function MediaUploadTab() {
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
-          s3Key: presignedData.s3Key,
+          s3Key: key,
           mimeType: processedFile.type,
           sizeBytes: processedFile.size,
           type,

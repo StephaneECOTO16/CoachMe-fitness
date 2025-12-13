@@ -15,7 +15,7 @@ const RejectCoachBodySchema = z.object({
  * Requires a rejection reason in the body.
  * Creates an AdminReview record for audit trail.
  */
-export async function POST(req: Request, { params }: { params: { coachId: string } }) {
+export async function POST(req: Request, { params }: { params: Promise<{ coachId: string }> }) {
     // Validate authentication
     const payload = requireAuth(req, ['ADMIN']);
     if (!payload) {
@@ -26,7 +26,8 @@ export async function POST(req: Request, { params }: { params: { coachId: string
     }
 
     // Validate coach ID parameter
-    const coachId = parseInt(params.coachId);
+    const { coachId: coachIdParam } = await params;
+    const coachId = parseInt(coachIdParam);
     if (isNaN(coachId)) {
         return NextResponse.json({
             success: false,

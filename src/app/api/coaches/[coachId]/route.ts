@@ -1,13 +1,15 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { getPublicUrl } from '@/lib/aws-s3';
 
 /**
  * GET /api/coaches/[coachId]
  * Public endpoint to fetch a specific coach profile.
  * Only shows approved coaches.
  */
-export async function GET(req: Request, { params }: { params: { coachId: string } }) {
-    const coachId = parseInt(params.coachId);
+export async function GET(req: Request, { params }: { params: Promise<{ coachId: string }> }) {
+    const { coachId: coachIdParam } = await params;
+    const coachId = parseInt(coachIdParam);
     if (isNaN(coachId)) return NextResponse.json({ success: false, error: { code: 'INVALID_INPUT' } }, { status: 400 });
 
     try {
@@ -26,7 +28,16 @@ export async function GET(req: Request, { params }: { params: { coachId: string 
             return NextResponse.json({ success: false, error: { code: 'NOT_FOUND' } }, { status: 404 });
         }
 
-        return NextResponse.json({ success: true, coach });
+        // Convert S3 keys to full URLs
+        const coachWithUrls = {
+            ...coach,
+            media: coach.media.map(m => ({
+                ...m,
+                url: getPublicUrl(m.url)
+            }))
+        };
+
+        return NextResponse.json({ success: true, coach: coachWithUrls });
     } catch (err: unknown) {
         console.error('[GET /api/coaches/:coachId]', err);
         return NextResponse.json({ success: false, error: { code: 'INTERNAL_ERROR' } }, { status: 500 });

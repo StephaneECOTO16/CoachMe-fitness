@@ -6,7 +6,7 @@ import { requireAuth } from '@/lib/auth';
  * GET /api/admin/coaches/[coachId]
  * Get detailed information about a specific coach (admin only).
  */
-export async function GET(req: Request, { params }: { params: { coachId: string } }) {
+export async function GET(req: Request, { params }: { params: Promise<{ coachId: string }> }) {
     const payload = requireAuth(req, ['ADMIN']);
     if (!payload) {
         return NextResponse.json({
@@ -15,7 +15,8 @@ export async function GET(req: Request, { params }: { params: { coachId: string 
         }, { status: 401 });
     }
 
-    const coachId = parseInt(params.coachId);
+    const { coachId: coachIdParam } = await params;
+    const coachId = parseInt(coachIdParam);
     if (isNaN(coachId)) {
         return NextResponse.json({
             success: false,
@@ -69,7 +70,7 @@ export async function GET(req: Request, { params }: { params: { coachId: string 
  * PATCH /api/admin/coaches/[coachId]
  * Update coach status (approve/reject) (admin only).
  */
-export async function PATCH(req: Request, { params }: { params: { coachId: string } }) {
+export async function PATCH(req: Request, { params }: { params: Promise<{ coachId: string }> }) {
     const payload = requireAuth(req, ['ADMIN']);
     if (!payload) {
         return NextResponse.json({
@@ -78,7 +79,8 @@ export async function PATCH(req: Request, { params }: { params: { coachId: strin
         }, { status: 401 });
     }
 
-    const coachId = parseInt(params.coachId);
+    const { coachId: coachIdParam } = await params;
+    const coachId = parseInt(coachIdParam);
     if (isNaN(coachId)) {
         return NextResponse.json({
             success: false,
