@@ -68,10 +68,8 @@
 }
 
 .logoText {
-  background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: var(--white);
+  font-weight: var(--font-bold);
 }
 
 .description {
