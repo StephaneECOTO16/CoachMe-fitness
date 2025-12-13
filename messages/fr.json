@@ -72,7 +72,25 @@
     "bioCoachPlaceholder": "Parlez-nous de votre expérience de coaching et de votre philosophie...",
     "portfolioOptional": "Portfolio/Site Web (Optionnel)",
     "coachPendingNotice": "Votre compte coach sera en attente d'approbation. Vous pourrez accéder à votre tableau de bord, mais les clients ne verront pas votre profil tant qu'un administrateur n'aura pas approuvé votre candidature.",
-    "passwordRequirement": "Doit contenir une majuscule, une minuscule et un chiffre"
+    "passwordRequirement": "Doit contenir une majuscule, une minuscule et un chiffre",
+    "backToLogin": "Retour à la connexion",
+    "forgotPasswordTitle": "Mot de passe oublié",
+    "forgotPasswordSubtitle": "Entrez votre email et nous vous enverrons un lien pour réinitialiser votre mot de passe.",
+    "sendResetLink": "Envoyer le lien",
+    "sending": "Envoi en cours...",
+    "resetLinkSent": "Lien envoyé !",
+    "checkEmailInstructions": "Vérifiez votre email pour un lien de réinitialisation. S'il n'apparaît pas dans quelques minutes, vérifiez votre dossier spam.",
+    "rememberPassword": "Vous vous souvenez de votre mot de passe ?",
+    "loginHere": "Connectez-vous ici",
+    "resetPasswordTitle": "Réinitialiser le mot de passe",
+    "resetPasswordSubtitle": "Entrez votre nouveau mot de passe ci-dessous.",
+    "newPassword": "Nouveau mot de passe",
+    "resetPassword": "Réinitialiser",
+    "resetting": "Réinitialisation...",
+    "passwordResetSuccess": "Votre mot de passe a été réinitialisé avec succès !",
+    "redirectingToLogin": "Redirection vers la connexion...",
+    "invalidResetLink": "Ce lien de réinitialisation est invalide ou a expiré.",
+    "requestNewLink": "Demander un nouveau lien"
   },
   "home": {
     "hero": {

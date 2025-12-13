@@ -72,7 +72,25 @@
     "bioCoachPlaceholder": "Tell us about your coaching experience and philosophy...",
     "portfolioOptional": "Portfolio/Website (Optional)",
     "coachPendingNotice": "Your coach account will be pending approval. You'll be able to access your dashboard, but clients won't see your profile until an admin approves your application.",
-    "passwordRequirement": "Must contain uppercase, lowercase, and number"
+    "passwordRequirement": "Must contain uppercase, lowercase, and number",
+    "backToLogin": "Back to Login",
+    "forgotPasswordTitle": "Forgot Password",
+    "forgotPasswordSubtitle": "Enter your email and we'll send you a link to reset your password.",
+    "sendResetLink": "Send Reset Link",
+    "sending": "Sending...",
+    "resetLinkSent": "Reset link sent!",
+    "checkEmailInstructions": "Check your email for a link to reset your password. If it doesn't appear within a few minutes, check your spam folder.",
+    "rememberPassword": "Remember your password?",
+    "loginHere": "Sign in here",
+    "resetPasswordTitle": "Reset Password",
+    "resetPasswordSubtitle": "Enter your new password below.",
+    "newPassword": "New Password",
+    "resetPassword": "Reset Password",
+    "resetting": "Resetting...",
+    "passwordResetSuccess": "Your password has been reset successfully!",
+    "redirectingToLogin": "Redirecting you to login...",
+    "invalidResetLink": "This reset link is invalid or has expired.",
+    "requestNewLink": "Request a new reset link"
   },
   "home": {
     "hero": {
