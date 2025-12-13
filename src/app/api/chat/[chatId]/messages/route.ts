@@ -9,11 +9,12 @@ import { broadcastMessage } from '@/lib/pusher';
  * Only participants (coach or prospect) can send messages.
  * Broadcasts the message via Pusher for real-time delivery.
  */
-export async function POST(req: Request, { params }: { params: { chatId: string } }) {
+export async function POST(req: Request, { params }: { params: Promise<{ chatId: string }> }) {
     const payload = requireAuth(req);
     if (!payload) return NextResponse.json({ success: false, error: { code: 'UNAUTHORIZED' } }, { status: 401 });
 
-    const chatId = parseInt(params.chatId);
+    const { chatId: chatIdParam } = await params;
+    const chatId = parseInt(chatIdParam);
     if (isNaN(chatId)) return NextResponse.json({ success: false, error: { code: 'INVALID_INPUT' } }, { status: 400 });
 
     const { content } = await req.json();
@@ -71,11 +72,12 @@ export async function POST(req: Request, { params }: { params: { chatId: string 
  * Fetch message history for a chat.
  * Paginated for performance.
  */
-export async function GET(req: Request, { params }: { params: { chatId: string } }) {
+export async function GET(req: Request, { params }: { params: Promise<{ chatId: string }> }) {
     const payload = requireAuth(req);
     if (!payload) return NextResponse.json({ success: false, error: { code: 'UNAUTHORIZED' } }, { status: 401 });
 
-    const chatId = parseInt(params.chatId);
+    const { chatId: chatIdParam } = await params;
+    const chatId = parseInt(chatIdParam);
     if (isNaN(chatId)) return NextResponse.json({ success: false, error: { code: 'INVALID_INPUT' } }, { status: 400 });
 
     const url = new URL(req.url);

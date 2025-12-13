@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef, useCallback } from "react";
+import { useEffect, useState, useRef, useCallback, useMemo } from "react";
 import { useParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/routing";
@@ -107,22 +107,25 @@ export default function ConversationPage() {
     });
   }, []);
 
+  // Memoize coach and client IDs to prevent useEffect re-runs
+  const coachId = useMemo(() => chat?.coachId, [chat?.coachId]);
+  const clientId = useMemo(() => chat?.clientId, [chat?.clientId]);
+
   // Subscribe to real-time messages via Pusher
   useEffect(() => {
-    if (!chat || !isConnected) return;
+    if (!coachId || !clientId || !isConnected) return;
 
     // Subscribe to the chat channel for real-time updates
     const unsubscribe = subscribeToChat(
-      parseInt(chatId),
-      chat.coachId,
-      chat.clientId,
+      coachId,
+      clientId,
       handleIncomingMessage
     );
 
     return () => {
       unsubscribe();
     };
-  }, [chat, chatId, isConnected, subscribeToChat, handleIncomingMessage]);
+  }, [coachId, clientId, isConnected, subscribeToChat, handleIncomingMessage]);
 
   // Scroll to bottom when messages change
   useEffect(() => {
@@ -152,8 +155,8 @@ export default function ConversationPage() {
       const data = await response.json();
 
       if (data.success) {
-        // Add the new message to the list
-        setMessages((prev) => [...prev, data.message]);
+        // Don't add here - let Pusher handle it to avoid duplicates
+        // The message will be received via the real-time channel
       } else {
         alert("Failed to send message. Please try again.");
         setNewMessage(messageContent); // Restore message on failure

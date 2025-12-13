@@ -11,10 +11,11 @@ export default function LayoutWrapper({
 }) {
   const pathname = usePathname();
 
-  // Hide header/footer on auth pages
+  // Hide header/footer on auth pages and chat pages
   const isAuthPage = pathname === '/login' || pathname === '/register' || pathname === '/forgot-password';
+  const isChatPage = pathname.startsWith('/messages/');
 
-  if (isAuthPage) {
+  if (isAuthPage || isChatPage) {
     return <>{children}</>;
   }
 

@@ -7,11 +7,12 @@ import { requireAuth } from '@/lib/auth';
  * Fetch a specific chat with its messages and participants.
  * Only participants (coach or prospect) can access.
  */
-export async function GET(req: Request, { params }: { params: { chatId: string } }) {
+export async function GET(req: Request, { params }: { params: Promise<{ chatId: string }> }) {
     const payload = requireAuth(req);
     if (!payload) return NextResponse.json({ success: false, error: { code: 'UNAUTHORIZED' } }, { status: 401 });
 
-    const chatId = parseInt(params.chatId);
+    const { chatId: chatIdParam } = await params;
+    const chatId = parseInt(chatIdParam);
     if (isNaN(chatId)) return NextResponse.json({ success: false, error: { code: 'INVALID_INPUT' } }, { status: 400 });
 
     try {

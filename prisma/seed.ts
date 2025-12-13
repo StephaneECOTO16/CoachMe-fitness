@@ -51,14 +51,14 @@ async function main() {
             data: {
                 email: coachEmail,
                 password: hashedPassword,
-                role: 'PROSPECT',
+                role: 'COACH',
                 name: 'John Coach',
                 coachProfile: {
                     create: {
                         discipline: 'Strength Training',
                         bio: 'Certified strength and conditioning coach with 10+ years experience',
                         portfolio: 'https://johncoach.com',
-                        status: 'PENDING',
+                        status: 'APPROVED',
                     },
                 },
             },
@@ -68,7 +68,7 @@ async function main() {
         });
         console.log(`✅ Created test coach: ${coach.email}`);
         console.log(`   Password: ${coachPassword}`);
-        console.log(`   Status: PENDING (needs admin approval)`);
+        console.log(`   Status: APPROVED`);
     } else {
         console.log('✅ Test coach already exists');
     }

@@ -1,0 +1,14 @@
+Files to fix:
+1. src/app/api/chat/[chatId]/messages/route.ts - 2 functions
+2. src/app/api/chat/[chatId]/route.ts - 1 function  
+3. src/app/api/coach/media/[mediaId]/route.ts - 1 function
+
+Pattern:
+{ params }: { params: { xxx: string } }
+→
+{ params }: { params: Promise<{ xxx: string }> }
+
+const xxx = params.xxx;
+→
+const { xxx: xxxParam } = await params;
+const xxx = xxxParam;

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { requireAuth } from '@/lib/auth';
+import { getPublicUrl } from '@/lib/aws-s3';
 
 /**
  * POST /api/coach/media
@@ -70,7 +71,13 @@ export async function GET(req: Request) {
             orderBy: { createdAt: 'desc' },
         });
 
-        return NextResponse.json({ success: true, media });
+        // Convert S3 keys to full URLs
+        const mediaWithUrls = media.map(m => ({
+            ...m,
+            url: getPublicUrl(m.url)
+        }));
+
+        return NextResponse.json({ success: true, media: mediaWithUrls });
     } catch (err: unknown) {
         console.error('[GET /api/coach/media]', err);
         return NextResponse.json({ success: false, error: { code: 'INTERNAL_ERROR' } }, { status: 500 });

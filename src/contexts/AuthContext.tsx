@@ -10,6 +10,7 @@ import React, {
 import { useRouter } from "@/i18n/routing";
 
 interface User {
+  id: number;
   userId: number;
   role: "PROSPECT" | "COACH" | "ADMIN";
   email?: string;
@@ -55,6 +56,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       return {
+        id: payload.userId,
         userId: payload.userId,
         role: payload.role,
         email: payload.email,

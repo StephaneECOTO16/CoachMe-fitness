@@ -24,7 +24,6 @@ interface PusherContextType {
   isConnected: boolean;
   /** Subscribe to a chat channel and receive messages */
   subscribeToChat: (
-    chatId: number,
     coachProfileId: number,
     clientProfileId: number,
     onMessage: (message: Message) => void
@@ -106,7 +105,6 @@ export function PusherProvider({ children }: { children: React.ReactNode }) {
    */
   const subscribeToChat = useCallback(
     (
-      chatId: number,
       coachProfileId: number,
       clientProfileId: number,
       onMessage: (message: Message) => void
@@ -139,11 +137,6 @@ export function PusherProvider({ children }: { children: React.ReactNode }) {
       // Return unsubscribe function
       return () => {
         channel?.unbind("new-message", eventHandler);
-        // Only unsubscribe if no other handlers
-        if (channel?.callbacks?.count() === 0) {
-          pusher.unsubscribe(channelName);
-          channelsRef.current.delete(channelName);
-        }
       };
     },
     [pusher]
