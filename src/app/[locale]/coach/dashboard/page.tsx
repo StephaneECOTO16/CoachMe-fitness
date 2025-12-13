@@ -3,11 +3,14 @@
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
-import { Link } from "@/i18n/routing";
+import { Link, useRouter } from "@/i18n/routing";
 import { useAuth } from "@/contexts/AuthContext";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import Button from "@/components/ui/Button";
 import { AnimatedName } from "@/components/ui/animated-name";
+import CoachSettingsModal from "@/components/coach/CoachSettingsModal";
+import { motion, AnimatePresence } from "framer-motion";
+import { CheckCircle, AlertCircle, Sparkles } from "lucide-react";
 import styles from "./page.module.css";
 
 interface Chat {
@@ -35,12 +38,39 @@ interface CoachProfile {
   status: "PENDING" | "APPROVED" | "REJECTED";
 }
 
+interface ProfileData {
+  user: {
+    id: number;
+    name: string | null;
+    email: string;
+    role: string;
+    createdAt: string;
+  };
+  profile?: CoachProfile;
+}
+
 export default function CoachDashboard() {
   const t = useTranslations("coachDashboard");
   const { user, token } = useAuth();
+  const router = useRouter();
+  const [profileData, setProfileData] = useState<ProfileData | null>(null);
   const [profile, setProfile] = useState<CoachProfile | null>(null);
   const [chats, setChats] = useState<Chat[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showSettingsModal, setShowSettingsModal] = useState(false);
+  const [showWelcomePrompt, setShowWelcomePrompt] = useState(false);
+  const [hasSeenWelcome, setHasSeenWelcome] = useState(false);
+
+  // Check if profile is complete
+  const isProfileComplete = (profile: CoachProfile | null): boolean => {
+    if (!profile) return false;
+
+    // Profile is complete if it has bio AND portfolio (or at least bio with substantial content)
+    const hasBio = profile.bio && profile.bio.length >= 50;
+    const hasPortfolio = profile.portfolio && profile.portfolio.length > 0;
+
+    return !!(hasBio || hasPortfolio);
+  };
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -53,9 +83,24 @@ export default function CoachDashboard() {
             Authorization: `Bearer ${token}`,
           },
         });
-        const profileData = await profileRes.json();
-        if (profileData.success && profileData.profile) {
-          setProfile(profileData.profile);
+        const profileResponse = await profileRes.json();
+        if (profileResponse.success) {
+          setProfileData(profileResponse);
+          if (profileResponse.profile) {
+            setProfile(profileResponse.profile);
+
+            // Check if this is a new user (created in last 2 minutes)
+            const createdAt = new Date(profileResponse.user.createdAt);
+            const now = new Date();
+            const diffMinutes = (now.getTime() - createdAt.getTime()) / 1000 / 60;
+            const isNewUser = diffMinutes < 2;
+
+            // Show welcome prompt if profile incomplete AND (new user OR hasn't seen it)
+            const welcomeSeen = localStorage.getItem("welcomePromptSeen");
+            if (!isProfileComplete(profileResponse.profile) && (isNewUser || !welcomeSeen)) {
+              setShowWelcomePrompt(true);
+            }
+          }
         }
 
         // Fetch coach's chats
@@ -77,6 +122,43 @@ export default function CoachDashboard() {
 
     fetchDashboardData();
   }, [token]);
+
+  const handleCompleteProfile = () => {
+    setShowWelcomePrompt(false);
+    setShowSettingsModal(true);
+    localStorage.setItem("welcomePromptSeen", "true");
+  };
+
+  const handleSkipWelcome = () => {
+    setShowWelcomePrompt(false);
+    localStorage.setItem("welcomePromptSeen", "true");
+  };
+
+  const handleProfileUpdate = () => {
+    // Refresh profile data after update
+    const fetchProfile = async () => {
+      if (!token) return;
+
+      try {
+        const profileRes = await fetch("/api/profile", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        const profileResponse = await profileRes.json();
+        if (profileResponse.success) {
+          setProfileData(profileResponse);
+          if (profileResponse.profile) {
+            setProfile(profileResponse.profile);
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching profile:", error);
+      }
+    };
+
+    fetchProfile();
+  };
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -133,6 +215,46 @@ export default function CoachDashboard() {
         </div>
 
         <div className={styles.content}>
+          {/* Welcome Prompt for Incomplete Profiles */}
+          <AnimatePresence>
+            {showWelcomePrompt && !isProfileComplete(profile) && (
+              <motion.div
+                initial={{ opacity: 0, y: -20, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -20, scale: 0.95 }}
+                transition={{ type: "spring", duration: 0.5 }}
+                className={styles.welcomePrompt}
+              >
+                <div className={styles.welcomeIcon}>
+                  <Sparkles size={32} />
+                </div>
+                <div className={styles.welcomeContent}>
+                  <h3 className={styles.welcomeTitle}>
+                    {t("profileIncomplete.title")}
+                  </h3>
+                  <p className={styles.welcomeMessage}>
+                    {t("profileIncomplete.message")}
+                  </p>
+                  <div className={styles.welcomeActions}>
+                    <Button
+                      variant="primary"
+                      size="md"
+                      onClick={handleCompleteProfile}
+                    >
+                      {t("profileIncomplete.cta")}
+                    </Button>
+                    <button
+                      onClick={handleSkipWelcome}
+                      className={styles.skipButton}
+                    >
+                      {t("profileIncomplete.skip")}
+                    </button>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
           {/* Approval Status Alert */}
           {profile && profile.status !== "APPROVED" && (
             <div className={styles.alertSection}>
@@ -141,13 +263,10 @@ export default function CoachDashboard() {
                   <div className={styles.alertIcon}>⏳</div>
                   <div className={styles.alertContent}>
                     <h3 className={styles.alertTitle}>
-                      Account Pending Approval
+                      {t("accountPending.title")}
                     </h3>
                     <p className={styles.alertText}>
-                      Your coach application is currently under review. You'll
-                      be notified once an admin approves your profile. In the
-                      meantime, you can update your profile information and
-                      prepare for your coaching journey!
+                      {t("accountPending.message")}
                     </p>
                   </div>
                 </div>
@@ -157,16 +276,14 @@ export default function CoachDashboard() {
                   <div className={styles.alertIcon}>✗</div>
                   <div className={styles.alertContent}>
                     <h3 className={styles.alertTitle}>
-                      Application Not Approved
+                      {t("accountRejected.title")}
                     </h3>
                     <p className={styles.alertText}>
-                      Unfortunately, your coach application was not approved.
-                      Please contact support for more information or to resubmit
-                      your application with updated credentials.
+                      {t("accountRejected.message")}
                     </p>
                     <Link href="/contact">
                       <Button variant="outline" size="sm">
-                        Contact Support
+                        {t("accountRejected.contactSupport")}
                       </Button>
                     </Link>
                   </div>
@@ -182,7 +299,7 @@ export default function CoachDashboard() {
                 <div className={styles.statIcon}>👥</div>
                 <div className={styles.statInfo}>
                   <h3 className={styles.statValue}>{chats.length}</h3>
-                  <p className={styles.statLabel}>Active Clients</p>
+                  <p className={styles.statLabel}>{t("stats.activeClients")}</p>
                 </div>
               </div>
 
@@ -190,7 +307,7 @@ export default function CoachDashboard() {
                 <div className={styles.statIcon}>💬</div>
                 <div className={styles.statInfo}>
                   <h3 className={styles.statValue}>{chats.length}</h3>
-                  <p className={styles.statLabel}>Conversations</p>
+                  <p className={styles.statLabel}>{t("stats.conversations")}</p>
                 </div>
               </div>
 
@@ -202,7 +319,7 @@ export default function CoachDashboard() {
                   <div className={styles.statValue}>
                     {getStatusBadge(profile?.status || "PENDING")}
                   </div>
-                  <p className={styles.statLabel}>Account Status</p>
+                  <p className={styles.statLabel}>{t("stats.accountStatus")}</p>
                 </div>
               </div>
             </div>
@@ -212,12 +329,14 @@ export default function CoachDashboard() {
           {profile && (
             <section className={styles.section}>
               <div className={styles.sectionHeader}>
-                <h2 className={styles.sectionTitle}>Your Profile</h2>
-                <Link href="/profile">
-                  <Button variant="outline" size="sm">
-                    Edit Profile
-                  </Button>
-                </Link>
+                <h2 className={styles.sectionTitle}>{t("yourProfile")}</h2>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowSettingsModal(true)}
+                >
+                  {t("settings")}
+                </Button>
               </div>
 
               <div className={styles.profileCard}>
@@ -238,14 +357,14 @@ export default function CoachDashboard() {
 
                 {profile.bio && (
                   <div className={styles.profileBio}>
-                    <h4 className={styles.bioTitle}>Bio</h4>
+                    <h4 className={styles.bioTitle}>{t("bio")}</h4>
                     <p className={styles.bioText}>{profile.bio}</p>
                   </div>
                 )}
 
                 {profile.portfolio && (
                   <div className={styles.profilePortfolio}>
-                    <h4 className={styles.bioTitle}>Portfolio</h4>
+                    <h4 className={styles.bioTitle}>{t("portfolio")}</h4>
                     <a
                       href={profile.portfolio}
                       target="_blank"
@@ -256,6 +375,22 @@ export default function CoachDashboard() {
                     </a>
                   </div>
                 )}
+
+                {/* Show incomplete profile notice */}
+                {!isProfileComplete(profile) && (
+                  <div className={styles.incompleteNotice}>
+                    <AlertCircle size={16} />
+                    <span>
+                      {t("profileIncomplete.messageShort")}
+                    </span>
+                    <button
+                      onClick={() => setShowSettingsModal(true)}
+                      className={styles.completeLink}
+                    >
+                      Complete now →
+                    </button>
+                  </div>
+                )}
               </div>
             </section>
           )}
@@ -263,18 +398,18 @@ export default function CoachDashboard() {
           {/* Recent Chats Section */}
           <section className={styles.section}>
             <div className={styles.sectionHeader}>
-              <h2 className={styles.sectionTitle}>Recent Conversations</h2>
+              <h2 className={styles.sectionTitle}>{t("recentConversations")}</h2>
               {chats.length > 0 && (
                 <Link href="/messages">
                   <Button variant="outline" size="sm">
-                    View All
+                    {t("viewAll")}
                   </Button>
                 </Link>
               )}
             </div>
 
             {loading ? (
-              <div className={styles.loading}>Loading...</div>
+              <div className={styles.loading}>{t("loading")}</div>
             ) : chats.length > 0 ? (
               <div className={styles.chatList}>
                 {chats.slice(0, 5).map((chat) => (
@@ -305,11 +440,11 @@ export default function CoachDashboard() {
             ) : (
               <div className={styles.emptyState}>
                 <div className={styles.emptyIcon}>💬</div>
-                <h3 className={styles.emptyTitle}>No Active Conversations</h3>
+                <h3 className={styles.emptyTitle}>{t("noConversations")}</h3>
                 <p className={styles.emptyText}>
                   {profile?.status === "APPROVED"
-                    ? "You don't have any active conversations yet. Clients will be able to contact you once they find your profile."
-                    : "Once your profile is approved, clients will be able to find and contact you."}
+                    ? t("noConversationsApproved")
+                    : t("noConversationsPending")}
                 </p>
               </div>
             )}
@@ -317,35 +452,52 @@ export default function CoachDashboard() {
 
           {/* Quick Actions */}
           <section className={styles.section}>
-            <h2 className={styles.sectionTitle}>Quick Actions</h2>
+            <h2 className={styles.sectionTitle}>{t("quickActions")}</h2>
             <div className={styles.quickActions}>
-              <Link href="/profile" className={styles.actionCard}>
+              <button
+                onClick={() => setShowSettingsModal(true)}
+                className={styles.actionCard}
+              >
                 <div className={styles.actionIcon}>👤</div>
-                <h3 className={styles.actionTitle}>Edit Profile</h3>
+                <h3 className={styles.actionTitle}>
+                  {t("editProfileAction.title")}
+                </h3>
                 <p className={styles.actionDescription}>
-                  Update your bio, credentials, and portfolio
+                  {t("editProfileAction.description")}
                 </p>
-              </Link>
+              </button>
 
               <Link href="/messages" className={styles.actionCard}>
                 <div className={styles.actionIcon}>💬</div>
-                <h3 className={styles.actionTitle}>Messages</h3>
+                <h3 className={styles.actionTitle}>
+                  {t("messagesAction.title")}
+                </h3>
                 <p className={styles.actionDescription}>
-                  View and respond to client messages
+                  {t("messagesAction.description")}
                 </p>
               </Link>
 
               <Link href="/coaches" className={styles.actionCard}>
                 <div className={styles.actionIcon}>🔍</div>
-                <h3 className={styles.actionTitle}>Browse Coaches</h3>
+                <h3 className={styles.actionTitle}>
+                  {t("browseCoachesAction.title")}
+                </h3>
                 <p className={styles.actionDescription}>
-                  See how other coaches present themselves
+                  {t("browseCoachesAction.description")}
                 </p>
               </Link>
             </div>
           </section>
         </div>
       </div>
+
+      {/* Settings Modal */}
+      <CoachSettingsModal
+        isOpen={showSettingsModal}
+        onClose={() => setShowSettingsModal(false)}
+        profileData={profileData}
+        onProfileUpdate={handleProfileUpdate}
+      />
     </ProtectedRoute>
   );
 }

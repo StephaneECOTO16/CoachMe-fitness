@@ -341,6 +341,13 @@
     "greetingAfternoon": "Bon Après-midi",
     "greetingEvening": "Bonsoir",
     "subtitle": "Gérez vos séances de coaching et connectez-vous avec vos clients",
+    "profileIncomplete": {
+      "title": "Bienvenue dans Votre Parcours de Coaching !",
+      "message": "Nous sommes ravis de vous accueillir ! Pour commencer et maximiser votre visibilité auprès des clients potentiels, complétons votre profil professionnel. Cela aide les clients à comprendre votre expertise et renforce la confiance.",
+      "messageShort": "Complétez votre profil pour commencer à attirer des clients et développer votre pratique de coaching.",
+      "cta": "Compléter Mon Profil",
+      "skip": "Je ferai cela plus tard"
+    },
     "accountPending": {
       "title": "Compte en Attente d'Approbation",
       "message": "Votre candidature de coach est actuellement en cours d'examen. Vous serez notifié une fois qu'un administrateur aura approuvé votre profil. En attendant, vous pouvez mettre à jour vos informations de profil et vous préparer pour votre parcours de coaching!"
@@ -360,6 +367,7 @@
     },
     "yourProfile": "Votre Profil",
     "editProfile": "Modifier le Profil",
+    "settings": "Paramètres",
     "bio": "Biographie",
     "portfolio": "Portfolio",
     "recentConversations": "Conversations Récentes",
@@ -380,6 +388,83 @@
     "browseCoachesAction": {
       "title": "Parcourir les Coachs",
       "description": "Voyez comment les autres coachs se présentent"
+    },
+    "settingsModal": {
+      "title": "Paramètres du Profil",
+      "subtitle": "Gérez votre profil professionnel et vos références",
+      "tabs": {
+        "profile": "Profil",
+        "media": "Médias & Références",
+        "account": "Compte"
+      },
+      "profile": {
+        "title": "Informations Professionnelles",
+        "description": "Ces informations seront visibles par les clients potentiels",
+        "nameLabel": "Nom Complet",
+        "namePlaceholder": "Votre nom professionnel",
+        "emailLabel": "Adresse Email",
+        "disciplineLabel": "Discipline Principale",
+        "disciplinePlaceholder": "Sélectionnez votre discipline",
+        "bioLabel": "Biographie Professionnelle",
+        "bioPlaceholder": "Partagez votre philosophie de coaching, votre expérience et ce qui vous rend unique...",
+        "bioHelper": "Une biographie convaincante aide les clients à se connecter avec votre approche (recommandé : 150-300 mots)",
+        "portfolioLabel": "Portfolio / Site Web",
+        "portfolioPlaceholder": "https://votresite.com",
+        "portfolioHelper": "Lien vers votre site professionnel, Instagram ou portfolio"
+      },
+      "media": {
+        "title": "Références & Médias",
+        "description": "Téléchargez des certificats, photos et vidéos pour présenter votre expertise",
+        "certificates": {
+          "title": "Certificats Professionnels",
+          "description": "Téléchargez vos certifications et qualifications de coaching (PDF, JPG, PNG)",
+          "uploadButton": "Télécharger un Certificat",
+          "dropzone": "Glissez-déposez les certificats ici, ou cliquez pour parcourir"
+        },
+        "images": {
+          "title": "Galerie de Profil",
+          "description": "Présentez votre environnement d'entraînement, les transformations de clients ou des photos d'action",
+          "uploadButton": "Télécharger des Images",
+          "dropzone": "Glissez-déposez les images ici, ou cliquez pour parcourir"
+        },
+        "videos": {
+          "title": "Vidéos d'Entraînement",
+          "description": "Partagez de courts clips de vos sessions de coaching ou conseils d'entraînement",
+          "uploadButton": "Télécharger une Vidéo",
+          "dropzone": "Glissez-déposez les vidéos ici, ou cliquez pour parcourir"
+        },
+        "uploading": "Téléchargement en cours...",
+        "uploadSuccess": "Téléchargement réussi",
+        "uploadError": "Échec du téléchargement. Veuillez réessayer.",
+        "maxFileSize": "Taille max du fichier : {size}MB",
+        "supportedFormats": "Formats supportés : {formats}",
+        "noFiles": "Aucun fichier téléchargé pour le moment"
+      },
+      "account": {
+        "title": "Paramètres du Compte",
+        "description": "Gérez la sécurité et les préférences de votre compte",
+        "currentStatus": "Statut Actuel",
+        "memberSince": "Membre Depuis",
+        "changePassword": "Changer le Mot de Passe",
+        "dangerZone": "Zone Dangereuse",
+        "deactivateAccount": "Désactiver le Compte"
+      },
+      "actions": {
+        "save": "Enregistrer les Modifications",
+        "saving": "Enregistrement...",
+        "cancel": "Annuler",
+        "close": "Fermer",
+        "delete": "Supprimer",
+        "confirm": "Confirmer"
+      },
+      "notifications": {
+        "saveSuccess": "Profil mis à jour avec succès !",
+        "saveError": "Échec de la mise à jour du profil. Veuillez réessayer.",
+        "uploadSuccess": "Fichier téléchargé avec succès !",
+        "uploadError": "Échec du téléchargement du fichier. Veuillez réessayer.",
+        "deleteSuccess": "Fichier supprimé avec succès !",
+        "deleteError": "Échec de la suppression du fichier. Veuillez réessayer."
+      }
     }
   },
   "messages": {

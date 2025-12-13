@@ -341,6 +341,13 @@
     "greetingAfternoon": "Good Afternoon",
     "greetingEvening": "Good Evening",
     "subtitle": "Manage your coaching sessions and connect with your clients",
+    "profileIncomplete": {
+      "title": "Welcome to Your Coaching Journey!",
+      "message": "We're excited to have you here! To get started and maximize your visibility to potential clients, let's complete your professional profile. This helps clients understand your expertise and builds trust.",
+      "messageShort": "Complete your profile to start attracting clients and building your coaching practice.",
+      "cta": "Complete My Profile",
+      "skip": "I'll do this later"
+    },
     "accountPending": {
       "title": "Account Pending Approval",
       "message": "Your coach application is currently under review. You'll be notified once an admin approves your profile. In the meantime, you can update your profile information and prepare for your coaching journey!"
@@ -360,6 +367,7 @@
     },
     "yourProfile": "Your Profile",
     "editProfile": "Edit Profile",
+    "settings": "Settings",
     "bio": "Bio",
     "portfolio": "Portfolio",
     "recentConversations": "Recent Conversations",
@@ -380,6 +388,83 @@
     "browseCoachesAction": {
       "title": "Browse Coaches",
       "description": "See how other coaches present themselves"
+    },
+    "settingsModal": {
+      "title": "Profile Settings",
+      "subtitle": "Manage your professional profile and credentials",
+      "tabs": {
+        "profile": "Profile",
+        "media": "Media & Credentials",
+        "account": "Account"
+      },
+      "profile": {
+        "title": "Professional Information",
+        "description": "This information will be visible to potential clients",
+        "nameLabel": "Full Name",
+        "namePlaceholder": "Your professional name",
+        "emailLabel": "Email Address",
+        "disciplineLabel": "Primary Discipline",
+        "disciplinePlaceholder": "Select your discipline",
+        "bioLabel": "Professional Bio",
+        "bioPlaceholder": "Share your coaching philosophy, experience, and what makes you unique...",
+        "bioHelper": "A compelling bio helps clients connect with your approach (recommended: 150-300 words)",
+        "portfolioLabel": "Portfolio / Website",
+        "portfolioPlaceholder": "https://yourwebsite.com",
+        "portfolioHelper": "Link to your professional website, Instagram, or portfolio"
+      },
+      "media": {
+        "title": "Credentials & Media",
+        "description": "Upload certificates, photos, and videos to showcase your expertise",
+        "certificates": {
+          "title": "Professional Certificates",
+          "description": "Upload your coaching certifications and qualifications (PDF, JPG, PNG)",
+          "uploadButton": "Upload Certificate",
+          "dropzone": "Drag and drop certificates here, or click to browse"
+        },
+        "images": {
+          "title": "Profile Gallery",
+          "description": "Showcase your training environment, client transformations, or action shots",
+          "uploadButton": "Upload Images",
+          "dropzone": "Drag and drop images here, or click to browse"
+        },
+        "videos": {
+          "title": "Training Videos",
+          "description": "Share short clips of your coaching sessions or training tips",
+          "uploadButton": "Upload Video",
+          "dropzone": "Drag and drop videos here, or click to browse"
+        },
+        "uploading": "Uploading...",
+        "uploadSuccess": "Upload successful",
+        "uploadError": "Upload failed. Please try again.",
+        "maxFileSize": "Max file size: {size}MB",
+        "supportedFormats": "Supported formats: {formats}",
+        "noFiles": "No files uploaded yet"
+      },
+      "account": {
+        "title": "Account Settings",
+        "description": "Manage your account security and preferences",
+        "currentStatus": "Current Status",
+        "memberSince": "Member Since",
+        "changePassword": "Change Password",
+        "dangerZone": "Danger Zone",
+        "deactivateAccount": "Deactivate Account"
+      },
+      "actions": {
+        "save": "Save Changes",
+        "saving": "Saving...",
+        "cancel": "Cancel",
+        "close": "Close",
+        "delete": "Delete",
+        "confirm": "Confirm"
+      },
+      "notifications": {
+        "saveSuccess": "Profile updated successfully!",
+        "saveError": "Failed to update profile. Please try again.",
+        "uploadSuccess": "File uploaded successfully!",
+        "uploadError": "Failed to upload file. Please try again.",
+        "deleteSuccess": "File deleted successfully!",
+        "deleteError": "Failed to delete file. Please try again."
+      }
     }
   },
   "messages": {
