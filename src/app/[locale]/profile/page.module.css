@@ -316,3 +316,67 @@
   color: var(--text-secondary);
   max-width: 500px;
 }
+
+/* Tab Navigation */
+.tabNavigation {
+  display: flex;
+  gap: var(--space-2);
+  border-bottom: 2px solid var(--gray-200);
+  margin-bottom: var(--space-6);
+  padding: 0 var(--space-1);
+}
+
+.tabButton {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  transition: all var(--transition-base);
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+}
+
+.tabButton:hover {
+  color: var(--text-primary);
+  background: var(--gray-50);
+}
+
+.tabButton svg {
+  opacity: 0.7;
+  transition: opacity var(--transition-base);
+}
+
+.tabButton:hover svg {
+  opacity: 1;
+}
+
+.tabButtonActive {
+  color: var(--primary);
+  border-bottom-color: var(--primary);
+  background: transparent;
+}
+
+.tabButtonActive svg {
+  opacity: 1;
+}
+
+.tabButtonActive:hover {
+  background: transparent;
+}
+
+@media (max-width: 640px) {
+  .tabButton span {
+    display: none;
+  }
+
+  .tabButton {
+    padding: var(--space-3);
+  }
+}

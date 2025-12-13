@@ -501,10 +501,10 @@
   display: flex;
   gap: var(--space-6);
   padding: var(--space-8);
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--primary);
   border-radius: var(--radius-2xl);
-  box-shadow: 0 20px 40px rgba(102, 126, 234, 0.3);
-  color: white;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  color: var(--primary-foreground);
   margin-bottom: var(--space-8);
   animation: slideDown 0.5s ease;
 }
@@ -589,7 +589,7 @@
 .skipButton {
   background: none;
   border: none;
-  color: white;
+  color: var(--primary-foreground);
   font-size: var(--text-sm);
   font-weight: var(--font-medium);
   cursor: pointer;

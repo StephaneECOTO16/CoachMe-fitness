@@ -7,6 +7,7 @@ import { routing } from "@/i18n/routing";
 import LayoutWrapper from "@/components/layout/LayoutWrapper";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { PusherProvider } from "@/contexts/PusherContext";
+import { Toaster } from "@/components/ui/sonner";
 import "@/styles/globals.css";
 
 // Bebas Neue for headings - bold, athletic, high-energy
@@ -65,6 +66,7 @@ export default async function LocaleLayout({
           <AuthProvider>
             <PusherProvider>
               <LayoutWrapper>{children}</LayoutWrapper>
+              <Toaster position="top-center" />
             </PusherProvider>
           </AuthProvider>
         </NextIntlClientProvider>

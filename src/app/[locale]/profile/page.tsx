@@ -5,10 +5,14 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useTranslations } from 'next-intl';
+import { useSearchParams, useRouter } from 'next/navigation';
+import { toast } from 'sonner';
+import { User, ImageIcon, Settings } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import Button from '@/components/ui/Button';
 import Modal from '@/components/ui/Modal';
+import MediaUploadTab from '@/components/profile/MediaUploadTab';
 import { DISCIPLINES } from '@/lib/schemas';
 import styles from './page.module.css';
 
@@ -56,10 +60,13 @@ interface ProfileData {
 export default function ProfilePage() {
   const t = useTranslations('profile');
   const { user, token } = useAuth();
+  const searchParams = useSearchParams();
+  const router = useRouter();
   const [profileData, setProfileData] = useState<ProfileData | null>(null);
   const [loading, setLoading] = useState(true);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [activeTab, setActiveTab] = useState<'profile' | 'media' | 'account'>('profile');
 
   const {
     register: registerUser,
@@ -87,6 +94,16 @@ export default function ProfilePage() {
   } = useForm({
     resolver: zodResolver(EditClientSchema),
   });
+
+  // Check if modal should be opened from query parameter
+  useEffect(() => {
+    const openModal = searchParams.get('openModal');
+    if (openModal === 'true') {
+      setIsEditModalOpen(true);
+      // Remove the query parameter from URL
+      router.replace('/profile');
+    }
+  }, [searchParams, router]);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -145,15 +162,15 @@ export default function ProfilePage() {
       const result = await response.json();
 
       if (result.success) {
-        alert('Profile updated successfully!');
+        toast.success('Profile updated successfully!');
         setProfileData(result);
         setIsEditModalOpen(false);
       } else {
-        alert('Failed to update profile. Please try again.');
+        toast.error('Failed to update profile. Please try again.');
       }
     } catch (error) {
       console.error('Error updating profile:', error);
-      alert('Failed to update profile. Please try again.');
+      toast.error('Failed to update profile. Please try again.');
     } finally {
       setIsEditingProfile(false);
     }
@@ -179,15 +196,15 @@ export default function ProfilePage() {
       const result = await response.json();
 
       if (result.success) {
-        alert('Coach profile updated successfully!');
+        toast.success('Coach profile updated successfully!');
         setProfileData(result);
         setIsEditModalOpen(false);
       } else {
-        alert('Failed to update profile. Please try again.');
+        toast.error('Failed to update profile. Please try again.');
       }
     } catch (error) {
       console.error('Error updating profile:', error);
-      alert('Failed to update profile. Please try again.');
+      toast.error('Failed to update profile. Please try again.');
     } finally {
       setIsEditingProfile(false);
     }
@@ -214,15 +231,15 @@ export default function ProfilePage() {
       const result = await response.json();
 
       if (result.success) {
-        alert('Profile updated successfully!');
+        toast.success('Profile updated successfully!');
         setProfileData(result);
         setIsEditModalOpen(false);
       } else {
-        alert('Failed to update profile. Please try again.');
+        toast.error('Failed to update profile. Please try again.');
       }
     } catch (error) {
       console.error('Error updating profile:', error);
-      alert('Failed to update profile. Please try again.');
+      toast.error('Failed to update profile. Please try again.');
     } finally {
       setIsEditingProfile(false);
     }
@@ -381,162 +398,201 @@ export default function ProfilePage() {
           isOpen={isEditModalOpen}
           onClose={() => setIsEditModalOpen(false)}
           title="Edit Profile"
-          size="md"
+          size="lg"
         >
-          <div className={styles.modalContent}>
-            {/* User Info Form */}
-            <form onSubmit={handleSubmitUser(onSubmitUser)} className={styles.form}>
-              <h3 className={styles.formTitle}>Basic Information</h3>
-
-              <div className={styles.formGroup}>
-                <label htmlFor="name" className={styles.label}>
-                  Name
-                </label>
-                <input
-                  {...registerUser('name')}
-                  type="text"
-                  id="name"
-                  className={styles.input}
-                  placeholder="Your name"
-                />
-                {errorsUser.name && (
-                  <span className={styles.error}>{errorsUser.name.message as string}</span>
-                )}
-              </div>
-
-              <Button
-                type="submit"
-                variant="primary"
-                disabled={isEditingProfile}
-                className={styles.submitButton}
+          {/* Tab Navigation */}
+          <div className={styles.tabNavigation}>
+            <button
+              className={`${styles.tabButton} ${activeTab === 'profile' ? styles.tabButtonActive : ''}`}
+              onClick={() => setActiveTab('profile')}
+            >
+              <User size={18} />
+              <span>{t('tabs.profile')}</span>
+            </button>
+            {profileData?.user.role === 'COACH' && (
+              <button
+                className={`${styles.tabButton} ${activeTab === 'media' ? styles.tabButtonActive : ''}`}
+                onClick={() => setActiveTab('media')}
               >
-                {isEditingProfile ? 'Saving...' : 'Save Basic Info'}
-              </Button>
-            </form>
+                <ImageIcon size={18} />
+                <span>{t('tabs.media')}</span>
+              </button>
+            )}
+            <button
+              className={`${styles.tabButton} ${activeTab === 'account' ? styles.tabButtonActive : ''}`}
+              onClick={() => setActiveTab('account')}
+            >
+              <Settings size={18} />
+              <span>{t('tabs.account')}</span>
+            </button>
+          </div>
 
-            {/* Coach-specific Form */}
-            {profileData.user.role === 'COACH' && (
-              <form onSubmit={handleSubmitCoach(onSubmitCoach)} className={styles.form}>
-                <h3 className={styles.formTitle}>Coach Profile</h3>
+          <div className={styles.modalContent}>
+            {/* Profile Tab */}
+            {activeTab === 'profile' && (
+              <>
+                {/* Coach-specific Form */}
+                {profileData.user.role === 'COACH' && (
+                  <form onSubmit={handleSubmitCoach(onSubmitCoach)} className={styles.form}>
+                    <h3 className={styles.formTitle}>Coach Profile</h3>
 
-                <div className={styles.formGroup}>
-                  <label htmlFor="discipline" className={styles.label}>
-                    Discipline
-                  </label>
-                  <select {...registerCoach('discipline')} id="discipline" className={styles.select}>
-                    <option value="">Select discipline</option>
-                    {DISCIPLINES.map((disc) => (
-                      <option key={disc} value={disc}>
-                        {disc}
-                      </option>
-                    ))}
-                  </select>
-                  {errorsCoach.discipline && (
-                    <span className={styles.error}>{errorsCoach.discipline.message as string}</span>
-                  )}
-                </div>
+                    <div className={styles.formGroup}>
+                      <label htmlFor="discipline" className={styles.label}>
+                        Discipline
+                      </label>
+                      <select {...registerCoach('discipline')} id="discipline" className={styles.select}>
+                        <option value="">Select discipline</option>
+                        {DISCIPLINES.map((disc) => (
+                          <option key={disc} value={disc}>
+                            {disc}
+                          </option>
+                        ))}
+                      </select>
+                      {errorsCoach.discipline && (
+                        <span className={styles.error}>{errorsCoach.discipline.message as string}</span>
+                      )}
+                    </div>
 
-                <div className={styles.formGroup}>
-                  <label htmlFor="bio" className={styles.label}>
-                    Bio
-                  </label>
-                  <textarea
-                    {...registerCoach('bio')}
-                    id="bio"
-                    className={styles.textarea}
-                    rows={4}
-                    placeholder="Tell clients about yourself..."
-                  />
-                  {errorsCoach.bio && (
-                    <span className={styles.error}>{errorsCoach.bio.message as string}</span>
-                  )}
-                </div>
+                    <div className={styles.formGroup}>
+                      <label htmlFor="bio" className={styles.label}>
+                        Bio
+                      </label>
+                      <textarea
+                        {...registerCoach('bio')}
+                        id="bio"
+                        className={styles.textarea}
+                        rows={4}
+                        placeholder="Tell clients about yourself..."
+                      />
+                      {errorsCoach.bio && (
+                        <span className={styles.error}>{errorsCoach.bio.message as string}</span>
+                      )}
+                    </div>
 
-                <div className={styles.formGroup}>
-                  <label htmlFor="portfolio" className={styles.label}>
-                    Portfolio URL
-                  </label>
-                  <input
-                    {...registerCoach('portfolio')}
-                    type="url"
-                    id="portfolio"
-                    className={styles.input}
-                    placeholder="https://your-portfolio.com"
-                  />
-                  {errorsCoach.portfolio && (
-                    <span className={styles.error}>{errorsCoach.portfolio.message as string}</span>
-                  )}
-                </div>
+                    <div className={styles.formGroup}>
+                      <label htmlFor="portfolio" className={styles.label}>
+                        Portfolio URL
+                      </label>
+                      <input
+                        {...registerCoach('portfolio')}
+                        type="url"
+                        id="portfolio"
+                        className={styles.input}
+                        placeholder="https://your-portfolio.com"
+                      />
+                      {errorsCoach.portfolio && (
+                        <span className={styles.error}>{errorsCoach.portfolio.message as string}</span>
+                      )}
+                    </div>
 
-                <Button
-                  type="submit"
-                  variant="primary"
-                  disabled={isEditingProfile}
-                  className={styles.submitButton}
-                >
-                  {isEditingProfile ? 'Saving...' : 'Save Coach Profile'}
-                </Button>
-              </form>
+                    <Button
+                      type="submit"
+                      variant="primary"
+                      disabled={isEditingProfile}
+                      className={styles.submitButton}
+                    >
+                      {isEditingProfile ? 'Saving...' : 'Save Coach Profile'}
+                    </Button>
+                  </form>
+                )}
+
+                {/* Client-specific Form */}
+                {profileData.user.role === 'PROSPECT' && (
+                  <form onSubmit={handleSubmitClient(onSubmitClient)} className={styles.form}>
+                    <h3 className={styles.formTitle}>Fitness Profile</h3>
+
+                    <div className={styles.formGroup}>
+                      <label htmlFor="ageRange" className={styles.label}>
+                        Age Range
+                      </label>
+                      <select {...registerClient('ageRange')} id="ageRange" className={styles.select}>
+                        <option value="">Select age range</option>
+                        <option value="18-24">18-24</option>
+                        <option value="25-34">25-34</option>
+                        <option value="35-44">35-44</option>
+                        <option value="45-54">45-54</option>
+                        <option value="55+">55+</option>
+                      </select>
+                    </div>
+
+                    <div className={styles.formRow}>
+                      <div className={styles.formGroup}>
+                        <label htmlFor="heightCm" className={styles.label}>
+                          Height (cm)
+                        </label>
+                        <input
+                          {...registerClient('heightCm', { valueAsNumber: true })}
+                          type="number"
+                          id="heightCm"
+                          className={styles.input}
+                          placeholder="170"
+                        />
+                      </div>
+
+                      <div className={styles.formGroup}>
+                        <label htmlFor="weightKg" className={styles.label}>
+                          Weight (kg)
+                        </label>
+                        <input
+                          {...registerClient('weightKg', { valueAsNumber: true })}
+                          type="number"
+                          id="weightKg"
+                          className={styles.input}
+                          placeholder="70"
+                        />
+                      </div>
+                    </div>
+
+                    <div className={styles.formGroup}>
+                      <label htmlFor="goals" className={styles.label}>
+                        Fitness Goals
+                      </label>
+                      <textarea
+                        {...registerClient('goals')}
+                        id="goals"
+                        className={styles.textarea}
+                        rows={4}
+                        placeholder="What are your fitness goals?"
+                      />
+                    </div>
+
+                    <Button
+                      type="submit"
+                      variant="primary"
+                      disabled={isEditingProfile}
+                      className={styles.submitButton}
+                    >
+                      {isEditingProfile ? 'Saving...' : 'Save Fitness Profile'}
+                    </Button>
+                  </form>
+                )}
+              </>
             )}
 
-            {/* Client-specific Form */}
-            {profileData.user.role === 'PROSPECT' && (
-              <form onSubmit={handleSubmitClient(onSubmitClient)} className={styles.form}>
-                <h3 className={styles.formTitle}>Fitness Profile</h3>
+            {/* Media Tab */}
+            {activeTab === 'media' && profileData?.user.role === 'COACH' && (
+              <MediaUploadTab />
+            )}
+
+            {/* Account Tab */}
+            {activeTab === 'account' && (
+              <form onSubmit={handleSubmitUser(onSubmitUser)} className={styles.form}>
+                <h3 className={styles.formTitle}>Basic Information</h3>
 
                 <div className={styles.formGroup}>
-                  <label htmlFor="ageRange" className={styles.label}>
-                    Age Range
+                  <label htmlFor="name" className={styles.label}>
+                    Name
                   </label>
-                  <select {...registerClient('ageRange')} id="ageRange" className={styles.select}>
-                    <option value="">Select age range</option>
-                    <option value="18-24">18-24</option>
-                    <option value="25-34">25-34</option>
-                    <option value="35-44">35-44</option>
-                    <option value="45-54">45-54</option>
-                    <option value="55+">55+</option>
-                  </select>
-                </div>
-
-                <div className={styles.formRow}>
-                  <div className={styles.formGroup}>
-                    <label htmlFor="heightCm" className={styles.label}>
-                      Height (cm)
-                    </label>
-                    <input
-                      {...registerClient('heightCm', { valueAsNumber: true })}
-                      type="number"
-                      id="heightCm"
-                      className={styles.input}
-                      placeholder="170"
-                    />
-                  </div>
-
-                  <div className={styles.formGroup}>
-                    <label htmlFor="weightKg" className={styles.label}>
-                      Weight (kg)
-                    </label>
-                    <input
-                      {...registerClient('weightKg', { valueAsNumber: true })}
-                      type="number"
-                      id="weightKg"
-                      className={styles.input}
-                      placeholder="70"
-                    />
-                  </div>
-                </div>
-
-                <div className={styles.formGroup}>
-                  <label htmlFor="goals" className={styles.label}>
-                    Fitness Goals
-                  </label>
-                  <textarea
-                    {...registerClient('goals')}
-                    id="goals"
-                    className={styles.textarea}
-                    rows={4}
-                    placeholder="What are your fitness goals?"
+                  <input
+                    {...registerUser('name')}
+                    type="text"
+                    id="name"
+                    className={styles.input}
+                    placeholder="Your name"
                   />
+                  {errorsUser.name && (
+                    <span className={styles.error}>{errorsUser.name.message as string}</span>
+                  )}
                 </div>
 
                 <Button
@@ -545,7 +601,7 @@ export default function ProfilePage() {
                   disabled={isEditingProfile}
                   className={styles.submitButton}
                 >
-                  {isEditingProfile ? 'Saving...' : 'Save Fitness Profile'}
+                  {isEditingProfile ? 'Saving...' : 'Save Basic Info'}
                 </Button>
               </form>
             )}

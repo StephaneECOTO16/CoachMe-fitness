@@ -537,6 +537,13 @@
     "coachApproved": "Coach approuvé avec succès",
     "coachRejected": "Coach rejeté avec succès"
   },
+  "profile": {
+    "tabs": {
+      "profile": "Profil",
+      "media": "Médias",
+      "account": "Compte"
+    }
+  },
   "footer": {
     "description": "Transformez votre parcours fitness avec des coachs certifiés qui vous guident à chaque étape.",
     "sections": {

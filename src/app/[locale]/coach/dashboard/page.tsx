@@ -8,9 +8,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import Button from "@/components/ui/Button";
 import { AnimatedName } from "@/components/ui/animated-name";
-import CoachSettingsModal from "@/components/coach/CoachSettingsModal";
 import { motion, AnimatePresence } from "framer-motion";
-import { CheckCircle, AlertCircle, Sparkles } from "lucide-react";
+import { AlertCircle, Sparkles } from "lucide-react";
 import styles from "./page.module.css";
 
 interface Chat {
@@ -57,9 +56,7 @@ export default function CoachDashboard() {
   const [profile, setProfile] = useState<CoachProfile | null>(null);
   const [chats, setChats] = useState<Chat[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [showWelcomePrompt, setShowWelcomePrompt] = useState(false);
-  const [hasSeenWelcome, setHasSeenWelcome] = useState(false);
 
   // Check if profile is complete
   const isProfileComplete = (profile: CoachProfile | null): boolean => {
@@ -125,39 +122,14 @@ export default function CoachDashboard() {
 
   const handleCompleteProfile = () => {
     setShowWelcomePrompt(false);
-    setShowSettingsModal(true);
     localStorage.setItem("welcomePromptSeen", "true");
+    // Navigate to profile page with modal open
+    router.push("/profile?openModal=true");
   };
 
   const handleSkipWelcome = () => {
     setShowWelcomePrompt(false);
     localStorage.setItem("welcomePromptSeen", "true");
-  };
-
-  const handleProfileUpdate = () => {
-    // Refresh profile data after update
-    const fetchProfile = async () => {
-      if (!token) return;
-
-      try {
-        const profileRes = await fetch("/api/profile", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        const profileResponse = await profileRes.json();
-        if (profileResponse.success) {
-          setProfileData(profileResponse);
-          if (profileResponse.profile) {
-            setProfile(profileResponse.profile);
-          }
-        }
-      } catch (error) {
-        console.error("Error fetching profile:", error);
-      }
-    };
-
-    fetchProfile();
   };
 
   const getStatusBadge = (status: string) => {
@@ -330,13 +302,11 @@ export default function CoachDashboard() {
             <section className={styles.section}>
               <div className={styles.sectionHeader}>
                 <h2 className={styles.sectionTitle}>{t("yourProfile")}</h2>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setShowSettingsModal(true)}
-                >
-                  {t("settings")}
-                </Button>
+                <Link href="/profile?openModal=true">
+                  <Button variant="outline" size="sm">
+                    {t("settings")}
+                  </Button>
+                </Link>
               </div>
 
               <div className={styles.profileCard}>
@@ -384,7 +354,7 @@ export default function CoachDashboard() {
                       {t("profileIncomplete.messageShort")}
                     </span>
                     <button
-                      onClick={() => setShowSettingsModal(true)}
+                      onClick={() => router.push("/profile?openModal=true")}
                       className={styles.completeLink}
                     >
                       Complete now →
@@ -454,10 +424,7 @@ export default function CoachDashboard() {
           <section className={styles.section}>
             <h2 className={styles.sectionTitle}>{t("quickActions")}</h2>
             <div className={styles.quickActions}>
-              <button
-                onClick={() => setShowSettingsModal(true)}
-                className={styles.actionCard}
-              >
+              <Link href="/profile?openModal=true" className={styles.actionCard}>
                 <div className={styles.actionIcon}>👤</div>
                 <h3 className={styles.actionTitle}>
                   {t("editProfileAction.title")}
@@ -465,7 +432,7 @@ export default function CoachDashboard() {
                 <p className={styles.actionDescription}>
                   {t("editProfileAction.description")}
                 </p>
-              </button>
+              </Link>
 
               <Link href="/messages" className={styles.actionCard}>
                 <div className={styles.actionIcon}>💬</div>
@@ -490,14 +457,6 @@ export default function CoachDashboard() {
           </section>
         </div>
       </div>
-
-      {/* Settings Modal */}
-      <CoachSettingsModal
-        isOpen={showSettingsModal}
-        onClose={() => setShowSettingsModal(false)}
-        profileData={profileData}
-        onProfileUpdate={handleProfileUpdate}
-      />
     </ProtectedRoute>
   );
 }
