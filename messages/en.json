@@ -334,6 +334,56 @@
       "updateError": "Failed to update coach status. Please try again."
     }
   },
+  "media": {
+    "loading": "Loading media...",
+    "loadError": "Failed to load media files",
+    "deleteConfirm": "Delete {fileName}?",
+    "deleteSuccess": "File deleted",
+    "deleteError": "Failed to delete file",
+    "uploadSuccess": "{fileName} uploaded successfully!",
+    "uploadError": "Failed to upload {file}",
+    "compressing": "Compressing {fileName} ({percent}%)...",
+    "certificates": {
+      "title": "Professional Certificates",
+      "description": "Upload your coaching certifications (PDF, JPG, PNG)",
+      "dropzoneIdle": "Drag & drop or click to upload",
+      "dropzoneActive": "Drop here...",
+      "fileLimit": "Max 10MB • PDF, JPG, PNG",
+      "untitled": "Untitled"
+    },
+    "gallery": {
+      "title": "Profile Gallery",
+      "description": "Showcase your training environment and client transformations",
+      "dropzoneIdle": "Drag & drop or click to upload",
+      "dropzoneActive": "Drop here...",
+      "fileLimit": "Max 10MB • Multiple files supported",
+      "untitled": "Untitled"
+    },
+    "videos": {
+      "title": "Training Videos",
+      "description": "Share short clips of your coaching sessions",
+      "dropzoneIdle": "Drag & drop or click to upload",
+      "dropzoneActive": "Drop here...",
+      "fileLimit": "Max 50MB • MP4, WebM, MOV",
+      "untitled": "Untitled"
+    },
+    "uploading": {
+      "title": "Uploading...",
+      "progress": "{count} of {total} files"
+    },
+    "noFiles": "No files uploaded yet"
+  },
+  "validation": {
+    "nameMinLength": "Name must be at least 2 characters",
+    "disciplineRequired": "Discipline is required",
+    "invalidUrl": "Must be a valid URL",
+    "passwordRequirements": "Must contain at least 8 characters, including uppercase, lowercase, and a number",
+    "passwordsDoNotMatch": "Passwords do not match",
+    "emailRequired": "Email is required",
+    "emailInvalid": "Email must be valid",
+    "messageEmpty": "Message cannot be empty",
+    "messageMaxLength": "Message cannot exceed 5000 characters"
+  },
   "coachDashboard": {
     "title": "Coach Dashboard",
     "welcomeBackCoach": "Welcome back Coach",
