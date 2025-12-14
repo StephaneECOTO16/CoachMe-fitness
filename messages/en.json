@@ -141,7 +141,14 @@
       "subtitle": "Browse certified fitness professionals",
       "noCoaches": "No coaches found",
       "filterByDiscipline": "Filter by Discipline",
-      "allDisciplines": "All Disciplines"
+      "allDisciplines": "All Disciplines",
+      "loadingCoaches": "Loading coaches...",
+      "coachesFound": "{count} {count, plural, one {coach} other {coaches}} found",
+      "badgeCertified": "✓ Certified",
+      "badgePortfolio": "📸 Portfolio",
+      "viewProfile": "View Profile",
+      "clearFilters": "Clear Filters",
+      "tryAdjustFilters": "Try adjusting your filters or check back later for new coaches."
     },
     "profile": {
       "about": "About",
@@ -150,7 +157,19 @@
       "certifications": "Certifications",
       "gallery": "Gallery",
       "contactCoach": "Contact Coach",
-      "startChat": "Start Chat"
+      "startChat": "Start Chat",
+      "loadingProfile": "Loading coach profile...",
+      "notFound": "Coach Not Found",
+      "notFoundMessage": "This coach profile is not available.",
+      "browseAll": "Browse All Coaches",
+      "viewPortfolio": "View Portfolio",
+      "certificationsCredentials": "Certifications & Credentials",
+      "certification": "Certification",
+      "viewCertificate": "View Certificate",
+      "videos": "Videos",
+      "readyToStart": "Ready to Start Your Fitness Journey?",
+      "contactDescription": "Contact {name} today to discuss your goals and get started.",
+      "imageAlt": "Coach demonstrating fitness techniques"
     },
     "onboarding": {
       "title": "Become a Coach",

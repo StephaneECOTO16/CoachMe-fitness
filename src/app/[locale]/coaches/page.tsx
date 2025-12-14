@@ -99,12 +99,12 @@ export default function CoachesPage() {
         {loading ? (
           <div className={styles.loading}>
             <div className={styles.spinner}></div>
-            <p>Loading coaches...</p>
+            <p>{t('loadingCoaches')}</p>
           </div>
         ) : coaches.length > 0 ? (
           <>
             <div className={styles.resultsCount}>
-              {coaches.length} {coaches.length === 1 ? 'coach' : 'coaches'} found
+              {t('coachesFound', { count: coaches.length })}
             </div>
             <div className={styles.coachGrid}>
               {coaches.map((coach) => (
@@ -133,12 +133,12 @@ export default function CoachesPage() {
                       <div className={styles.coachBadges}>
                         {coach.media.filter(m => m.type === 'CERTIFICATE').length > 0 && (
                           <span className={styles.badge}>
-                            ✓ Certified
+                            {t('badgeCertified')}
                           </span>
                         )}
                         {coach.media.filter(m => m.type === 'IMAGE').length > 0 && (
                           <span className={styles.badge}>
-                            📸 Portfolio
+                            {t('badgePortfolio')}
                           </span>
                         )}
                       </div>
@@ -148,7 +148,7 @@ export default function CoachesPage() {
                   <div className={styles.coachActions}>
                     <Link href={`/coaches/${coach.id}`}>
                       <Button variant="primary" size="md" fullWidth>
-                        View Profile
+                        {t('viewProfile')}
                       </Button>
                     </Link>
                   </div>
@@ -161,10 +161,10 @@ export default function CoachesPage() {
             <div className={styles.emptyIcon}>🔍</div>
             <h3 className={styles.emptyTitle}>{t('noCoaches')}</h3>
             <p className={styles.emptyText}>
-              Try adjusting your filters or check back later for new coaches.
+              {t('tryAdjustFilters')}
             </p>
             <Button variant="outline" onClick={() => setSelectedDiscipline('')}>
-              Clear Filters
+              {t('clearFilters')}
             </Button>
           </div>
         )}

@@ -52,7 +52,7 @@ interface Chat {
 
 export default function ConversationPage() {
   const params = useParams();
-  const t = useTranslations("messages");
+  const t = useTranslations("messages.conversation");
   const { user, token } = useAuth();
   const { subscribeToChat, isConnected } = usePusher();
   const [chat, setChat] = useState<Chat | null>(null);
@@ -196,7 +196,7 @@ export default function ConversationPage() {
         <div className={styles.container}>
           <div className={styles.loading}>
             <div className={styles.spinner}></div>
-            <p>Loading conversation...</p>
+            <p>{t('loading')}</p>
           </div>
         </div>
       </ProtectedRoute>
@@ -208,12 +208,12 @@ export default function ConversationPage() {
       <ProtectedRoute allowedRoles={["PROSPECT", "COACH"]}>
         <div className={styles.container}>
           <div className={styles.error}>
-            <h2>Conversation Not Found</h2>
+            <h2>{t('notFound')}</h2>
             <p>
-              This conversation does not exist or you don't have access to it.
+              {t('notFoundMessage')}
             </p>
             <Link href="/messages">
-              <Button variant="primary">Back to Messages</Button>
+              <Button variant="primary">{t('backToMessages')}</Button>
             </Link>
           </div>
         </div>
@@ -230,7 +230,7 @@ export default function ConversationPage() {
         <div className={styles.header}>
           <div className={styles.headerContent}>
             <Link href="/messages" className={styles.backButton}>
-              ← Back
+              ← {t('back')}
             </Link>
             <div className={styles.participantInfo}>
               <div className={styles.participantAvatar}>
@@ -250,10 +250,9 @@ export default function ConversationPage() {
             {messages.length === 0 ? (
               <div className={styles.emptyMessages}>
                 <div className={styles.emptyIcon}>👋</div>
-                <h3 className={styles.emptyTitle}>Start the Conversation</h3>
+                <h3 className={styles.emptyTitle}>{t('startConversation')}</h3>
                 <p className={styles.emptyText}>
-                  Send a message to {participant?.name} to begin your
-                  conversation.
+                  {t('startMessage', { name: participant?.name || 'this user' })}
                 </p>
               </div>
             ) : (
@@ -308,7 +307,7 @@ export default function ConversationPage() {
                 type="text"
                 value={newMessage}
                 onChange={(e) => setNewMessage(e.target.value)}
-                placeholder={`Message ${participant?.name}...`}
+                placeholder={t('messagePlaceholder', { name: participant?.name || 'user' })}
                 className={styles.input}
                 disabled={sending}
               />
@@ -318,7 +317,7 @@ export default function ConversationPage() {
                 disabled={!newMessage.trim() || sending}
                 className={styles.sendButton}
               >
-                {sending ? "Sending..." : "Send"}
+                {sending ? t('sending') : t('send')}
               </Button>
             </form>
           </div>

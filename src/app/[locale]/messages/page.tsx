@@ -89,11 +89,11 @@ export default function MessagesPage() {
         {/* Hero Section */}
         <div className={styles.hero}>
           <div className={styles.heroContent}>
-            <h1 className={styles.title}>Messages 💬</h1>
+            <h1 className={styles.title}>{t('title')} 💬</h1>
             <p className={styles.subtitle}>
               {user?.role === 'COACH'
-                ? 'Connect with your clients and manage conversations'
-                : 'Chat with your coaches and get personalized guidance'}
+                ? t('subtitleCoach')
+                : t('subtitleClient')}
             </p>
           </div>
         </div>
@@ -102,7 +102,7 @@ export default function MessagesPage() {
           {loading ? (
             <div className={styles.loading}>
               <div className={styles.spinner}></div>
-              <p>Loading conversations...</p>
+              <p>{t('loading')}</p>
             </div>
           ) : chats.length > 0 ? (
             <div className={styles.chatList}>
@@ -131,7 +131,7 @@ export default function MessagesPage() {
                         <span className={styles.chatType}>{participant.type}</span>
                         {chat._count && chat._count.messages > 0 && (
                           <span className={styles.messageCount}>
-                            {chat._count.messages} {chat._count.messages === 1 ? 'message' : 'messages'}
+                            {chat._count.messages} {chat._count.messages === 1 ? t('message') : t('messages')}
                           </span>
                         )}
                       </div>
@@ -144,15 +144,15 @@ export default function MessagesPage() {
           ) : (
             <div className={styles.emptyState}>
               <div className={styles.emptyIcon}>💬</div>
-              <h2 className={styles.emptyTitle}>No Conversations Yet</h2>
+              <h2 className={styles.emptyTitle}>{t('noConversations')}</h2>
               <p className={styles.emptyText}>
                 {user?.role === 'COACH'
-                  ? "You don't have any active conversations yet. Clients will be able to contact you through your profile."
-                  : "You haven't started any conversations yet. Browse our coaches to find the perfect fit and start chatting!"}
+                  ? t('noConversationsCoach')
+                  : t('noConversationsClient')}
               </p>
               {user?.role === 'PROSPECT' && (
                 <Link href="/coaches" className={styles.emptyButton}>
-                  Browse Coaches
+                  {t('browseCoaches')}
                 </Link>
               )}
             </div>

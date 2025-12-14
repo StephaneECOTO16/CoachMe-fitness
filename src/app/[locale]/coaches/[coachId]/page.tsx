@@ -110,7 +110,7 @@ export default function CoachProfilePage() {
       <div className={styles.container}>
         <div className={styles.loading}>
           <div className={styles.spinner}></div>
-          <p>Loading coach profile...</p>
+          <p>{t('loadingProfile')}</p>
         </div>
       </div>
     );
@@ -120,10 +120,10 @@ export default function CoachProfilePage() {
     return (
       <div className={styles.container}>
         <div className={styles.error}>
-          <h2>Coach Not Found</h2>
-          <p>{error || 'This coach profile is not available.'}</p>
+          <h2>{t('notFound')}</h2>
+          <p>{error || t('notFoundMessage')}</p>
           <Link href="/coaches">
-            <Button variant="primary">Browse All Coaches</Button>
+            <Button variant="primary">{t('browseAll')}</Button>
           </Link>
         </div>
       </div>
@@ -147,12 +147,12 @@ export default function CoachProfilePage() {
 
           <div className={styles.heroActions}>
             <Button variant="primary" size="lg" onClick={handleContactCoach}>
-              Contact Coach
+              {t('contactCoach')}
             </Button>
             {coach.portfolio && (
               <a href={coach.portfolio} target="_blank" rel="noopener noreferrer">
                 <Button variant="outline" size="lg">
-                  View Portfolio
+                  {t('viewPortfolio')}
                 </Button>
               </a>
             )}
@@ -164,7 +164,7 @@ export default function CoachProfilePage() {
         {/* About Section */}
         {coach.bio && (
           <section className={styles.section}>
-            <h2 className={styles.sectionTitle}>About</h2>
+            <h2 className={styles.sectionTitle}>{t('about')}</h2>
             <div className={styles.bioCard}>
               <p className={styles.bioText}>{coach.bio}</p>
             </div>
@@ -175,7 +175,7 @@ export default function CoachProfilePage() {
         {certificates.length > 0 && (
           <section className={styles.section}>
             <h2 className={styles.sectionTitle}>
-              Certifications & Credentials
+              {t('certificationsCredentials')}
             </h2>
             <div className={styles.certificateGrid}>
               {certificates.map((cert) => (
@@ -183,7 +183,7 @@ export default function CoachProfilePage() {
                   <div className={styles.certificateIcon}>📜</div>
                   <div className={styles.certificateInfo}>
                     <h3 className={styles.certificateName}>
-                      {cert.description || 'Certification'}
+                      {cert.description || t('certification')}
                     </h3>
                     <a
                       href={cert.url}
@@ -191,7 +191,7 @@ export default function CoachProfilePage() {
                       rel="noopener noreferrer"
                       className={styles.certificateLink}
                     >
-                      View Certificate
+                      {t('viewCertificate')}
                     </a>
                   </div>
                 </div>
@@ -203,13 +203,13 @@ export default function CoachProfilePage() {
         {/* Gallery Section */}
         {images.length > 0 && (
           <section className={styles.section}>
-            <h2 className={styles.sectionTitle}>Gallery</h2>
+            <h2 className={styles.sectionTitle}>{t('gallery')}</h2>
             <div className={styles.imageGrid}>
               {images.map((image) => (
                 <div key={image.id} className={styles.imageCard}>
                   <Image
                     src={image.url}
-                    alt={image.description || 'Coach demonstrating fitness techniques'}
+                    alt={image.description || t('imageAlt')}
                     width={400}
                     height={300}
                     className={styles.image}
@@ -227,7 +227,7 @@ export default function CoachProfilePage() {
         {/* Videos Section */}
         {videos.length > 0 && (
           <section className={styles.section}>
-            <h2 className={styles.sectionTitle}>Videos</h2>
+            <h2 className={styles.sectionTitle}>{t('videos')}</h2>
             <div className={styles.videoGrid}>
               {videos.map((video) => (
                 <div key={video.id} className={styles.videoCard}>
@@ -248,12 +248,12 @@ export default function CoachProfilePage() {
         {/* Contact CTA */}
         <section className={styles.ctaSection}>
           <div className={styles.ctaCard}>
-            <h2 className={styles.ctaTitle}>Ready to Start Your Fitness Journey?</h2>
+            <h2 className={styles.ctaTitle}>{t('readyToStart')}</h2>
             <p className={styles.ctaText}>
-              Contact {coach.user.name || 'this coach'} today to discuss your goals and get started.
+              {t('contactDescription', { name: coach.user.name || 'this coach' })}
             </p>
             <Button variant="primary" size="lg" onClick={handleContactCoach}>
-              Contact {coach.user.name || 'Coach'}
+              {t('contactCoach')}
             </Button>
           </div>
         </section>
