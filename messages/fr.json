@@ -357,11 +357,11 @@
   },
   "coachDashboard": {
     "title": "Tableau de Bord Coach",
-    "welcomeBackCoach": "Bon retour Coach",
+    "welcomeBackCoach": "BON RETOUR COACH",
     "greetingMorning": "Bonjour",
     "greetingAfternoon": "Bon Après-midi",
     "greetingEvening": "Bonsoir",
-    "subtitle": "Gérez vos séances de coaching et connectez-vous avec vos clients",
+    "subtitle": "Gérez vos conversations, suivez vos clients et développez votre pratique de coaching.",
     "profileIncomplete": {
       "title": "Bienvenue dans Votre Parcours de Coaching !",
       "message": "Nous sommes ravis de vous accueillir ! Pour commencer et maximiser votre visibilité auprès des clients potentiels, complétons votre profil professionnel. Cela aide les clients à comprendre votre expertise et renforce la confiance.",
@@ -391,24 +391,24 @@
     "settings": "Paramètres",
     "bio": "Biographie",
     "portfolio": "Portfolio",
-    "recentConversations": "Conversations Récentes",
-    "viewAll": "Voir Tout",
+    "recentConversations": "Conversations récentes",
+    "viewAll": "Voir tout",
     "loading": "Chargement...",
-    "noConversations": "Aucune Conversation Active",
+    "noConversations": "Aucune conversation active",
     "noConversationsApproved": "Vous n'avez aucune conversation active pour le moment. Les clients pourront vous contacter une fois qu'ils trouveront votre profil.",
     "noConversationsPending": "Une fois votre profil approuvé, les clients pourront vous trouver et vous contacter.",
-    "quickActions": "Actions Rapides",
+    "quickActions": "Actions rapides",
     "editProfileAction": {
-      "title": "Modifier le Profil",
-      "description": "Mettez à jour votre bio, vos références et votre portfolio"
+      "title": "MODIFIER LE PROFIL",
+      "description": "Mettez à jour votre bio, discipline, portfolio et présentez votre expertise."
     },
     "messagesAction": {
-      "title": "Messages",
-      "description": "Consultez et répondez aux messages des clients"
+      "title": "MESSAGES",
+      "description": "Consultez et répondez aux messages de vos clients, gérez vos conversations."
     },
     "browseCoachesAction": {
-      "title": "Parcourir les Coachs",
-      "description": "Voyez comment les autres coachs se présentent"
+      "title": "PARCOURIR LES COACHS",
+      "description": "Découvrez comment les autres coachs se présentent et inspirez-vous."
     },
     "settingsModal": {
       "title": "Paramètres du Profil",
