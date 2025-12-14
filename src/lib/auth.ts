@@ -15,8 +15,7 @@ function getJwtSecret(): string {
 const JWT_SECRET = getJwtSecret();
 
 export function signJwt(payload: object, expiresIn: string | number = '7d'): string {
-    const options: SignOptions = { expiresIn };
-    return jwt.sign(payload, JWT_SECRET, options);
+    return jwt.sign(payload, JWT_SECRET, { expiresIn: expiresIn as any });
 }
 
 export function verifyJwt(token?: string) {
