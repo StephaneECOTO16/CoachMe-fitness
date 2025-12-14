@@ -29,6 +29,17 @@ model CoachProfile {
   bio            String?
   discipline     String
   portfolio      String?
+  hourlyRate     Decimal?        @db.Decimal(10, 2)
+  address        String?
+  city           String?
+  country        String?         @default("Cameroon")
+  minRating      Float?          @default(0)
+  experienceYears Int?           @default(0)
+  instagram      String?
+  facebook       String?
+  tiktok         String?
+  twitter        String?
+  youtube        String?
   status         ApprovalStatus  @default(PENDING)
   statusReason   String?
   createdAt      DateTime        @default(now())

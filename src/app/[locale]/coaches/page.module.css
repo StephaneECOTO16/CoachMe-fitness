@@ -1,31 +1,67 @@
 .container {
   min-height: 100vh;
-  padding-top: 80px;
+  padding-top: 0;
+  background: var(--gray-50);
 }
 
 /* Hero Section */
 .hero {
-  background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-  padding: var(--space-12) var(--space-4);
+  position: relative;
+  padding: var(--space-20) var(--space-4);
   color: white;
-  text-align: center;
+  overflow: hidden;
+  min-height: 350px;
+  display: flex;
+  align-items: center;
+  margin-top: 0;
+}
+
+.heroBackground {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 0;
+}
+
+.heroImage {
+  object-fit: cover;
+  object-position: center;
+}
+
+.heroOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.65);
+  z-index: 1;
 }
 
 @media (min-width: 768px) {
   .hero {
-    padding: var(--space-16) var(--space-6);
+    padding: var(--space-24) var(--space-6);
+    min-height: 400px;
   }
 }
 
 .heroContent {
-  max-width: var(--container-lg);
+  position: relative;
+  z-index: 2;
+  max-width: var(--container-xl);
   margin: 0 auto;
+  width: 100%;
+  text-align: center;
 }
 
 .title {
   font-size: var(--text-3xl);
   font-weight: var(--font-bold);
   margin-bottom: var(--space-4);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  color: var(--white);
 }
 
 @media (min-width: 768px) {
@@ -34,11 +70,26 @@
   }
 }
 
+@media (min-width: 1024px) {
+  .title {
+    font-size: var(--text-5xl);
+  }
+}
+
 .subtitle {
-  font-size: var(--text-lg);
-  opacity: 0.9;
-  max-width: 600px;
+  font-size: var(--text-base);
+  opacity: 0.95;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  max-width: 700px;
   margin: 0 auto;
+  line-height: 1.6;
+  color: var(--gray-100);
+}
+
+@media (min-width: 768px) {
+  .subtitle {
+    font-size: var(--text-lg);
+  }
 }
 
 /* Filters Section */
@@ -91,17 +142,119 @@
   box-shadow: 0 0 0 3px rgba(0, 166, 80, 0.1);
 }
 
-/* Coaches Section */
-.coachesSection {
+/* Main Content Layout */
+.mainContent {
   max-width: var(--container-xl);
   margin: 0 auto;
   padding: var(--space-8) var(--space-4);
+  display: flex;
+  gap: var(--space-6);
+  flex-direction: column;
 }
 
-@media (min-width: 768px) {
-  .coachesSection {
+@media (min-width: 1024px) {
+  .mainContent {
+    flex-direction: row;
     padding: var(--space-12) var(--space-6);
   }
+}
+
+/* Sidebar Filters */
+.sidebar {
+  background: white;
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-xl);
+  padding: var(--space-6);
+  height: fit-content;
+}
+
+@media (min-width: 1024px) {
+  .sidebar {
+    width: 280px;
+    flex-shrink: 0;
+    position: sticky;
+    top: 100px;
+  }
+}
+
+.sidebarHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-6);
+  padding-bottom: var(--space-4);
+  border-bottom: 2px solid var(--gray-200);
+}
+
+.sidebarTitle {
+  font-size: var(--text-lg);
+  font-weight: var(--font-bold);
+  color: var(--text-primary);
+}
+
+.resetButton {
+  background: none;
+  border: none;
+  color: var(--primary);
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  cursor: pointer;
+  padding: var(--space-2);
+  transition: opacity var(--transition-base);
+}
+
+.resetButton:hover {
+  opacity: 0.8;
+  text-decoration: underline;
+}
+
+.filterGroup {
+  margin-bottom: var(--space-6);
+}
+
+.filterGroup:last-child {
+  margin-bottom: 0;
+}
+
+.filterLabel {
+  display: block;
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
+  color: var(--text-primary);
+  margin-bottom: var(--space-2);
+}
+
+.filterSelect,
+.filterInput {
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--gray-300);
+  border-radius: var(--radius-md);
+  font-size: var(--text-base);
+  color: var(--text-primary);
+  background: white;
+  transition: all var(--transition-base);
+}
+
+.filterSelect {
+  cursor: pointer;
+}
+
+.filterSelect:focus,
+.filterInput:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(0, 166, 80, 0.1);
+}
+
+.filterInput::placeholder {
+  color: var(--text-tertiary);
+}
+
+/* Coaches Section */
+.coachesSection {
+  flex: 1;
+  min-width: 0;
 }
 
 .resultsCount {
@@ -141,82 +294,110 @@
   font-size: var(--text-base);
 }
 
-/* Coach Grid */
-.coachGrid {
-  display: grid;
-  grid-template-columns: 1fr;
+/* Coach List */
+.coachList {
+  display: flex;
+  flex-direction: column;
   gap: var(--space-6);
 }
 
-@media (min-width: 640px) {
-  .coachGrid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (min-width: 1024px) {
-  .coachGrid {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-@media (min-width: 1280px) {
-  .coachGrid {
-    grid-template-columns: repeat(4, 1fr);
-  }
-}
-
-/* Coach Card */
+/* Coach Card - Horizontal Layout */
 .coachCard {
   display: flex;
-  flex-direction: column;
+  gap: var(--space-6);
   background: white;
   border: 1px solid var(--gray-200);
   border-radius: var(--radius-xl);
   padding: var(--space-6);
   transition: all var(--transition-base);
-  height: 100%;
 }
 
 .coachCard:hover {
   border-color: var(--primary);
   box-shadow: var(--shadow-lg);
-  transform: translateY(-4px);
+  transform: translateY(-2px);
 }
 
 .coachAvatar {
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
+  width: 100px;
+  height: 100px;
+  border-radius: var(--radius-lg);
   background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
   color: white;
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: var(--font-bold);
-  font-size: var(--text-2xl);
-  margin: 0 auto var(--space-4);
+  font-size: var(--text-3xl);
+  flex-shrink: 0;
   box-shadow: var(--shadow-md);
 }
 
-.coachInfo {
+@media (max-width: 640px) {
+  .coachAvatar {
+    width: 80px;
+    height: 80px;
+    font-size: var(--text-2xl);
+  }
+}
+
+.coachDetails {
   flex: 1;
-  text-align: center;
-  margin-bottom: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+.coachHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--space-4);
+  flex-wrap: wrap;
 }
 
 .coachName {
-  font-size: var(--text-lg);
-  font-weight: var(--font-semibold);
+  font-size: var(--text-xl);
+  font-weight: var(--font-bold);
   color: var(--text-primary);
-  margin-bottom: var(--space-2);
+  margin-bottom: var(--space-1);
+}
+
+@media (max-width: 640px) {
+  .coachName {
+    font-size: var(--text-lg);
+  }
 }
 
 .coachDiscipline {
   font-size: var(--text-sm);
   color: var(--primary);
-  font-weight: var(--font-medium);
-  margin-bottom: var(--space-3);
+  font-weight: var(--font-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.coachRate {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  padding: var(--space-2) var(--space-4);
+  background: var(--gray-50);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--gray-200);
+}
+
+.rateAmount {
+  font-size: var(--text-lg);
+  font-weight: var(--font-bold);
+  color: var(--primary);
+  white-space: nowrap;
+}
+
+.rateLabel {
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -225,14 +406,34 @@
   font-size: var(--text-sm);
   color: var(--text-secondary);
   line-height: 1.6;
-  margin-bottom: var(--space-4);
+}
+
+.coachMeta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.metaItem {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+
+.metaIcon {
+  width: 16px;
+  height: 16px;
+  color: var(--text-tertiary);
+  flex-shrink: 0;
 }
 
 .coachBadges {
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-2);
-  justify-content: center;
 }
 
 .badge {
@@ -246,10 +447,43 @@
   color: var(--text-secondary);
 }
 
-.coachActions {
+.coachFooter {
   display: flex;
-  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-4);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--gray-200);
+  flex-wrap: wrap;
+}
+
+.socialLinks {
+  display: flex;
   gap: var(--space-2);
+}
+
+.socialLink {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  background: var(--gray-100);
+  color: var(--text-secondary);
+  transition: all var(--transition-base);
+  text-decoration: none;
+}
+
+.socialLink:hover {
+  background: var(--primary);
+  color: white;
+  transform: translateY(-2px);
+}
+
+.socialLink svg {
+  width: 18px;
+  height: 18px;
 }
 
 /* Empty State */
