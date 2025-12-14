@@ -26,6 +26,16 @@ const EditCoachSchema = z.object({
   discipline: z.string().min(1, 'Discipline is required'),
   bio: z.string().optional(),
   portfolio: z.string().url('Must be a valid URL').or(z.literal('')).optional(),
+  hourlyRate: z.number().positive('Hourly rate must be positive').optional().or(z.nan()),
+  address: z.string().optional(),
+  city: z.string().optional(),
+  country: z.string().optional(),
+  experienceYears: z.number().int().min(0, 'Experience years must be 0 or more').optional().or(z.nan()),
+  instagram: z.string().url('Must be a valid URL').or(z.literal('')).optional(),
+  facebook: z.string().url('Must be a valid URL').or(z.literal('')).optional(),
+  tiktok: z.string().url('Must be a valid URL').or(z.literal('')).optional(),
+  twitter: z.string().url('Must be a valid URL').or(z.literal('')).optional(),
+  youtube: z.string().url('Must be a valid URL').or(z.literal('')).optional(),
 });
 
 // Schema for editing client-specific fields
@@ -50,6 +60,16 @@ interface ProfileData {
     bio?: string | null;
     portfolio?: string | null;
     status?: string;
+    hourlyRate?: number | null;
+    address?: string | null;
+    city?: string | null;
+    country?: string | null;
+    experienceYears?: number | null;
+    instagram?: string | null;
+    facebook?: string | null;
+    tiktok?: string | null;
+    twitter?: string | null;
+    youtube?: string | null;
     ageRange?: string | null;
     heightCm?: number | null;
     weightKg?: number | null;
@@ -127,6 +147,16 @@ export default function ProfilePage() {
               discipline: data.profile.discipline || '',
               bio: data.profile.bio || '',
               portfolio: data.profile.portfolio || '',
+              hourlyRate: data.profile.hourlyRate || undefined,
+              address: data.profile.address || '',
+              city: data.profile.city || '',
+              country: data.profile.country || '',
+              experienceYears: data.profile.experienceYears || undefined,
+              instagram: data.profile.instagram || '',
+              facebook: data.profile.facebook || '',
+              tiktok: data.profile.tiktok || '',
+              twitter: data.profile.twitter || '',
+              youtube: data.profile.youtube || '',
             });
           } else if (data.user.role === 'PROSPECT' && data.profile) {
             resetClient({
@@ -191,6 +221,16 @@ export default function ProfilePage() {
           discipline: data.discipline,
           bio: data.bio || null,
           portfolio: data.portfolio || null,
+          hourlyRate: data.hourlyRate || null,
+          address: data.address || null,
+          city: data.city || null,
+          country: data.country || null,
+          experienceYears: data.experienceYears || null,
+          instagram: data.instagram || null,
+          facebook: data.facebook || null,
+          tiktok: data.tiktok || null,
+          twitter: data.twitter || null,
+          youtube: data.youtube || null,
         }),
       });
 
@@ -335,6 +375,34 @@ export default function ProfilePage() {
                     <span className={styles.infoLabel}>Status:</span>
                     <span className={styles.infoValue}>{profileData.profile.status}</span>
                   </div>
+                  {profileData.profile.hourlyRate && (
+                    <div className={styles.infoItem}>
+                      <span className={styles.infoLabel}>{t('hourlyRate')}:</span>
+                      <span className={styles.infoValue}>
+                        {new Intl.NumberFormat('fr-FR').format(Number(profileData.profile.hourlyRate))} XAF
+                      </span>
+                    </div>
+                  )}
+                  {profileData.profile.experienceYears !== null && profileData.profile.experienceYears !== undefined && (
+                    <div className={styles.infoItem}>
+                      <span className={styles.infoLabel}>{t('experience')}:</span>
+                      <span className={styles.infoValue}>{profileData.profile.experienceYears} {t('years')}</span>
+                    </div>
+                  )}
+                  {(profileData.profile.city || profileData.profile.country) && (
+                    <div className={styles.infoItem}>
+                      <span className={styles.infoLabel}>{t('location')}:</span>
+                      <span className={styles.infoValue}>
+                        {[profileData.profile.city, profileData.profile.country].filter(Boolean).join(', ')}
+                      </span>
+                    </div>
+                  )}
+                  {profileData.profile.address && (
+                    <div className={styles.infoItem}>
+                      <span className={styles.infoLabel}>{t('address')}:</span>
+                      <span className={styles.infoValue}>{profileData.profile.address}</span>
+                    </div>
+                  )}
                 </div>
                 {profileData.profile.bio && (
                   <div className={styles.bioSection}>
@@ -353,6 +421,39 @@ export default function ProfilePage() {
                     >
                       {profileData.profile.portfolio}
                     </a>
+                  </div>
+                )}
+                {(profileData.profile.instagram || profileData.profile.facebook || profileData.profile.tiktok ||
+                  profileData.profile.twitter || profileData.profile.youtube) && (
+                  <div className={styles.bioSection}>
+                    <h3 className={styles.bioTitle}>{t('socialMedia')}</h3>
+                    <div className={styles.socialLinks}>
+                      {profileData.profile.instagram && (
+                        <a href={profileData.profile.instagram} target="_blank" rel="noopener noreferrer" className={styles.socialLink}>
+                          Instagram
+                        </a>
+                      )}
+                      {profileData.profile.facebook && (
+                        <a href={profileData.profile.facebook} target="_blank" rel="noopener noreferrer" className={styles.socialLink}>
+                          Facebook
+                        </a>
+                      )}
+                      {profileData.profile.tiktok && (
+                        <a href={profileData.profile.tiktok} target="_blank" rel="noopener noreferrer" className={styles.socialLink}>
+                          TikTok
+                        </a>
+                      )}
+                      {profileData.profile.twitter && (
+                        <a href={profileData.profile.twitter} target="_blank" rel="noopener noreferrer" className={styles.socialLink}>
+                          X (Twitter)
+                        </a>
+                      )}
+                      {profileData.profile.youtube && (
+                        <a href={profileData.profile.youtube} target="_blank" rel="noopener noreferrer" className={styles.socialLink}>
+                          YouTube
+                        </a>
+                      )}
+                    </div>
                   </div>
                 )}
               </div>
@@ -483,6 +584,174 @@ export default function ProfilePage() {
                       />
                       {errorsCoach.portfolio && (
                         <span className={styles.error}>{errorsCoach.portfolio.message as string}</span>
+                      )}
+                    </div>
+
+                    <div className={styles.formGroup}>
+                      <label htmlFor="hourlyRate" className={styles.label}>
+                        {t('editModal.hourlyRateLabel')}
+                      </label>
+                      <input
+                        {...registerCoach('hourlyRate', { valueAsNumber: true })}
+                        type="number"
+                        id="hourlyRate"
+                        className={styles.input}
+                        placeholder={t('editModal.hourlyRatePlaceholder')}
+                        min="0"
+                        step="500"
+                      />
+                      {errorsCoach.hourlyRate && (
+                        <span className={styles.error}>{errorsCoach.hourlyRate.message as string}</span>
+                      )}
+                    </div>
+
+                    <div className={styles.formGroup}>
+                      <label htmlFor="experienceYears" className={styles.label}>
+                        {t('editModal.experienceYearsLabel')}
+                      </label>
+                      <input
+                        {...registerCoach('experienceYears', { valueAsNumber: true })}
+                        type="number"
+                        id="experienceYears"
+                        className={styles.input}
+                        placeholder={t('editModal.experienceYearsPlaceholder')}
+                        min="0"
+                        step="1"
+                      />
+                      {errorsCoach.experienceYears && (
+                        <span className={styles.error}>{errorsCoach.experienceYears.message as string}</span>
+                      )}
+                    </div>
+
+                    <div className={styles.formGroup}>
+                      <label htmlFor="address" className={styles.label}>
+                        {t('editModal.addressLabel')}
+                      </label>
+                      <input
+                        {...registerCoach('address')}
+                        type="text"
+                        id="address"
+                        className={styles.input}
+                        placeholder={t('editModal.addressPlaceholder')}
+                      />
+                      {errorsCoach.address && (
+                        <span className={styles.error}>{errorsCoach.address.message as string}</span>
+                      )}
+                    </div>
+
+                    <div className={styles.formRow}>
+                      <div className={styles.formGroup}>
+                        <label htmlFor="city" className={styles.label}>
+                          {t('editModal.cityLabel')}
+                        </label>
+                        <input
+                          {...registerCoach('city')}
+                          type="text"
+                          id="city"
+                          className={styles.input}
+                          placeholder={t('editModal.cityPlaceholder')}
+                        />
+                        {errorsCoach.city && (
+                          <span className={styles.error}>{errorsCoach.city.message as string}</span>
+                        )}
+                      </div>
+
+                      <div className={styles.formGroup}>
+                        <label htmlFor="country" className={styles.label}>
+                          {t('editModal.countryLabel')}
+                        </label>
+                        <input
+                          {...registerCoach('country')}
+                          type="text"
+                          id="country"
+                          className={styles.input}
+                          placeholder={t('editModal.countryPlaceholder')}
+                        />
+                        {errorsCoach.country && (
+                          <span className={styles.error}>{errorsCoach.country.message as string}</span>
+                        )}
+                      </div>
+                    </div>
+
+                    <h4 className={styles.sectionSubtitle}>{t('editModal.socialMediaTitle')}</h4>
+
+                    <div className={styles.formGroup}>
+                      <label htmlFor="instagram" className={styles.label}>
+                        {t('editModal.instagramLabel')}
+                      </label>
+                      <input
+                        {...registerCoach('instagram')}
+                        type="url"
+                        id="instagram"
+                        className={styles.input}
+                        placeholder={t('editModal.instagramPlaceholder')}
+                      />
+                      {errorsCoach.instagram && (
+                        <span className={styles.error}>{errorsCoach.instagram.message as string}</span>
+                      )}
+                    </div>
+
+                    <div className={styles.formGroup}>
+                      <label htmlFor="facebook" className={styles.label}>
+                        {t('editModal.facebookLabel')}
+                      </label>
+                      <input
+                        {...registerCoach('facebook')}
+                        type="url"
+                        id="facebook"
+                        className={styles.input}
+                        placeholder={t('editModal.facebookPlaceholder')}
+                      />
+                      {errorsCoach.facebook && (
+                        <span className={styles.error}>{errorsCoach.facebook.message as string}</span>
+                      )}
+                    </div>
+
+                    <div className={styles.formGroup}>
+                      <label htmlFor="tiktok" className={styles.label}>
+                        {t('editModal.tiktokLabel')}
+                      </label>
+                      <input
+                        {...registerCoach('tiktok')}
+                        type="url"
+                        id="tiktok"
+                        className={styles.input}
+                        placeholder={t('editModal.tiktokPlaceholder')}
+                      />
+                      {errorsCoach.tiktok && (
+                        <span className={styles.error}>{errorsCoach.tiktok.message as string}</span>
+                      )}
+                    </div>
+
+                    <div className={styles.formGroup}>
+                      <label htmlFor="twitter" className={styles.label}>
+                        {t('editModal.twitterLabel')}
+                      </label>
+                      <input
+                        {...registerCoach('twitter')}
+                        type="url"
+                        id="twitter"
+                        className={styles.input}
+                        placeholder={t('editModal.twitterPlaceholder')}
+                      />
+                      {errorsCoach.twitter && (
+                        <span className={styles.error}>{errorsCoach.twitter.message as string}</span>
+                      )}
+                    </div>
+
+                    <div className={styles.formGroup}>
+                      <label htmlFor="youtube" className={styles.label}>
+                        {t('editModal.youtubeLabel')}
+                      </label>
+                      <input
+                        {...registerCoach('youtube')}
+                        type="url"
+                        id="youtube"
+                        className={styles.input}
+                        placeholder={t('editModal.youtubePlaceholder')}
+                      />
+                      {errorsCoach.youtube && (
+                        <span className={styles.error}>{errorsCoach.youtube.message as string}</span>
                       )}
                     </div>
 
