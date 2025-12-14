@@ -28,7 +28,7 @@ interface UploadingFile {
 }
 
 export default function MediaUploadTab() {
-  const t = useTranslations();
+  const t = useTranslations('toast');
   const { token } = useAuth();
   const [mediaFiles, setMediaFiles] = useState<MediaFile[]>([]);
   const [uploadingFiles, setUploadingFiles] = useState<Record<string, UploadingFile>>({});
@@ -49,7 +49,7 @@ export default function MediaUploadTab() {
       }
     } catch (error) {
       console.error('Error fetching media:', error);
-      toast.error(t('toast.error.mediaLoadFailed'));
+      toast.error(t('error.mediaLoadFailed'));
     } finally {
       setLoading(false);
     }
@@ -79,7 +79,7 @@ export default function MediaUploadTab() {
         useWebWorker: true,
       });
       const sizeMB = (compressed.size / 1024 / 1024).toFixed(2);
-      toast.success(t('toast.success.fileCompressed', { fileName: file.name, sizeMB }));
+      toast.success(t('success.fileCompressed', { fileName: file.name, sizeMB }));
       return compressed;
     } catch (error) {
       console.error('Compression failed:', error);
@@ -171,11 +171,11 @@ export default function MediaUploadTab() {
       const registerData = await registerResponse.json();
       if (!registerData.success) throw new Error('Failed to register file');
 
-      toast.success(t('toast.success.fileUploaded', { fileName: processedFile.name }));
+      toast.success(t('success.fileUploaded', { fileName: processedFile.name }));
       fetchMediaFiles(); // Refresh list
     } catch (error) {
       console.error('Upload error:', error);
-      toast.error(t('toast.error.fileUploadFailed', { fileName: file.name }));
+      toast.error(t('error.fileUploadFailed', { fileName: file.name }));
     } finally {
       // Remove from uploading state
       setUploadingFiles(prev => {
@@ -206,10 +206,10 @@ export default function MediaUploadTab() {
 
       const data = await response.json();
       if (data.success) {
-        toast.success(t('toast.success.fileDeleted'));
+        toast.success(t('success.fileDeleted'));
         setMediaFiles(prev => prev.filter(m => m.id !== mediaId));
       } else {
-        toast.error(t('toast.error.fileDeleteFailed'));
+        toast.error(t('error.fileDeleteFailed'));
       }
     } catch (error) {
       console.error('Delete error:', error);
