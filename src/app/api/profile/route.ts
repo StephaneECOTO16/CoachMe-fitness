@@ -64,19 +64,31 @@ async function updateProfile(req: Request) {
 
     try {
         const body = await req.json();
-        const { name, ageRange, heightCm, weightKg, bio, discipline, portfolio } = body;
+        const { name, ageRange, heightCm, weightKg, bio, discipline, portfolio, hourlyRate, address, city, country, experienceYears, instagram, facebook, tiktok, twitter, youtube } = body;
 
         // Validate numeric fields if provided
-        if (heightCm !== undefined && (typeof heightCm !== 'number' || heightCm <= 0)) {
+        if (heightCm !== undefined && heightCm !== null && (typeof heightCm !== 'number' || heightCm <= 0)) {
             return NextResponse.json({
                 success: false,
                 error: { code: 'VALIDATION_ERROR', message: 'heightCm must be a positive number' }
             }, { status: 400 });
         }
-        if (weightKg !== undefined && (typeof weightKg !== 'number' || weightKg <= 0)) {
+        if (weightKg !== undefined && weightKg !== null && (typeof weightKg !== 'number' || weightKg <= 0)) {
             return NextResponse.json({
                 success: false,
                 error: { code: 'VALIDATION_ERROR', message: 'weightKg must be a positive number' }
+            }, { status: 400 });
+        }
+        if (hourlyRate !== undefined && hourlyRate !== null && (typeof hourlyRate !== 'number' || hourlyRate <= 0)) {
+            return NextResponse.json({
+                success: false,
+                error: { code: 'VALIDATION_ERROR', message: 'hourlyRate must be a positive number' }
+            }, { status: 400 });
+        }
+        if (experienceYears !== undefined && experienceYears !== null && (typeof experienceYears !== 'number' || experienceYears < 0)) {
+            return NextResponse.json({
+                success: false,
+                error: { code: 'VALIDATION_ERROR', message: 'experienceYears must be 0 or more' }
             }, { status: 400 });
         }
 
@@ -102,6 +114,16 @@ async function updateProfile(req: Request) {
                     bio: bio !== undefined ? bio : undefined,
                     discipline: discipline !== undefined ? discipline : undefined,
                     portfolio: portfolio !== undefined ? portfolio : undefined,
+                    hourlyRate: hourlyRate !== undefined ? hourlyRate : undefined,
+                    address: address !== undefined ? address : undefined,
+                    city: city !== undefined ? city : undefined,
+                    country: country !== undefined ? country : undefined,
+                    experienceYears: experienceYears !== undefined ? experienceYears : undefined,
+                    instagram: instagram !== undefined ? instagram : undefined,
+                    facebook: facebook !== undefined ? facebook : undefined,
+                    tiktok: tiktok !== undefined ? tiktok : undefined,
+                    twitter: twitter !== undefined ? twitter : undefined,
+                    youtube: youtube !== undefined ? youtube : undefined,
                 },
                 include: { media: true },
             });
