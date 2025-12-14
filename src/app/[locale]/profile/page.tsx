@@ -162,15 +162,15 @@ export default function ProfilePage() {
       const result = await response.json();
 
       if (result.success) {
-        toast.success('Profile updated successfully!');
+        toast.success(t('toast.success.profileUpdated'));
         setProfileData(result);
         setIsEditModalOpen(false);
       } else {
-        toast.error('Failed to update profile. Please try again.');
+        toast.error(t('toast.error.profileUpdateFailed'));
       }
     } catch (error) {
       console.error('Error updating profile:', error);
-      toast.error('Failed to update profile. Please try again.');
+      toast.error(t('toast.error.profileUpdateFailed'));
     } finally {
       setIsEditingProfile(false);
     }
@@ -196,15 +196,15 @@ export default function ProfilePage() {
       const result = await response.json();
 
       if (result.success) {
-        toast.success('Coach profile updated successfully!');
+        toast.success(t('toast.success.coachProfileUpdated'));
         setProfileData(result);
         setIsEditModalOpen(false);
       } else {
-        toast.error('Failed to update profile. Please try again.');
+        toast.error(t('toast.error.profileUpdateFailed'));
       }
     } catch (error) {
       console.error('Error updating profile:', error);
-      toast.error('Failed to update profile. Please try again.');
+      toast.error(t('toast.error.profileUpdateFailed'));
     } finally {
       setIsEditingProfile(false);
     }
@@ -231,15 +231,15 @@ export default function ProfilePage() {
       const result = await response.json();
 
       if (result.success) {
-        toast.success('Profile updated successfully!');
+        toast.success(t('toast.success.profileUpdated'));
         setProfileData(result);
         setIsEditModalOpen(false);
       } else {
-        toast.error('Failed to update profile. Please try again.');
+        toast.error(t('toast.error.profileUpdateFailed'));
       }
     } catch (error) {
       console.error('Error updating profile:', error);
-      toast.error('Failed to update profile. Please try again.');
+      toast.error(t('toast.error.profileUpdateFailed'));
     } finally {
       setIsEditingProfile(false);
     }
