@@ -5,6 +5,7 @@ import { useDropzone } from 'react-dropzone';
 import { Upload, X, FileText, Image as ImageIcon, Video, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import imageCompression from 'browser-image-compression';
+import { useTranslations } from 'next-intl';
 import { useAuth } from '@/contexts/AuthContext';
 import Button from '@/components/ui/Button';
 import styles from './MediaUploadTab.module.css';
@@ -27,6 +28,7 @@ interface UploadingFile {
 }
 
 export default function MediaUploadTab() {
+  const t = useTranslations();
   const { token } = useAuth();
   const [mediaFiles, setMediaFiles] = useState<MediaFile[]>([]);
   const [uploadingFiles, setUploadingFiles] = useState<Record<string, UploadingFile>>({});
@@ -47,11 +49,11 @@ export default function MediaUploadTab() {
       }
     } catch (error) {
       console.error('Error fetching media:', error);
-      toast.error('Failed to load media files');
+      toast.error(t('toast.error.mediaLoadFailed'));
     } finally {
       setLoading(false);
     }
-  }, [token]);
+  }, [token, t]);
 
   useEffect(() => {
     fetchMediaFiles();
@@ -76,7 +78,8 @@ export default function MediaUploadTab() {
         maxWidthOrHeight: 1920,
         useWebWorker: true,
       });
-      toast.success(`Compressed ${file.name} to ${(compressed.size / 1024 / 1024).toFixed(2)}MB`);
+      const sizeMB = (compressed.size / 1024 / 1024).toFixed(2);
+      toast.success(t('toast.success.fileCompressed', { fileName: file.name, sizeMB }));
       return compressed;
     } catch (error) {
       console.error('Compression failed:', error);
@@ -168,11 +171,11 @@ export default function MediaUploadTab() {
       const registerData = await registerResponse.json();
       if (!registerData.success) throw new Error('Failed to register file');
 
-      toast.success(`${processedFile.name} uploaded successfully!`);
+      toast.success(t('toast.success.fileUploaded', { fileName: processedFile.name }));
       fetchMediaFiles(); // Refresh list
     } catch (error) {
       console.error('Upload error:', error);
-      toast.error(`Failed to upload ${file.name}`);
+      toast.error(t('toast.error.fileUploadFailed', { fileName: file.name }));
     } finally {
       // Remove from uploading state
       setUploadingFiles(prev => {
@@ -203,14 +206,14 @@ export default function MediaUploadTab() {
 
       const data = await response.json();
       if (data.success) {
-        toast.success('File deleted');
+        toast.success(t('toast.success.fileDeleted'));
         setMediaFiles(prev => prev.filter(m => m.id !== mediaId));
       } else {
-        toast.error('Failed to delete file');
+        toast.error(t('toast.error.fileDeleteFailed'));
       }
     } catch (error) {
       console.error('Delete error:', error);
-      toast.error('Failed to delete file');
+      toast.error(t('toast.error.fileDeleteFailed'));
     }
   };
 

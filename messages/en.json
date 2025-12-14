@@ -580,6 +580,26 @@
       "goHome": "Go Home"
     }
   },
+  "toast": {
+    "success": {
+      "profileUpdated": "Profile updated successfully!",
+      "coachProfileUpdated": "Coach profile updated successfully!",
+      "fileDeleted": "File deleted",
+      "fileUploaded": "{fileName} uploaded successfully!",
+      "fileCompressed": "Compressed {fileName} to {sizeMB}MB",
+      "messageSent": "Message sent",
+      "applicationSubmitted": "Application submitted successfully",
+      "coachApproved": "Coach approved successfully",
+      "coachRejected": "Coach rejected successfully"
+    },
+    "error": {
+      "profileUpdateFailed": "Failed to update profile. Please try again.",
+      "mediaLoadFailed": "Failed to load media files",
+      "fileDeleteFailed": "Failed to delete file",
+      "fileUploadFailed": "Failed to upload {fileName}",
+      "generic": "Something went wrong. Please try again."
+    }
+  },
   "success": {
     "profileUpdated": "Profile updated successfully",
     "messageSent": "Message sent",

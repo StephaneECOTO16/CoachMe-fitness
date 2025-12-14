@@ -530,6 +530,26 @@
       "goHome": "Retour à l'Accueil"
     }
   },
+  "toast": {
+    "success": {
+      "profileUpdated": "Profil mis à jour avec succès!",
+      "coachProfileUpdated": "Profil coach mis à jour avec succès!",
+      "fileDeleted": "Fichier supprimé",
+      "fileUploaded": "{fileName} téléchargé avec succès!",
+      "fileCompressed": "Compression de {fileName} à {sizeMB}MB",
+      "messageSent": "Message envoyé",
+      "applicationSubmitted": "Candidature soumise avec succès",
+      "coachApproved": "Coach approuvé avec succès",
+      "coachRejected": "Coach rejeté avec succès"
+    },
+    "error": {
+      "profileUpdateFailed": "Échec de la mise à jour du profil. Veuillez réessayer.",
+      "mediaLoadFailed": "Échec du chargement des fichiers multimédias",
+      "fileDeleteFailed": "Échec de la suppression du fichier",
+      "fileUploadFailed": "Échec du téléchargement de {fileName}",
+      "generic": "Une erreur s'est produite. Veuillez réessayer."
+    }
+  },
   "success": {
     "profileUpdated": "Profil mis à jour avec succès",
     "messageSent": "Message envoyé",
