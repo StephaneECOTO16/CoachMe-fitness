@@ -1,7 +1,8 @@
 {
   "buildCommand": "prisma generate && next build",
   "env": {
-    "DATABASE_URL": "@database_url",
+    "DATABASE_URL": "@postgres_url_non_pooling",
+    "POSTGRES_PRISMA_URL": "@postgres_prisma_url",
     "JWT_SECRET": "@jwt_secret",
     "R2_ENDPOINT": "@r2_endpoint",
     "R2_REGION": "@r2_region",
