@@ -17,20 +17,6 @@ const pusher = new PusherServer({
 export { pusher };
 
 /**
- * Generate an authenticated Pusher token for a user.
- * Used to subscribe to private channels (1:1 chats).
- */
-export function generatePusherToken(userId: number, socketId: string) {
-    const token = pusher.authorizeChannel(socketId, {
-        user_id: userId.toString(),
-        user_info: {
-            name: `user-${userId}`,
-        },
-    });
-    return token;
-}
-
-/**
  * Channel name for 1:1 chat between coach and prospect.
  * Format: private-chat-{min(coachId, prospectId)}-{max(coachId, prospectId)}
  * Ensures channel is unique and ordered consistently.
