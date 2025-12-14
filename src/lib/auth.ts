@@ -32,7 +32,7 @@ export function verifyJwt(token?: string) {
  * Checks both Authorization header (Bearer token) and HTTP-only cookie.
  * Works for both `Request` and `NextRequest` server handlers.
  */
-export function getTokenFromHeader(req: Request | NextRequest) {
+export async function getTokenFromHeader(req: Request | NextRequest) {
     // Try to get token from Authorization header first (for backwards compatibility)
     // @ts-ignore - both Request and NextRequest expose `.headers.get` in Next.js
     const auth = (req as any).headers?.get?.('authorization') || '';
@@ -45,7 +45,7 @@ export function getTokenFromHeader(req: Request | NextRequest) {
 
     // Try to get token from HTTP-only cookie
     try {
-        const cookieStore = cookies();
+        const cookieStore = await cookies();
         const tokenCookie = cookieStore.get('token');
         if (tokenCookie) {
             return tokenCookie.value;
@@ -77,8 +77,8 @@ export async function comparePassword(plain: string, hashed: string) {
  * Helper to require authentication inside route handlers. Returns the token payload
  * or `null` if unauthenticated. Optionally check for allowed roles.
  */
-export function requireAuth(req: Request | NextRequest, allowedRoles?: string[]) {
-    const token = getTokenFromHeader(req);
+export async function requireAuth(req: Request | NextRequest, allowedRoles?: string[]) {
+    const token = await getTokenFromHeader(req);
     const payload = verifyJwt(token || undefined);
     if (!payload) return null;
     if (allowedRoles && !allowedRoles.includes(payload.role)) return null;

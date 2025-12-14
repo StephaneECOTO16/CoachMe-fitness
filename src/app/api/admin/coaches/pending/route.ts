@@ -4,7 +4,7 @@ import { requireAuth } from '@/lib/auth';
 
 
 export async function GET(req: Request) {
-    const payload = requireAuth(req, ['ADMIN']);
+    const payload = await requireAuth(req, ['ADMIN']);
     if (!payload) return NextResponse.json({ success: false, error: { code: 'UNAUTHORIZED' } }, { status: 401 });
 
     const pending = await prisma.coachProfile.findMany({ where: { status: 'PENDING' }, include: { user: true, media: true } });

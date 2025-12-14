@@ -11,7 +11,7 @@ import { prisma } from "@/lib/prisma";
 
 export async function POST(req: Request) {
   // Verify user is authenticated
-  const payload = requireAuth(req);
+  const payload = await requireAuth(req);
   if (!payload) {
     return NextResponse.json(
       { error: "Unauthorized" },

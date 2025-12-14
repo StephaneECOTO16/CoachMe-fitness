@@ -8,7 +8,7 @@ import { requireAuth } from '@/lib/auth';
  * Query params: status (PENDING, APPROVED, REJECTED)
  */
 export async function GET(req: Request) {
-    const payload = requireAuth(req, ['ADMIN']);
+    const payload = await requireAuth(req, ['ADMIN']);
     if (!payload) {
         return NextResponse.json({
             success: false,

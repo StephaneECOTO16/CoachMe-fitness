@@ -8,7 +8,7 @@ import { requireAuth } from '@/lib/auth';
  * Only participants (coach or prospect) can access.
  */
 export async function GET(req: Request, { params }: { params: Promise<{ chatId: string }> }) {
-    const payload = requireAuth(req);
+    const payload = await requireAuth(req);
     if (!payload) return NextResponse.json({ success: false, error: { code: 'UNAUTHORIZED' } }, { status: 401 });
 
     const { chatId: chatIdParam } = await params;

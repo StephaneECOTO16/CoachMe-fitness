@@ -7,7 +7,7 @@ import { requireAuth } from '@/lib/auth';
  * Get detailed information about a specific coach (admin only).
  */
 export async function GET(req: Request, { params }: { params: Promise<{ coachId: string }> }) {
-    const payload = requireAuth(req, ['ADMIN']);
+    const payload = await requireAuth(req, ['ADMIN']);
     if (!payload) {
         return NextResponse.json({
             success: false,
@@ -71,7 +71,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ coachId:
  * Update coach status (approve/reject) (admin only).
  */
 export async function PATCH(req: Request, { params }: { params: Promise<{ coachId: string }> }) {
-    const payload = requireAuth(req, ['ADMIN']);
+    const payload = await requireAuth(req, ['ADMIN']);
     if (!payload) {
         return NextResponse.json({
             success: false,

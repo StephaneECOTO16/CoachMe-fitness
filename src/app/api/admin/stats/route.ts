@@ -7,7 +7,7 @@ import { requireAuth } from '@/lib/auth';
  * Get platform statistics (admin only).
  */
 export async function GET(req: Request) {
-    const payload = requireAuth(req, ['ADMIN']);
+    const payload = await requireAuth(req, ['ADMIN']);
     if (!payload) {
         return NextResponse.json({
             success: false,

@@ -10,7 +10,7 @@ import { broadcastMessage } from '@/lib/pusher';
  * Broadcasts the message via Pusher for real-time delivery.
  */
 export async function POST(req: Request, { params }: { params: Promise<{ chatId: string }> }) {
-    const payload = requireAuth(req);
+    const payload = await requireAuth(req);
     if (!payload) return NextResponse.json({ success: false, error: { code: 'UNAUTHORIZED' } }, { status: 401 });
 
     const { chatId: chatIdParam } = await params;
@@ -73,7 +73,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ chatId:
  * Paginated for performance.
  */
 export async function GET(req: Request, { params }: { params: Promise<{ chatId: string }> }) {
-    const payload = requireAuth(req);
+    const payload = await requireAuth(req);
     if (!payload) return NextResponse.json({ success: false, error: { code: 'UNAUTHORIZED' } }, { status: 401 });
 
     const { chatId: chatIdParam } = await params;

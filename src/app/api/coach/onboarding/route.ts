@@ -5,7 +5,7 @@ import { parseRequestBody, CoachOnboardingSchema } from '@/lib/schemas';
 
 export async function POST(req: Request) {
     // Validate authentication
-    const payload = requireAuth(req, ['PROSPECT']);
+    const payload = await requireAuth(req, ['PROSPECT']);
     if (!payload) {
         return NextResponse.json({
             success: false,
