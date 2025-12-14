@@ -407,11 +407,11 @@
   },
   "coachDashboard": {
     "title": "Coach Dashboard",
-    "welcomeBackCoach": "Welcome back Coach",
+    "welcomeBackCoach": "WELCOME BACK COACH",
     "greetingMorning": "Good Morning",
     "greetingAfternoon": "Good Afternoon",
     "greetingEvening": "Good Evening",
-    "subtitle": "Manage your coaching sessions and connect with your clients",
+    "subtitle": "Manage your conversations, track your clients and grow your coaching practice.",
     "profileIncomplete": {
       "title": "Welcome to Your Coaching Journey!",
       "message": "We're excited to have you here! To get started and maximize your visibility to potential clients, let's complete your professional profile. This helps clients understand your expertise and builds trust.",
@@ -441,24 +441,24 @@
     "settings": "Settings",
     "bio": "Bio",
     "portfolio": "Portfolio",
-    "recentConversations": "Recent Conversations",
-    "viewAll": "View All",
+    "recentConversations": "Recent conversations",
+    "viewAll": "View all",
     "loading": "Loading...",
-    "noConversations": "No Active Conversations",
+    "noConversations": "No active conversations",
     "noConversationsApproved": "You don't have any active conversations yet. Clients will be able to contact you once they find your profile.",
     "noConversationsPending": "Once your profile is approved, clients will be able to find and contact you.",
-    "quickActions": "Quick Actions",
+    "quickActions": "Quick actions",
     "editProfileAction": {
-      "title": "Edit Profile",
-      "description": "Update your bio, credentials, and portfolio"
+      "title": "EDIT PROFILE",
+      "description": "Update your bio, discipline, portfolio and showcase your expertise."
     },
     "messagesAction": {
-      "title": "Messages",
-      "description": "View and respond to client messages"
+      "title": "MESSAGES",
+      "description": "View and respond to your client messages, manage your conversations."
     },
     "browseCoachesAction": {
-      "title": "Browse Coaches",
-      "description": "See how other coaches present themselves"
+      "title": "BROWSE COACHES",
+      "description": "Discover how other coaches present themselves and get inspired."
     },
     "settingsModal": {
       "title": "Profile Settings",
