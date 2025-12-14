@@ -141,7 +141,14 @@
       "subtitle": "Parcourez les professionnels du fitness certifiés",
       "noCoaches": "Aucun coach trouvé",
       "filterByDiscipline": "Filtrer par Discipline",
-      "allDisciplines": "Toutes les Disciplines"
+      "allDisciplines": "Toutes les Disciplines",
+      "loadingCoaches": "Chargement des coachs...",
+      "coachesFound": "{count} {count, plural, one {coach} other {coachs}} trouvé(s)",
+      "badgeCertified": "✓ Certifié",
+      "badgePortfolio": "📸 Portfolio",
+      "viewProfile": "Voir le Profil",
+      "clearFilters": "Effacer les Filtres",
+      "tryAdjustFilters": "Essayez d'ajuster vos filtres ou revenez plus tard pour de nouveaux coachs."
     },
     "profile": {
       "about": "À Propos",
@@ -150,7 +157,19 @@
       "certifications": "Certifications",
       "gallery": "Galerie",
       "contactCoach": "Contacter le Coach",
-      "startChat": "Démarrer une Conversation"
+      "startChat": "Démarrer une Conversation",
+      "loadingProfile": "Chargement du profil coach...",
+      "notFound": "Coach Non Trouvé",
+      "notFoundMessage": "Ce profil de coach n'est pas disponible.",
+      "browseAll": "Parcourir Tous les Coachs",
+      "viewPortfolio": "Voir le Portfolio",
+      "certificationsCredentials": "Certifications et Références",
+      "certification": "Certification",
+      "viewCertificate": "Voir le Certificat",
+      "videos": "Vidéos",
+      "readyToStart": "Prêt à Commencer Votre Parcours Fitness?",
+      "contactDescription": "Contactez {name} aujourd'hui pour discuter de vos objectifs et commencer.",
+      "imageAlt": "Coach démontrant des techniques de fitness"
     },
     "onboarding": {
       "title": "Devenez Coach",
