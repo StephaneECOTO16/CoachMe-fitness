@@ -10,7 +10,7 @@ import { parseRequestBody, InitiateChatRequestSchema } from '@/lib/schemas';
  */
 export async function POST(req: Request) {
     // Validate authentication
-    const payload = requireAuth(req, ['PROSPECT']);
+    const payload = await requireAuth(req, ['PROSPECT']);
     if (!payload) {
         return NextResponse.json({
             success: false,
@@ -68,7 +68,7 @@ export async function POST(req: Request) {
  * Shows coach chats if user is a coach, prospect chats if prospect.
  */
 export async function GET(req: Request) {
-    const payload = requireAuth(req);
+    const payload = await requireAuth(req);
     if (!payload) return NextResponse.json({ success: false, error: { code: 'UNAUTHORIZED' } }, { status: 401 });
 
     try {

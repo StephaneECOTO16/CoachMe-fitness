@@ -10,7 +10,7 @@ export async function DELETE(
     req: Request,
     { params }: { params: Promise<{ mediaId: string }> }
 ) {
-    const payload = requireAuth(req, ['COACH']);
+    const payload = await requireAuth(req, ['COACH']);
     if (!payload) {
         return NextResponse.json(
             { success: false, error: { code: 'UNAUTHORIZED' } },

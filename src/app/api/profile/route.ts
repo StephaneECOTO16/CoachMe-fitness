@@ -8,7 +8,7 @@ import { requireAuth } from '@/lib/auth';
  * Returns prospect or coach profile based on user role.
  */
 export async function GET(req: Request) {
-    const payload = requireAuth(req);
+    const payload = await requireAuth(req);
     if (!payload) return NextResponse.json({ success: false, error: { code: 'UNAUTHORIZED' } }, { status: 401 });
 
     try {
@@ -54,7 +54,7 @@ export async function GET(req: Request) {
  * Updates user name and role-specific profile fields.
  */
 async function updateProfile(req: Request) {
-    const payload = requireAuth(req);
+    const payload = await requireAuth(req);
     if (!payload) {
         return NextResponse.json({
             success: false,

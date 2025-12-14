@@ -8,7 +8,7 @@ import { requireAuth } from '@/lib/auth';
  * Creates an AdminReview record for audit trail.
  */
 export async function POST(req: Request, { params }: { params: Promise<{ coachId: string }> }) {
-    const payload = requireAuth(req, ['ADMIN']);
+    const payload = await requireAuth(req, ['ADMIN']);
     if (!payload) return NextResponse.json({ success: false, error: { code: 'UNAUTHORIZED' } }, { status: 401 });
 
     const { coachId: coachIdParam } = await params;

@@ -17,7 +17,7 @@ const RejectCoachBodySchema = z.object({
  */
 export async function POST(req: Request, { params }: { params: Promise<{ coachId: string }> }) {
     // Validate authentication
-    const payload = requireAuth(req, ['ADMIN']);
+    const payload = await requireAuth(req, ['ADMIN']);
     if (!payload) {
         return NextResponse.json({
             success: false,
