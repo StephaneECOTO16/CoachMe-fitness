@@ -383,12 +383,15 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, var(--primary) 0%, var(--secondary-light) 100%);
-  color: white;
+  background: linear-gradient(
+    135deg,
+    var(--primary) 0%,
+    var(--secondary-light) 100%
+  );
+  color: var(--white);
   font-weight: var(--font-bold);
   font-size: var(--text-4xl);
 }
-
 
 .coachDetails {
   flex: 1;
