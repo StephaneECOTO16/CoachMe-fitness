@@ -1,19 +1,31 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import Image from 'next/image';
-import { useParams, useRouter } from 'next/navigation';
-import { useTranslations } from 'next-intl';
-import { Link } from '@/i18n/routing';
-import { useAuth } from '@/contexts/AuthContext';
-import Button from '@/components/ui/Button';
-import { Star, MapPin, Clock, Award, CheckCircle, Share2, Instagram, Facebook, Twitter, Youtube, Video as VideoIcon } from 'lucide-react';
-import styles from './page.module.css';
+import { useEffect, useState } from "react";
+import Image from "next/image";
+import { useParams, useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/routing";
+import { useAuth } from "@/contexts/AuthContext";
+import Button from "@/components/ui/Button";
+import {
+  Star,
+  MapPin,
+  Clock,
+  Award,
+  CheckCircle,
+  Share2,
+  Instagram,
+  Facebook,
+  Twitter,
+  Youtube,
+  Video as VideoIcon,
+} from "lucide-react";
+import styles from "./page.module.css";
 
 interface Media {
   id: number;
   url: string;
-  type: 'IMAGE' | 'VIDEO' | 'CERTIFICATE';
+  type: "IMAGE" | "VIDEO" | "CERTIFICATE";
   description: string | null;
 }
 
@@ -46,14 +58,20 @@ interface CoachProfile {
 export default function CoachProfilePage() {
   const params = useParams();
   const router = useRouter();
-  const t = useTranslations('coachDetail');
-  const tCommon = useTranslations('common');
-  const tErrors = useTranslations('errors');
+  const t = useTranslations("coachDetail");
+  const tCommon = useTranslations("common");
+  const tErrors = useTranslations("errors");
   const { isAuthenticated, user } = useAuth();
   const [coach, setCoach] = useState<CoachProfile | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [activeTab, setActiveTab] = useState<'overview' | 'reviews'>('overview');
+  const [error, setError] = useState("");
+  const [activeTab, setActiveTab] = useState<"overview" | "reviews">(
+    "overview"
+  );
+  const [videoModalOpen, setVideoModalOpen] = useState(false);
+  const [selectedVideo, setSelectedVideo] = useState<Media | null>(null);
+  const [imageModalOpen, setImageModalOpen] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<Media | null>(null);
 
   const coachId = params?.coachId as string;
 
@@ -68,11 +86,11 @@ export default function CoachProfilePage() {
         if (data.success) {
           setCoach(data.coach);
         } else {
-          setError(tErrors('coachNotFound'));
+          setError(tErrors("coachNotFound"));
         }
       } catch (err) {
-        console.error('Error fetching coach:', err);
-        setError(tErrors('coachLoadFailed'));
+        console.error("Error fetching coach:", err);
+        setError(tErrors("coachLoadFailed"));
       } finally {
         setLoading(false);
       }
@@ -83,21 +101,21 @@ export default function CoachProfilePage() {
 
   const handleContactCoach = async () => {
     if (!isAuthenticated) {
-      router.push('/login');
+      router.push("/login");
       return;
     }
 
-    if (user?.role !== 'PROSPECT') {
-      alert(tErrors('onlyClientsCanContact'));
+    if (user?.role !== "PROSPECT") {
+      alert(tErrors("onlyClientsCanContact"));
       return;
     }
 
     try {
-      const response = await fetch('/api/chat', {
-        method: 'POST',
+      const response = await fetch("/api/chat", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
         body: JSON.stringify({
           coachId: parseInt(coachId),
@@ -109,24 +127,24 @@ export default function CoachProfilePage() {
       if (data.success) {
         router.push(`/messages/${data.chat.id}`);
       } else {
-        alert(tErrors('chatInitFailed'));
+        alert(tErrors("chatInitFailed"));
       }
     } catch (err) {
-      console.error('Error initiating chat:', err);
-      alert(tErrors('chatInitFailed'));
+      console.error("Error initiating chat:", err);
+      alert(tErrors("chatInitFailed"));
     }
   };
 
   const handleShare = () => {
     if (navigator.share) {
       navigator.share({
-        title: `${coach?.user.name || 'Coach'} - ${coach?.discipline}`,
-        text: coach?.bio || '',
+        title: `${coach?.user.name || "Coach"} - ${coach?.discipline}`,
+        text: coach?.bio || "",
         url: window.location.href,
       });
     } else {
       navigator.clipboard.writeText(window.location.href);
-      alert(t('linkCopied'));
+      alert(t("linkCopied"));
     }
   };
 
@@ -135,7 +153,7 @@ export default function CoachProfilePage() {
       <div className={styles.container}>
         <div className={styles.loading}>
           <div className={styles.spinner}></div>
-          <p>{tCommon('loading')}</p>
+          <p>{tCommon("loading")}</p>
         </div>
       </div>
     );
@@ -145,20 +163,41 @@ export default function CoachProfilePage() {
     return (
       <div className={styles.container}>
         <div className={styles.error}>
-          <h2>{t('notFound')}</h2>
-          <p>{error || t('notFoundMessage')}</p>
+          <h2>{t("notFound")}</h2>
+          <p>{error || t("notFoundMessage")}</p>
           <Link href="/coaches">
-            <Button variant="primary">{t('browseAll')}</Button>
+            <Button variant="primary">{t("browseAll")}</Button>
           </Link>
         </div>
       </div>
     );
   }
 
-  const certificates = coach.media.filter(m => m.type === 'CERTIFICATE');
-  const images = coach.media.filter(m => m.type === 'IMAGE');
-  const videos = coach.media.filter(m => m.type === 'VIDEO');
-  const location = [coach.city, coach.country].filter(Boolean).join(', ');
+  const certificates = coach.media.filter((m) => m.type === "CERTIFICATE");
+  const images = coach.media.filter((m) => m.type === "IMAGE");
+  const videos = coach.media.filter((m) => m.type === "VIDEO");
+  const mediaItems = [...videos, ...images]; // Combine videos and images for unified media section
+  const location = [coach.city, coach.country].filter(Boolean).join(", ");
+
+  const handleVideoClick = (video: Media) => {
+    setSelectedVideo(video);
+    setVideoModalOpen(true);
+  };
+
+  const closeVideoModal = () => {
+    setVideoModalOpen(false);
+    setSelectedVideo(null);
+  };
+
+  const handleImageClick = (image: Media) => {
+    setSelectedImage(image);
+    setImageModalOpen(true);
+  };
+
+  const closeImageModal = () => {
+    setImageModalOpen(false);
+    setSelectedImage(null);
+  };
 
   return (
     <div className={styles.container}>
@@ -169,29 +208,33 @@ export default function CoachProfilePage() {
             {/* Coach Avatar */}
             <div className={styles.avatarWrapper}>
               <div className={styles.coachAvatar}>
-                {coach.user.name?.[0]?.toUpperCase() || 'C'}
+                {coach.user.name?.[0]?.toUpperCase() || "C"}
               </div>
-              {coach.status === 'APPROVED' && (
+              {/* {coach.status === 'APPROVED' && (
                 <div className={styles.verifiedBadge}>
                   <CheckCircle size={20} />
                 </div>
-              )}
+              )} */}
             </div>
 
             {/* Coach Name & Title */}
-            <h1 className={styles.coachName}>{coach.user.name || 'Coach'}</h1>
+            <h1 className={styles.coachName}>{coach.user.name || "Coach"}</h1>
             <p className={styles.coachTitle}>{coach.discipline}</p>
 
             {/* Rating */}
-            {coach.minRating && (
+            {/* {coach.minRating && (
               <div className={styles.ratingSection}>
                 <div className={styles.ratingStars}>
                   <Star size={20} fill="currentColor" />
-                  <span className={styles.ratingValue}>{coach.minRating.toFixed(1)}</span>
+                  <span className={styles.ratingValue}>
+                    {coach.minRating.toFixed(1)}
+                  </span>
                 </div>
-                <span className={styles.reviewCount}>({t('reviews', { count: 86 })})</span>
+                <span className={styles.reviewCount}>
+                  ({t("reviews", { count: 86 })})
+                </span>
               </div>
-            )}
+            )} */}
 
             {/* Quick Info */}
             <div className={styles.quickInfo}>
@@ -204,7 +247,9 @@ export default function CoachProfilePage() {
               {coach.experienceYears !== null && (
                 <div className={styles.infoItem}>
                   <Clock size={18} />
-                  <span>{t('activeCount', { count: coach.experienceYears })}</span>
+                  <span>
+                    {t("activeCount", { count: coach.experienceYears })}
+                  </span>
                 </div>
               )}
             </div>
@@ -212,9 +257,10 @@ export default function CoachProfilePage() {
             {/* Pricing */}
             {coach.hourlyRate && (
               <div className={styles.pricingSection}>
-                <p className={styles.pricingLabel}>{t('startingAt')}</p>
+                <p className={styles.pricingLabel}>{t("startingAt")}</p>
                 <p className={styles.pricingAmount}>
-                  {new Intl.NumberFormat('fr-FR').format(coach.hourlyRate)} XAF<span>/mo</span>
+                  {new Intl.NumberFormat("fr-FR").format(coach.hourlyRate)} XAF
+                  <span>/mo</span>
                 </p>
               </div>
             )}
@@ -227,15 +273,15 @@ export default function CoachProfilePage() {
                 onClick={handleContactCoach}
                 className={styles.messageButton}
               >
-                {t('messageCoach')}
+                {t("messageCoach")}
               </Button>
-              <button
+              {/* <button
                 className={styles.shareButton}
                 onClick={handleShare}
-                aria-label={t('shareProfile')}
+                aria-label={t("shareProfile")}
               >
                 <Share2 size={20} />
-              </button>
+              </button> */}
             </div>
           </div>
         </aside>
@@ -245,57 +291,67 @@ export default function CoachProfilePage() {
           {/* Tabs */}
           <div className={styles.tabs}>
             <button
-              className={`${styles.tab} ${activeTab === 'overview' ? styles.tabActive : ''}`}
-              onClick={() => setActiveTab('overview')}
+              className={`${styles.tab} ${
+                activeTab === "overview" ? styles.tabActive : ""
+              }`}
+              onClick={() => setActiveTab("overview")}
             >
-              {t('overview')}
+              {t("overview")}
             </button>
             <button
-              className={`${styles.tab} ${activeTab === 'reviews' ? styles.tabActive : ''}`}
-              onClick={() => setActiveTab('reviews')}
+              className={`${styles.tab} ${
+                activeTab === "reviews" ? styles.tabActive : ""
+              }`}
+              onClick={() => setActiveTab("reviews")}
             >
-              {t('reviewsTab')}
+              {t("reviewsTab")}
             </button>
           </div>
 
-          {activeTab === 'overview' && (
+          {activeTab === "overview" && (
             <>
               {/* About Section */}
               <section className={styles.section}>
-                <h2 className={styles.sectionTitle}>{t('aboutName', { name: coach.user.name?.split(' ')[0] || 'Coach' })}</h2>
+                <h2 className={styles.sectionTitle}>
+                  {t("aboutName", {
+                    name: coach.user.name?.split(" ")[0] || "Coach",
+                  })}
+                </h2>
                 <p className={styles.aboutText}>
-                  {coach.bio || t('noBioAvailable')}
+                  {coach.bio || t("noBioAvailable")}
                 </p>
               </section>
 
               {/* Specializations */}
               <section className={styles.section}>
-                <h2 className={styles.sectionTitle}>{t('specializations')}</h2>
+                <h2 className={styles.sectionTitle}>{t("specializations")}</h2>
                 <div className={styles.badgeList}>
                   <span className={styles.badge}>
                     <Award size={16} />
                     {coach.discipline}
                   </span>
-                  {coach.experienceYears && coach.experienceYears >= 5 && (
+                  {coach.experienceYears && coach.experienceYears >= 3 && (
                     <span className={styles.badge}>
                       <CheckCircle size={16} />
-                      {t('experiencedProfessional')}
+                      {t("experiencedProfessional")}
                     </span>
                   )}
-                  {coach.minRating && coach.minRating >= 4.5 && (
+                  {/* {coach.minRating && coach.minRating >= 3.5 && (
                     <span className={styles.badge}>
                       <Star size={16} />
-                      {t('topRated')}
+                      {t("topRated")}
                     </span>
-                  )}
+                  )} */}
                 </div>
               </section>
 
               {/* Certifications */}
               {certificates.length > 0 && (
                 <section className={styles.section}>
-                  <h2 className={styles.sectionTitle}>{t('certifications')}</h2>
-                  <p className={styles.sectionSubtitle}>{t('verifiedExperience')}</p>
+                  <h2 className={styles.sectionTitle}>{t("certifications")}</h2>
+                  <p className={styles.sectionSubtitle}>
+                    {t("verifiedExperience")}
+                  </p>
                   <div className={styles.certificationList}>
                     {certificates.map((cert) => (
                       <div key={cert.id} className={styles.certificationItem}>
@@ -304,7 +360,7 @@ export default function CoachProfilePage() {
                         </div>
                         <div className={styles.certInfo}>
                           <h3 className={styles.certTitle}>
-                            {cert.description || t('professionalCertification')}
+                            {cert.description || t("professionalCertification")}
                           </h3>
                           <a
                             href={cert.url}
@@ -312,7 +368,7 @@ export default function CoachProfilePage() {
                             rel="noopener noreferrer"
                             className={styles.certLink}
                           >
-                            {t('verified')}
+                            {t("verified")}
                           </a>
                         </div>
                       </div>
@@ -321,47 +377,54 @@ export default function CoachProfilePage() {
                 </section>
               )}
 
-              {/* Featured Videos */}
-              {videos.length > 0 && (
+              {/* Media Section - Combined Videos and Gallery */}
+              {mediaItems.length > 0 && (
                 <section className={styles.section}>
-                  <h2 className={styles.sectionTitle}>{t('featuredVideos')}</h2>
-                  <p className={styles.sectionSubtitle}>{t('videosDescription')}</p>
-                  <div className={styles.videoGrid}>
-                    {videos.map((video) => (
-                      <div key={video.id} className={styles.videoCard}>
-                        <div className={styles.videoThumbnail}>
-                          <video src={video.url} className={styles.videoElement} />
-                          <div className={styles.videoPlayButton}>
-                            <VideoIcon size={40} />
+                  <h2 className={styles.sectionTitle}>{t("media")}</h2>
+                  <p className={styles.sectionSubtitle}>
+                    {t("mediaDescription")}
+                  </p>
+                  <div className={styles.mediaGrid}>
+                    {mediaItems.map((item) => (
+                      <div key={item.id} className={styles.mediaCard}>
+                        {item.type === "VIDEO" ? (
+                          <div
+                            className={styles.videoThumbnail}
+                            onClick={() => handleVideoClick(item)}
+                          >
+                            <video
+                              src={item.url}
+                              className={styles.videoElement}
+                            />
+                            <div className={styles.videoPlayButton}>
+                              <VideoIcon size={40} />
+                            </div>
                           </div>
-                        </div>
-                        <div className={styles.videoInfo}>
-                          <h4 className={styles.videoTitle}>{video.description || t('trainingVideo')}</h4>
-                          <p className={styles.videoMeta}>{t('noEquipment')}</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </section>
-              )}
-
-              {/* Gallery */}
-              {images.length > 0 && (
-                <section className={styles.section}>
-                  <h2 className={styles.sectionTitle}>{t('gallery')}</h2>
-                  <p className={styles.sectionSubtitle}>{t('galleryDescription')}</p>
-                  <div className={styles.imageGrid}>
-                    {images.map((image) => (
-                      <div key={image.id} className={styles.imageCard}>
-                        <Image
-                          src={image.url}
-                          alt={image.description || t('coachPhoto')}
-                          width={400}
-                          height={400}
-                          className={styles.galleryImage}
-                        />
-                        {image.description && (
-                          <p className={styles.imageCaption}>{image.description}</p>
+                        ) : (
+                          <div
+                            className={styles.imageWrapper}
+                            onClick={() => handleImageClick(item)}
+                          >
+                            <Image
+                              src={
+                                item.url.startsWith("http")
+                                  ? item.url
+                                  : `/${item.url}`
+                              }
+                              alt={item.description || t("coachPhoto")}
+                              width={0}
+                              height={0}
+                              sizes="100vw"
+                              style={{ width: "100%", height: "auto" }}
+                              className={styles.galleryImage}
+                              unoptimized
+                            />
+                          </div>
+                        )}
+                        {item.description && (
+                          <p className={styles.mediaCaption}>
+                            {item.description}
+                          </p>
                         )}
                       </div>
                     ))}
@@ -370,30 +433,53 @@ export default function CoachProfilePage() {
               )}
 
               {/* Social Media */}
-              {(coach.instagram || coach.facebook || coach.twitter || coach.youtube) && (
+              {(coach.instagram ||
+                coach.facebook ||
+                coach.twitter ||
+                coach.youtube) && (
                 <section className={styles.section}>
-                  <h2 className={styles.sectionTitle}>{t('followMe')}</h2>
+                  <h2 className={styles.sectionTitle}>{t("followMe")}</h2>
                   <div className={styles.socialLinks}>
                     {coach.instagram && (
-                      <a href={coach.instagram} target="_blank" rel="noopener noreferrer" className={styles.socialLink}>
+                      <a
+                        href={coach.instagram}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={styles.socialLink}
+                      >
                         <Instagram size={20} />
                         <span>Instagram</span>
                       </a>
                     )}
                     {coach.facebook && (
-                      <a href={coach.facebook} target="_blank" rel="noopener noreferrer" className={styles.socialLink}>
+                      <a
+                        href={coach.facebook}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={styles.socialLink}
+                      >
                         <Facebook size={20} />
                         <span>Facebook</span>
                       </a>
                     )}
                     {coach.twitter && (
-                      <a href={coach.twitter} target="_blank" rel="noopener noreferrer" className={styles.socialLink}>
+                      <a
+                        href={coach.twitter}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={styles.socialLink}
+                      >
                         <Twitter size={20} />
                         <span>Twitter</span>
                       </a>
                     )}
                     {coach.youtube && (
-                      <a href={coach.youtube} target="_blank" rel="noopener noreferrer" className={styles.socialLink}>
+                      <a
+                        href={coach.youtube}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={styles.socialLink}
+                      >
                         <Youtube size={20} />
                         <span>YouTube</span>
                       </a>
@@ -404,15 +490,86 @@ export default function CoachProfilePage() {
             </>
           )}
 
-          {activeTab === 'reviews' && (
+          {activeTab === "reviews" && (
             <section className={styles.section}>
               <div className={styles.reviewsPlaceholder}>
-                <p>{t('reviewsComingSoon')}</p>
+                <p>{t("reviewsComingSoon")}</p>
               </div>
             </section>
           )}
         </main>
       </div>
+
+      {/* Video Modal */}
+      {videoModalOpen && selectedVideo && (
+        <div className={styles.videoModal} onClick={closeVideoModal}>
+          <div
+            className={styles.videoModalContent}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              className={styles.videoModalClose}
+              onClick={closeVideoModal}
+            >
+              ×
+            </button>
+            <video
+              src={selectedVideo.url}
+              controls
+              autoPlay
+              className={styles.videoModalPlayer}
+            />
+            {selectedVideo.description && (
+              <p className={styles.videoModalDescription}>
+                {selectedVideo.description}
+              </p>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Image Modal */}
+      {imageModalOpen && selectedImage && (
+        <div className={styles.imageModal} onClick={closeImageModal}>
+          <div
+            className={styles.imageModalContent}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              className={styles.imageModalClose}
+              onClick={closeImageModal}
+            >
+              ×
+            </button>
+            <div className={styles.imageModalWrapper}>
+              <Image
+                src={
+                  selectedImage.url.startsWith("http")
+                    ? selectedImage.url
+                    : `/${selectedImage.url}`
+                }
+                alt={selectedImage.description || t("coachPhoto")}
+                width={0}
+                height={0}
+                sizes="100vw"
+                style={{
+                  width: "100%",
+                  height: "auto",
+                  maxHeight: "85vh",
+                  objectFit: "contain",
+                }}
+                className={styles.imageModalImage}
+                unoptimized
+              />
+            </div>
+            {selectedImage.description && (
+              <p className={styles.imageModalDescription}>
+                {selectedImage.description}
+              </p>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

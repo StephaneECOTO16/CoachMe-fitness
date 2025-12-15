@@ -244,10 +244,15 @@ export default function CoachesPage() {
                     <div className={styles.coachAvatar}>
                       {coach.media.find((m) => m.type === "IMAGE") ? (
                         <Image
-                          src={coach.media.find((m) => m.type === "IMAGE")!.url}
+                          src={
+                            coach.media.find((m) => m.type === "IMAGE")!.url.startsWith('http')
+                              ? coach.media.find((m) => m.type === "IMAGE")!.url
+                              : `/${coach.media.find((m) => m.type === "IMAGE")!.url}`
+                          }
                           alt={coach.user.name || "Coach"}
                           fill
                           className={styles.coachAvatarImage}
+                          unoptimized
                         />
                       ) : (
                         <div className={styles.coachAvatarPlaceholder}>
