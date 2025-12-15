@@ -203,6 +203,37 @@
       "rejectedStatus": "Your application was not approved"
     }
   },
+  "coachDetail": {
+    "overview": "Overview",
+    "reviewsTab": "Reviews",
+    "messageCoach": "Message Coach",
+    "shareProfile": "Share Profile",
+    "linkCopied": "Link copied to clipboard!",
+    "notFound": "Coach Not Found",
+    "notFoundMessage": "This coach profile is not available.",
+    "browseAll": "Browse All Coaches",
+    "reviews": "{count} reviews",
+    "activeCount": "{count, plural, one {# year} other {# years}} Active",
+    "startingAt": "Starting at",
+    "aboutName": "About {name}",
+    "noBioAvailable": "No bio available for this coach yet.",
+    "specializations": "Specializations",
+    "experiencedProfessional": "Experienced Professional",
+    "topRated": "Top Rated",
+    "certifications": "Certifications",
+    "verifiedExperience": "Verified experience and education behind every session.",
+    "professionalCertification": "Professional Certification",
+    "verified": "Verified",
+    "featuredVideos": "Featured Videos",
+    "videosDescription": "Short clips to get a feel for my coaching style and session flow.",
+    "trainingVideo": "Training Session",
+    "noEquipment": "No equipment",
+    "gallery": "Gallery",
+    "galleryDescription": "A look inside my training space, group sessions, and client results.",
+    "coachPhoto": "Coach training session photo",
+    "followMe": "Follow Me",
+    "reviewsComingSoon": "Reviews will be shown here when this feature is activated."
+  },
   "client": {
     "onboarding": {
       "title": "Complete Your Profile",

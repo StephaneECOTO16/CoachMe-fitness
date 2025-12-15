@@ -203,6 +203,37 @@
       "rejectedStatus": "Votre candidature n'a pas été approuvée"
     }
   },
+  "coachDetail": {
+    "overview": "Aperçu",
+    "reviewsTab": "Avis",
+    "messageCoach": "Envoyer un Message",
+    "shareProfile": "Partager le Profil",
+    "linkCopied": "Lien copié dans le presse-papiers!",
+    "notFound": "Coach Non Trouvé",
+    "notFoundMessage": "Ce profil de coach n'est pas disponible.",
+    "browseAll": "Parcourir Tous les Coachs",
+    "reviews": "{count} avis",
+    "activeCount": "{count, plural, one {# année} other {# années}} actif",
+    "startingAt": "À partir de",
+    "aboutName": "À propos de {name}",
+    "noBioAvailable": "Aucune biographie disponible pour ce coach pour le moment.",
+    "specializations": "Spécialisations",
+    "experiencedProfessional": "Professionnel Expérimenté",
+    "topRated": "Top Noté",
+    "certifications": "Certifications",
+    "verifiedExperience": "Expérience et formation vérifiées derrière chaque session.",
+    "professionalCertification": "Certification Professionnelle",
+    "verified": "Vérifié",
+    "featuredVideos": "Vidéos en Vedette",
+    "videosDescription": "Courtes vidéos pour avoir un aperçu de mon style de coaching et du déroulement des séances.",
+    "trainingVideo": "Séance d'Entraînement",
+    "noEquipment": "Sans équipement",
+    "gallery": "Galerie",
+    "galleryDescription": "Un aperçu de mon espace d'entraînement, des sessions de groupe et des résultats des clients.",
+    "coachPhoto": "Photo de séance d'entraînement du coach",
+    "followMe": "Suivez-Moi",
+    "reviewsComingSoon": "Les avis seront affichés ici lorsque cette fonctionnalité sera activée."
+  },
   "client": {
     "onboarding": {
       "title": "Complétez Votre Profil",
