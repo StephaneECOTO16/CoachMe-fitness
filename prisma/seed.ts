@@ -37,40 +37,132 @@ async function main() {
         console.log(`   Password: ${adminPassword}`);
     }
 
-    // Create a test coach (pending approval)
-    const coachEmail = 'coach@example.com';
-    const coachPassword = 'Coach123!';
+    // Create 5 approved coaches with complete profile data
+    const coaches = [
+        {
+            email: 'sarah.kamga@mandara.com',
+            password: 'Coach123!',
+            name: 'Sarah Kamga',
+            discipline: 'Yoga & Pilates',
+            bio: 'Certified yoga instructor specializing in Vinyasa and Hatha yoga. I help clients find balance between strength, flexibility, and mindfulness. 8 years of teaching experience.',
+            portfolio: 'https://sarahyoga-cm.com',
+            hourlyRate: 8000,
+            experienceYears: 8,
+            address: 'Bonapriso',
+            city: 'Douala',
+            country: 'Cameroon',
+            minRating: 4.8,
+            instagram: 'https://instagram.com/sarahyoga_cm',
+            facebook: 'https://facebook.com/sarahkamgayoga',
+            tiktok: 'https://tiktok.com/@sarahyoga',
+        },
+        {
+            email: 'pierre.nkomo@mandara.com',
+            password: 'Coach123!',
+            name: 'Pierre Nkomo',
+            discipline: 'Strength Training',
+            bio: 'Former professional athlete turned strength and conditioning coach. Specialized in functional training and athletic performance. I work with both beginners and advanced athletes.',
+            portfolio: 'https://pierrefitness.com',
+            hourlyRate: 12000,
+            experienceYears: 12,
+            address: 'Bastos',
+            city: 'Yaoundé',
+            country: 'Cameroon',
+            minRating: 4.9,
+            instagram: 'https://instagram.com/pierre_strength',
+            youtube: 'https://youtube.com/@pierrenkomofit',
+        },
+        {
+            email: 'marie.fotso@mandara.com',
+            password: 'Coach123!',
+            name: 'Marie Fotso',
+            discipline: 'CrossFit',
+            bio: 'CrossFit Level 2 certified trainer with a passion for high-intensity functional movements. I help clients push their limits safely while building strength and endurance.',
+            portfolio: null,
+            hourlyRate: 10000,
+            experienceYears: 6,
+            address: 'Akwa',
+            city: 'Douala',
+            country: 'Cameroon',
+            minRating: 4.7,
+            facebook: 'https://facebook.com/mariefotsofit',
+            tiktok: 'https://tiktok.com/@mariefitness',
+        },
+        {
+            email: 'hassan.mballa@mandara.com',
+            password: 'Coach123!',
+            name: 'Hassan Mballa',
+            discipline: 'Boxing & Cardio',
+            bio: 'Professional boxing coach and cardio specialist. I combine boxing techniques with high-energy cardio workouts for maximum fat burn and conditioning. All fitness levels welcome!',
+            portfolio: 'https://hassanboxing.com',
+            hourlyRate: 9500,
+            experienceYears: 10,
+            address: 'Bali',
+            city: 'Douala',
+            country: 'Cameroon',
+            minRating: 4.6,
+            instagram: 'https://instagram.com/hassanboxing',
+            twitter: 'https://x.com/hassanboxfit',
+            youtube: 'https://youtube.com/@hassanmballa',
+        },
+        {
+            email: 'grace.ewane@mandara.com',
+            password: 'Coach123!',
+            name: 'Grace Ewane',
+            discipline: 'Personal Training',
+            bio: 'Holistic fitness coach focusing on sustainable lifestyle changes. I create personalized training and nutrition plans to help you reach your goals while maintaining balance in life.',
+            portfolio: 'https://gracefit-cm.com',
+            hourlyRate: 11000,
+            experienceYears: 9,
+            address: 'Odza',
+            city: 'Yaoundé',
+            country: 'Cameroon',
+            minRating: 4.8,
+            instagram: 'https://instagram.com/gracefit_cm',
+            facebook: 'https://facebook.com/graceewanefit',
+        },
+    ];
 
-    const existingCoach = await prisma.user.findUnique({
-        where: { email: coachEmail },
-    });
+    const password = 'Coach123!';
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-    if (!existingCoach) {
-        const hashedPassword = await bcrypt.hash(coachPassword, 10);
-        const coach = await prisma.user.create({
-            data: {
-                email: coachEmail,
-                password: hashedPassword,
-                role: 'COACH',
-                name: 'John Coach',
-                coachProfile: {
-                    create: {
-                        discipline: 'Strength Training',
-                        bio: 'Certified strength and conditioning coach with 10+ years experience',
-                        portfolio: 'https://johncoach.com',
-                        status: 'APPROVED',
+    for (const coachData of coaches) {
+        const existingCoach = await prisma.user.findUnique({
+            where: { email: coachData.email },
+        });
+
+        if (!existingCoach) {
+            await prisma.user.create({
+                data: {
+                    email: coachData.email,
+                    password: hashedPassword,
+                    role: 'COACH',
+                    name: coachData.name,
+                    coachProfile: {
+                        create: {
+                            discipline: coachData.discipline,
+                            bio: coachData.bio,
+                            portfolio: coachData.portfolio,
+                            hourlyRate: coachData.hourlyRate,
+                            experienceYears: coachData.experienceYears,
+                            address: coachData.address,
+                            city: coachData.city,
+                            country: coachData.country,
+                            minRating: coachData.minRating,
+                            instagram: coachData.instagram || null,
+                            facebook: coachData.facebook || null,
+                            tiktok: coachData.tiktok || null,
+                            twitter: coachData.twitter || null,
+                            youtube: coachData.youtube || null,
+                            status: 'APPROVED',
+                        },
                     },
                 },
-            },
-            include: {
-                coachProfile: true,
-            },
-        });
-        console.log(`✅ Created test coach: ${coach.email}`);
-        console.log(`   Password: ${coachPassword}`);
-        console.log(`   Status: APPROVED`);
-    } else {
-        console.log('✅ Test coach already exists');
+            });
+            console.log(`✅ Created coach: ${coachData.name} (${coachData.email})`);
+        } else {
+            console.log(`✅ Coach already exists: ${coachData.name}`);
+        }
     }
 
     // Create a test client
@@ -109,11 +201,16 @@ async function main() {
 
     console.log('\n🎉 Database seeding completed!');
     console.log('\n📝 Test Credentials:');
-    console.log('━'.repeat(50));
+    console.log('━'.repeat(60));
     console.log('Admin:  admin@mandara-fitness.com / Admin123!');
-    console.log('Coach:  coach@example.com / Coach123!');
     console.log('Client: client@example.com / Client123!');
-    console.log('━'.repeat(50));
+    console.log('\n🏋️ Approved Coaches (all with password: Coach123!):');
+    console.log('  1. sarah.kamga@mandara.com - Yoga & Pilates (8000 XAF/hr)');
+    console.log('  2. pierre.nkomo@mandara.com - Strength Training (12000 XAF/hr)');
+    console.log('  3. marie.fotso@mandara.com - CrossFit (10000 XAF/hr)');
+    console.log('  4. hassan.mballa@mandara.com - Boxing & Cardio (9500 XAF/hr)');
+    console.log('  5. grace.ewane@mandara.com - Personal Training (11000 XAF/hr)');
+    console.log('━'.repeat(60));
 }
 
 main()
