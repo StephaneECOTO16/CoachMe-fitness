@@ -5,7 +5,8 @@
 /* CSS Custom Properties (Variables) */
 :root {
   /* Brand Colors - Green & White Theme */
-  --primary: #00a650;
+  /* --primary: #00a650; */
+  --primary: #2eafa1;
   --primary-light: #00c263;
   --primary-dark: #008a43;
   --secondary: #005c2d;
