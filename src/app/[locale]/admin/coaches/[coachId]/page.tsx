@@ -7,6 +7,8 @@ import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/routing';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import Button from '@/components/ui/Button';
+import { MediaGallery, StatusBadge } from '@/components';
+import toast from '@/lib/toast';
 import styles from './page.module.css';
 
 interface Media {
@@ -68,10 +70,11 @@ export default function AdminCoachReviewPage() {
         if (data.success) {
           setCoach(data.coach);
         } else {
-          console.error('Failed to fetch coach');
+          toast.error('Failed to fetch coach');
         }
       } catch (error) {
         console.error('Error fetching coach:', error);
+        toast.error('Failed to fetch coach');
       } finally {
         setLoading(false);
       }
@@ -108,15 +111,15 @@ export default function AdminCoachReviewPage() {
 
       if (data.success) {
         const statusText = status.charAt(0) + status.slice(1).toLowerCase();
-        alert(`Coach application ${statusText} successfully!`);
+        toast.success(`Coach application ${statusText} successfully!`);
         setCoach(data.coach);
         setReason('');
       } else {
-        alert('Failed to update coach status. Please try again.');
+        toast.error('Failed to update coach status. Please try again.');
       }
     } catch (error) {
       console.error('Error updating coach status:', error);
-      alert('Failed to update coach status. Please try again.');
+      toast.error('Failed to update coach status. Please try again.');
     } finally {
       setSubmitting(false);
     }
@@ -154,6 +157,7 @@ export default function AdminCoachReviewPage() {
   const certificates = coach.media.filter((m) => m.type === 'CERTIFICATE');
   const images = coach.media.filter((m) => m.type === 'IMAGE');
   const videos = coach.media.filter((m) => m.type === 'VIDEO');
+  const mediaItems = [...videos, ...images];
 
   return (
     <ProtectedRoute allowedRoles={['ADMIN']}>
@@ -162,12 +166,10 @@ export default function AdminCoachReviewPage() {
         <div className={styles.header}>
           <div className={styles.headerContent}>
             <Link href="/admin/dashboard" className={styles.backButton}>
-              � Back to Dashboard
+              ← Back to Dashboard
             </Link>
             <h1 className={styles.headerTitle}>Review Coach Application</h1>
-            <div className={styles.statusBadge}>
-              <span className={styles[`status${coach.status}`]}>{coach.status}</span>
-            </div>
+            <StatusBadge status={coach.status} />
           </div>
         </div>
 
@@ -247,7 +249,7 @@ export default function AdminCoachReviewPage() {
               <div className={styles.certificateGrid}>
                 {certificates.map((cert) => (
                   <div key={cert.id} className={styles.certificateCard}>
-                    <div className={styles.certificateIcon}>=�</div>
+                    <div className={styles.certificateIcon}>✓</div>
                     <div className={styles.certificateInfo}>
                       <h3 className={styles.certificateName}>
                         {cert.description || 'Certification'}
@@ -267,44 +269,11 @@ export default function AdminCoachReviewPage() {
             </section>
           )}
 
-          {/* Gallery Section */}
-          {images.length > 0 && (
+          {/* Media Gallery Section - Using MediaGallery component */}
+          {mediaItems.length > 0 && (
             <section className={styles.section}>
-              <h2 className={styles.sectionTitle}>Gallery ({images.length})</h2>
-              <div className={styles.imageGrid}>
-                {images.map((image) => (
-                  <div key={image.id} className={styles.imageCard}>
-                    <Image
-                      src={image.url}
-                      alt={image.description || 'Coach demonstrating fitness techniques'}
-                      width={400}
-                      height={300}
-                      className={styles.image}
-                      style={{ objectFit: 'cover' }}
-                    />
-                    {image.description && (
-                      <p className={styles.imageCaption}>{image.description}</p>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </section>
-          )}
-
-          {/* Videos Section */}
-          {videos.length > 0 && (
-            <section className={styles.section}>
-              <h2 className={styles.sectionTitle}>Videos ({videos.length})</h2>
-              <div className={styles.videoGrid}>
-                {videos.map((video) => (
-                  <div key={video.id} className={styles.videoCard}>
-                    <video src={video.url} controls className={styles.video} />
-                    {video.description && (
-                      <p className={styles.videoCaption}>{video.description}</p>
-                    )}
-                  </div>
-                ))}
-              </div>
+              <h2 className={styles.sectionTitle}>Media Gallery ({mediaItems.length})</h2>
+              <MediaGallery media={mediaItems} />
             </section>
           )}
 
@@ -337,7 +306,7 @@ export default function AdminCoachReviewPage() {
                     onClick={() => handleStatusUpdate('APPROVED')}
                     disabled={submitting}
                   >
-                    {submitting ? 'Processing...' : ' Approve Application'}
+                    {submitting ? 'Processing...' : 'Approve Application'}
                   </Button>
                 )}
                 {coach.status !== 'REJECTED' && (
@@ -347,7 +316,7 @@ export default function AdminCoachReviewPage() {
                     onClick={() => handleStatusUpdate('REJECTED')}
                     disabled={submitting}
                   >
-                    {submitting ? 'Processing...' : ' Reject Application'}
+                    {submitting ? 'Processing...' : 'Reject Application'}
                   </Button>
                 )}
                 {coach.status !== 'PENDING' && (
@@ -357,7 +326,7 @@ export default function AdminCoachReviewPage() {
                     onClick={() => handleStatusUpdate('PENDING')}
                     disabled={submitting}
                   >
-                    {submitting ? 'Processing...' : '� Set to Pending'}
+                    {submitting ? 'Processing...' : 'Set to Pending'}
                   </Button>
                 )}
               </div>

@@ -1,0 +1,269 @@
+/* Masonry layout using CSS columns */
+.gallery {
+  column-gap: 1rem;
+  width: 100%;
+}
+
+/* Column variants */
+.columns2 {
+  column-count: 2;
+}
+
+.columns3 {
+  column-count: 3;
+}
+
+.columns4 {
+  column-count: 4;
+}
+
+.mediaCard {
+  cursor: pointer;
+  overflow: hidden;
+  border-radius: 12px;
+  background: #f3f4f6;
+  transition: all 0.3s ease;
+  break-inside: avoid;
+  margin-bottom: 1rem;
+  display: inline-block;
+  width: 100%;
+}
+
+.mediaCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.mediaWrapper {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+}
+
+.media {
+  width: 100%;
+  height: auto;
+  display: block;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.mediaCard:hover .media {
+  transform: scale(1.05);
+}
+
+.playButton {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 2;
+  transition: all 0.3s ease;
+  pointer-events: none;
+}
+
+.mediaCard:hover .playButton {
+  transform: translate(-50%, -50%) scale(1.1);
+}
+
+.caption {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 0.75rem;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+  color: white;
+  font-size: 0.9rem;
+  z-index: 2;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.mediaCard:hover .caption {
+  opacity: 1;
+}
+
+/* Lightbox Modal Styles */
+.lightbox {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.95);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.lightboxContent {
+  position: relative;
+  max-width: 90vw;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.lightboxMedia {
+  max-width: 100%;
+  max-height: 80vh;
+  object-fit: contain;
+  border-radius: 8px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+.lightboxCaption {
+  text-align: center;
+  color: white;
+  font-size: 1rem;
+  margin: 0;
+  padding: 0 1rem;
+}
+
+.lightboxClose {
+  position: absolute;
+  top: -3rem;
+  right: 0;
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 2.5rem;
+  cursor: pointer;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease;
+  line-height: 1;
+}
+
+.lightboxClose:hover {
+  transform: scale(1.1);
+}
+
+.lightboxNav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  font-size: 2rem;
+  cursor: pointer;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  border-radius: 50%;
+}
+
+.lightboxNav:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-50%) scale(1.1);
+}
+
+.lightboxPrev {
+  left: 2rem;
+}
+
+.lightboxNext {
+  right: 2rem;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .columns4 {
+    column-count: 3;
+  }
+}
+
+@media (max-width: 768px) {
+  .columns3,
+  .columns4 {
+    column-count: 2;
+  }
+
+  .gallery {
+    column-gap: 0.75rem;
+  }
+
+  .mediaCard {
+    margin-bottom: 0.75rem;
+  }
+
+  .caption {
+    font-size: 0.85rem;
+    padding: 0.5rem;
+  }
+
+  .lightbox {
+    padding: 1rem;
+  }
+
+  .lightboxNav {
+    width: 40px;
+    height: 40px;
+    font-size: 1.5rem;
+  }
+
+  .lightboxPrev {
+    left: 1rem;
+  }
+
+  .lightboxNext {
+    right: 1rem;
+  }
+
+  .lightboxClose {
+    top: -2.5rem;
+    font-size: 2rem;
+    width: 40px;
+    height: 40px;
+  }
+}
+
+@media (max-width: 480px) {
+  .columns2,
+  .columns3,
+  .columns4 {
+    column-count: 1;
+  }
+
+  .playButton svg {
+    width: 40px;
+    height: 40px;
+  }
+
+  .lightboxNav {
+    width: 36px;
+    height: 36px;
+    font-size: 1.25rem;
+  }
+
+  .lightboxPrev {
+    left: 0.5rem;
+  }
+
+  .lightboxNext {
+    right: 0.5rem;
+  }
+}

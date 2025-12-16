@@ -1,0 +1,147 @@
+.tabNavigation {
+  display: flex;
+  gap: 0.5rem;
+  border-bottom: 2px solid #e5e7eb;
+  margin-bottom: 1rem;
+}
+
+.tabNavigation::-webkit-scrollbar {
+  height: 4px;
+}
+
+.tabNavigation::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 2px;
+}
+
+.fullWidth {
+  width: 100%;
+}
+
+.fullWidth .tab {
+  flex: 1;
+}
+
+.tab {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.875rem 1.25rem;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #6b7280;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  margin-bottom: -2px;
+}
+
+.tab:hover:not(.disabled) {
+  color: #10b981;
+}
+
+.tab.active {
+  color: #10b981;
+  border-bottom-color: #10b981;
+}
+
+.tab.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.icon {
+  display: flex;
+  align-items: center;
+}
+
+.icon svg {
+  width: 18px;
+  height: 18px;
+}
+
+.label {
+  line-height: 1;
+}
+
+.count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 0.4rem;
+  background: #e5e7eb;
+  color: #374151;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: 10px;
+}
+
+.tab.active .count {
+  background: #d1fae5;
+  color: #059669;
+}
+
+/* Pills variant */
+.pills {
+  border-bottom: none;
+  padding: 0.5rem;
+  background: #f9fafb;
+  border-radius: 10px;
+}
+
+.pills .tab {
+  border-radius: 8px;
+  margin-bottom: 0;
+  border: none;
+}
+
+.pills .tab.active {
+  background: white;
+  color: #10b981;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Underline variant */
+.underline {
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.underline .tab {
+  border-bottom-width: 3px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .tab {
+    padding: 0.75rem 1rem;
+    font-size: 0.9rem;
+  }
+
+  .icon svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .count {
+    min-width: 18px;
+    height: 18px;
+    font-size: 0.7rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .tab {
+    padding: 0.625rem 0.875rem;
+    font-size: 0.85rem;
+  }
+
+  .tabNavigation {
+    gap: 0.25rem;
+  }
+}

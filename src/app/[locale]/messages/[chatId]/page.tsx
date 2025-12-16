@@ -8,6 +8,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { usePusher } from "@/contexts/PusherContext";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import Button from "@/components/ui/Button";
+import { ChatBubble } from "@/components";
+import toast from "@/lib/toast";
 import styles from "./page.module.css";
 
 interface Message {
@@ -81,17 +83,18 @@ export default function ConversationPage() {
           setChat(data.chat);
           setMessages(data.chat.messages || []);
         } else {
-          console.error("Failed to fetch chat");
+          toast.error(t("errors.chatNotFound"));
         }
       } catch (error) {
         console.error("Error fetching chat:", error);
+        toast.error(t("errors.loadFailed"));
       } finally {
         setLoading(false);
       }
     };
 
     fetchChat();
-  }, [token, chatId]);
+  }, [token, chatId, t]);
 
   /**
    * Handle incoming real-time messages from Pusher.
@@ -154,16 +157,14 @@ export default function ConversationPage() {
 
       const data = await response.json();
 
-      if (data.success) {
-        // Don't add here - let Pusher handle it to avoid duplicates
-        // The message will be received via the real-time channel
-      } else {
-        alert("Failed to send message. Please try again.");
+      if (!data.success) {
+        toast.error(t("errors.sendFailed"));
         setNewMessage(messageContent); // Restore message on failure
       }
+      // Don't add here - let Pusher handle it to avoid duplicates
     } catch (error) {
       console.error("Error sending message:", error);
-      alert("Failed to send message. Please try again.");
+      toast.error(t("errors.sendFailed"));
       setNewMessage(messageContent); // Restore message on failure
     } finally {
       setSending(false);
@@ -196,7 +197,7 @@ export default function ConversationPage() {
         <div className={styles.container}>
           <div className={styles.loading}>
             <div className={styles.spinner}></div>
-            <p>{t('loading')}</p>
+            <p>{t("loading")}</p>
           </div>
         </div>
       </ProtectedRoute>
@@ -208,12 +209,10 @@ export default function ConversationPage() {
       <ProtectedRoute allowedRoles={["PROSPECT", "COACH"]}>
         <div className={styles.container}>
           <div className={styles.error}>
-            <h2>{t('notFound')}</h2>
-            <p>
-              {t('notFoundMessage')}
-            </p>
+            <h2>{t("notFound")}</h2>
+            <p>{t("notFoundMessage")}</p>
             <Link href="/messages">
-              <Button variant="primary">{t('backToMessages')}</Button>
+              <Button variant="primary">{t("backToMessages")}</Button>
             </Link>
           </div>
         </div>
@@ -230,7 +229,7 @@ export default function ConversationPage() {
         <div className={styles.header}>
           <div className={styles.headerContent}>
             <Link href="/messages" className={styles.backButton}>
-              ← {t('back')}
+              ← {t("back")}
             </Link>
             <div className={styles.participantInfo}>
               <div className={styles.participantAvatar}>
@@ -241,6 +240,103 @@ export default function ConversationPage() {
                 <p className={styles.participantType}>{participant?.type}</p>
               </div>
             </div>
+            <div className={styles.headerActions}>
+              <Button
+                variant="ghost"
+                size="sm"
+                iconOnly
+                className={styles.iconAction}
+                title={t("comingSoon")}
+                disabled
+                aria-disabled
+              >
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M4 7a2 2 0 0 1 2-2h8l4 4v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7Z"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                  <path
+                    d="M14 5v4h4"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                iconOnly
+                className={styles.iconAction}
+                title={t("comingSoon")}
+                disabled
+                aria-disabled
+              >
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M22 16.92v3a2 2 0 0 1-2.18 2 19.86 19.86 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.86 19.86 0 0 1 2.08 4.18 2 2 0 0 1 4.06 2h3a2 2 0 0 1 2 1.72c.14 1.09.39 2.14.73 3.16a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1-1a2 2 0 0 1 2.11-.45c1.02.34 2.07.59 3.16.73A2 2 0 0 1 22 16.92Z"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                iconOnly
+                className={styles.iconAction}
+                title={t("comingSoon")}
+                disabled
+                aria-disabled
+              >
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <rect
+                    x="3"
+                    y="5"
+                    width="18"
+                    height="14"
+                    rx="2"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  />
+                  <path d="M10 9l5 3-5 3V9Z" fill="currentColor" />
+                </svg>
+              </Button>
+              {/* <div
+                className={styles.presence}
+                title={t("comingSoon")}
+                aria-disabled
+              >
+                <span className={styles.presenceDot}></span>
+                <span className={styles.presenceText}>
+                  {t("presenceLabel")}
+                </span>
+              </div> */}
+            </div>
           </div>
         </div>
 
@@ -250,47 +346,35 @@ export default function ConversationPage() {
             {messages.length === 0 ? (
               <div className={styles.emptyMessages}>
                 <div className={styles.emptyIcon}>👋</div>
-                <h3 className={styles.emptyTitle}>{t('startConversation')}</h3>
+                <h3 className={styles.emptyTitle}>{t("startConversation")}</h3>
                 <p className={styles.emptyText}>
-                  {t('startMessage', { name: participant?.name || 'this user' })}
+                  {t("startMessage", {
+                    name: participant?.name || "this user",
+                  })}
                 </p>
               </div>
             ) : (
               <div className={styles.messagesList}>
                 {messages.map((message) => {
                   const isOwnMessage = message.senderId === user?.id;
+                  const bubbleMessage = {
+                    id: String(message.id),
+                    content: message.content,
+                    timestamp: message.createdAt,
+                    sender: {
+                      name: isOwnMessage
+                        ? user?.name || "You"
+                        : participant?.name || "User",
+                      avatar: isOwnMessage ? undefined : undefined,
+                    },
+                    status: undefined,
+                  };
                   return (
-                    <div
+                    <ChatBubble
                       key={message.id}
-                      className={`${styles.messageWrapper} ${
-                        isOwnMessage
-                          ? styles.messageWrapperOwn
-                          : styles.messageWrapperOther
-                      }`}
-                    >
-                      {!isOwnMessage && (
-                        <div className={styles.messageAvatar}>
-                          {participant?.avatar}
-                        </div>
-                      )}
-                      <div
-                        className={`${styles.message} ${
-                          isOwnMessage ? styles.messageOwn : styles.messageOther
-                        }`}
-                      >
-                        <p className={styles.messageContent}>
-                          {message.content}
-                        </p>
-                        <span className={styles.messageTime}>
-                          {new Date(message.createdAt).toLocaleString("en-US", {
-                            month: "short",
-                            day: "numeric",
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          })}
-                        </span>
-                      </div>
-                    </div>
+                      message={bubbleMessage}
+                      isOwn={isOwnMessage}
+                    />
                   );
                 })}
                 <div ref={messagesEndRef} />
@@ -303,11 +387,37 @@ export default function ConversationPage() {
         <div className={styles.inputContainer}>
           <div className={styles.inputContent}>
             <form onSubmit={handleSendMessage} className={styles.inputForm}>
+              <button
+                type="button"
+                className={styles.inputIconButton}
+                title={t("comingSoon")}
+                disabled
+                aria-disabled
+              >
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M21.44 11.05 12.95 2.56a1.5 1.5 0 0 0-2.12 0L2.56 10.83a1.5 1.5 0 0 0 0 2.12l8.49 8.49a1.5 1.5 0 0 0 2.12 0l8.27-8.27a1.5 1.5 0 0 0 0-2.12Z"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                  <path d="M7 12l5 5 5-5-5-5-5 5Z" fill="currentColor" />
+                </svg>
+              </button>
               <input
                 type="text"
                 value={newMessage}
                 onChange={(e) => setNewMessage(e.target.value)}
-                placeholder={t('messagePlaceholder', { name: participant?.name || 'user' })}
+                placeholder={t("messagePlaceholder", {
+                  name: participant?.name || "user",
+                })}
                 className={styles.input}
                 disabled={sending}
               />
@@ -317,7 +427,7 @@ export default function ConversationPage() {
                 disabled={!newMessage.trim() || sending}
                 className={styles.sendButton}
               >
-                {sending ? t('sending') : t('send')}
+                {sending ? t("sending") : t("send")}
               </Button>
             </form>
           </div>

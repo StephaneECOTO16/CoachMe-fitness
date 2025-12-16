@@ -1,0 +1,380 @@
+.card {
+  background: var(--white);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+}
+
+/* List Variant (Browse Coaches) */
+.cardList {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  gap: 1.5rem;
+}
+
+.cardHeader {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.5rem;
+}
+
+.headerInfo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem;
+}
+
+.contentTop {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.infoLeft {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.avatar {
+  border-radius: 16px;
+  object-fit: cover;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.avatarWrapper {
+  position: relative;
+  width: 250px;
+  height: 100%;
+  flex-shrink: 0;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.name {
+  font-size: var(--text-xl);
+  font-weight: var(--font-bold);
+  color: var(--text-primary);
+  margin-bottom: var(--space-1);
+}
+
+.discipline {
+  font-size: var(--text-sm);
+  color: var(--primary);
+  font-weight: var(--font-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.email {
+  color: #666;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.bio {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.rating {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.stars {
+  color: var(--warning);
+  font-size: 1.1rem;
+}
+
+.ratingText {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.badges {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.badgeCertified {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.badgePortfolio {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.pricing {
+  padding: 0 var(--space-4);
+  background: var(--gray-50);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--gray-200);
+  flex-direction: column;
+  align-items: flex-end;
+  display: flex;
+}
+
+.rateBadge {
+  font-size: var(--text-lg);
+  font-weight: var(--font-bold);
+  color: var(--primary);
+  white-space: nowrap;
+}
+.rateValue {
+  color: #10b981;
+  font-size: 1.125rem;
+  font-weight: 800;
+}
+.rateUnit {
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.meta {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.metaItem {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.metaItem svg {
+  color: #10b981;
+  flex-shrink: 0;
+}
+
+.socialLinks {
+  display: flex;
+  gap: 1rem;
+}
+
+.socialLink {
+  color: #64748b;
+  transition: color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  width: 40px;
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.socialLink:hover {
+  color: #10b981;
+  background: #f8fafc;
+  box-shadow: 0 2px 6px rgba(16, 185, 129, 0.15);
+}
+
+.actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  margin-left: auto;
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding-top: 0.5rem;
+  border-top: 1px solid #e5e7eb;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+/* Grid Variant (Dashboards) */
+.cardGrid {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.75rem;
+  padding: 1.5rem;
+}
+
+.cardGrid .avatar {
+  margin-bottom: 0.5rem;
+}
+
+.cardGrid .name {
+  font-size: 1.25rem;
+}
+
+.cardGrid .discipline {
+  font-size: 0.9rem;
+  margin-bottom: 0.25rem;
+}
+
+.cardGrid .bio {
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: 0.5rem;
+}
+
+/* Compact Variant (Chat previews) */
+.cardCompact {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+}
+
+.cardCompact:hover {
+  background: #f9fafb;
+}
+
+.compactInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.cardCompact .name {
+  font-size: 1rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cardCompact .discipline {
+  font-size: 0.85rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Admin Variant */
+.cardAdmin {
+  border-left: 4px solid #10b981;
+}
+
+.cardAdmin .cardHeader {
+  margin-bottom: 1rem;
+}
+
+.status {
+  padding: 0.35rem 1rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.statusPENDING {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.statusAPPROVED {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.statusREJECTED {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.adminMeta {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 0.75rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e5e7eb;
+}
+
+.adminMeta .metaItem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.adminMeta strong {
+  color: #1a1a1a;
+  font-size: 0.85rem;
+}
+
+.portfolio,
+.certifications {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e5e7eb;
+}
+
+.certifications ul {
+  margin: 0.5rem 0 0 1.5rem;
+  padding: 0;
+}
+
+.certifications li {
+  margin-bottom: 0.25rem;
+  color: #555;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .cardList {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .contentTop {
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .meta {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .pricing {
+    text-align: center;
+  }
+
+  .actions {
+    flex-direction: column;
+  }
+
+  .adminMeta {
+    grid-template-columns: 1fr;
+  }
+}

@@ -7,6 +7,8 @@ import { Link, useRouter } from "@/i18n/routing";
 import { useAuth } from "@/contexts/AuthContext";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import Button from "@/components/ui/Button";
+import { HeroSection, StatsGrid, DashboardSection, ChatCard, EmptyState } from "@/components";
+import toast from "@/lib/toast";
 import { AnimatedName } from "@/components/ui/animated-name";
 import { motion, AnimatePresence } from "framer-motion";
 import { AlertCircle, Sparkles } from "lucide-react";
@@ -112,13 +114,14 @@ export default function CoachDashboard() {
         }
       } catch (error) {
         console.error("Error fetching dashboard data:", error);
+        toast.error(t("errors.loadFailed"));
       } finally {
         setLoading(false);
       }
     };
 
     fetchDashboardData();
-  }, [token]);
+  }, [token, t]);
 
   const handleCompleteProfile = () => {
     setShowWelcomePrompt(false);
@@ -161,30 +164,17 @@ export default function CoachDashboard() {
     <ProtectedRoute allowedRoles={["COACH"]}>
       <div className={styles.container}>
         {/* Hero Section */}
-        <div className={styles.hero}>
-          {/* Background Image */}
-          <div className={styles.heroBackground}>
-            <Image
-              src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=1740&auto=format&fit=crop"
-              alt="Gym Training"
-              fill
-              className={styles.heroImage}
-              priority
+        <HeroSection
+          title={
+            <AnimatedName
+              prefix={t("welcomeBackCoach")}
+              name={user?.name?.split(" ")[0] || "Coach"}
+              suffix="! 👋"
             />
-            <div className={styles.heroOverlay} />
-          </div>
-
-          <div className={styles.heroContent}>
-            <h1 className={styles.title}>
-              <AnimatedName
-                prefix={t("welcomeBackCoach")}
-                name={user?.name?.split(" ")[0] || "Coach"}
-                suffix="! 👋"
-              />
-            </h1>
-            <p className={styles.subtitle}>{t("subtitle")}</p>
-          </div>
-        </div>
+          }
+          subtitle={t("subtitle")}
+          backgroundImage="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=1740&auto=format&fit=crop"
+        />
 
         <div className={styles.content}>
           {/* Welcome Prompt for Incomplete Profiles */}
@@ -264,51 +254,40 @@ export default function CoachDashboard() {
             </div>
           )}
 
-          {/* Stats Cards */}
-          <section className={styles.statsSection}>
-            <div className={styles.statsGrid}>
-              <div className={styles.statCard}>
-                <div className={styles.statIcon}>👥</div>
-                <div className={styles.statInfo}>
-                  <h3 className={styles.statValue}>{chats.length}</h3>
-                  <p className={styles.statLabel}>{t("stats.activeClients")}</p>
-                </div>
-              </div>
-
-              <div className={styles.statCard}>
-                <div className={styles.statIcon}>💬</div>
-                <div className={styles.statInfo}>
-                  <h3 className={styles.statValue}>{chats.length}</h3>
-                  <p className={styles.statLabel}>{t("stats.conversations")}</p>
-                </div>
-              </div>
-
-              <div className={styles.statCard}>
-                <div className={styles.statIcon}>
-                  {profile?.status === "APPROVED" ? "✓" : "⏳"}
-                </div>
-                <div className={styles.statInfo}>
-                  <div className={styles.statValue}>
-                    {getStatusBadge(profile?.status || "PENDING")}
-                  </div>
-                  <p className={styles.statLabel}>{t("stats.accountStatus")}</p>
-                </div>
-              </div>
-            </div>
-          </section>
+          {/* Stats Grid */}
+          <StatsGrid
+            stats={[
+              {
+                icon: "👥",
+                value: chats.length.toString(),
+                label: t("stats.activeClients"),
+              },
+              {
+                icon: "💬",
+                value: chats.length.toString(),
+                label: t("stats.conversations"),
+              },
+              {
+                icon: profile?.status === "APPROVED" ? "✓" : "⏳",
+                value: getStatusBadge(profile?.status || "PENDING"),
+                label: t("stats.accountStatus"),
+                isCustomValue: true,
+              },
+            ]}
+          />
 
           {/* Profile Summary */}
           {profile && (
-            <section className={styles.section}>
-              <div className={styles.sectionHeader}>
-                <h2 className={styles.sectionTitle}>{t("yourProfile")}</h2>
+            <DashboardSection
+              title={t("yourProfile")}
+              action={
                 <Link href="/profile?openModal=true">
                   <Button variant="outline" size="sm">
                     {t("settings")}
                   </Button>
                 </Link>
-              </div>
-
+              }
+            >
               <div className={styles.profileCard}>
                 <div className={styles.profileHeader}>
                   <div className={styles.profileAvatar}>
@@ -362,63 +341,49 @@ export default function CoachDashboard() {
                   </div>
                 )}
               </div>
-            </section>
+            </DashboardSection>
           )}
 
           {/* Recent Chats Section */}
-          <section className={styles.section}>
-            <div className={styles.sectionHeader}>
-              <h2 className={styles.sectionTitle}>{t("recentConversations")}</h2>
-              {chats.length > 0 && (
+          <DashboardSection
+            title={t("recentConversations")}
+            action={
+              chats.length > 0 ? (
                 <Link href="/messages">
                   <Button variant="outline" size="sm">
                     {t("viewAll")}
                   </Button>
                 </Link>
-              )}
-            </div>
-
+              ) : undefined
+            }
+          >
             {loading ? (
               <div className={styles.loading}>{t("loading")}</div>
             ) : chats.length > 0 ? (
               <div className={styles.chatList}>
                 {chats.slice(0, 5).map((chat) => (
-                  <Link
+                  <ChatCard
                     key={chat.id}
+                    id={chat.id}
+                    name={chat.client.user.name || "Client"}
+                    email={chat.client.user.email}
+                    lastMessageTime={new Date(chat.updatedAt)}
                     href={`/messages/${chat.id}`}
-                    className={styles.chatCard}
-                  >
-                    <div className={styles.chatAvatar}>
-                      {chat.client.user.name?.[0]?.toUpperCase() || "C"}
-                    </div>
-                    <div className={styles.chatInfo}>
-                      <h3 className={styles.chatName}>
-                        {chat.client.user.name || "Client"}
-                      </h3>
-                      <p className={styles.chatEmail}>
-                        {chat.client.user.email}
-                      </p>
-                    </div>
-                    <div className={styles.chatMeta}>
-                      <span className={styles.chatTime}>
-                        {new Date(chat.updatedAt).toLocaleDateString()}
-                      </span>
-                    </div>
-                  </Link>
+                  />
                 ))}
               </div>
             ) : (
-              <div className={styles.emptyState}>
-                <div className={styles.emptyIcon}>💬</div>
-                <h3 className={styles.emptyTitle}>{t("noConversations")}</h3>
-                <p className={styles.emptyText}>
-                  {profile?.status === "APPROVED"
+              <EmptyState
+                icon="💬"
+                title={t("noConversations")}
+                message={
+                  profile?.status === "APPROVED"
                     ? t("noConversationsApproved")
-                    : t("noConversationsPending")}
-                </p>
-              </div>
+                    : t("noConversationsPending")
+                }
+              />
             )}
-          </section>
+          </DashboardSection>
 
           {/* Quick Actions */}
           <section className={styles.section}>

@@ -283,10 +283,81 @@
     "typing": "en train d'écrire..."
   },
   "profile": {
-    "tabs": {
-      "profile": "Profil",
-      "media": "Médias",
-      "account": "Compte"
+    "title": "Mon Profil",
+    "loading": "Chargement du profil...",
+    "notFound": "Profil Non Trouvé",
+    "unableToLoad": "Impossible de charger vos données de profil.",
+    "editProfile": "Modifier le Profil",
+    "accountInformation": "Informations du Compte",
+    "coachProfile": "Profil de Coach",
+    "fitnessProfile": "Profil Fitness",
+    "name": "Nom",
+    "email": "Email",
+    "role": "Rôle",
+    "memberSince": "Membre Depuis",
+    "discipline": "Discipline",
+    "status": "Statut",
+    "bio": "Biographie",
+    "portfolio": "Portfolio",
+    "hourlyRate": "Tarif Horaire",
+    "experience": "Expérience",
+    "location": "Localisation",
+    "address": "Adresse",
+    "socialMedia": "Réseaux Sociaux",
+    "years": "ans",
+    "ageRange": "Tranche d'Âge",
+    "height": "Taille",
+    "weight": "Poids",
+    "fitnessGoals": "Objectifs Fitness",
+    "notSet": "Non défini",
+    "editModal": {
+      "title": "Modifier le Profil",
+      "basicInfo": "Informations de Base",
+      "coachInfo": "Profil de Coach",
+      "fitnessInfo": "Profil Fitness",
+      "nameLabel": "Nom",
+      "namePlaceholder": "Votre nom",
+      "disciplineLabel": "Discipline",
+      "disciplinePlaceholder": "Sélectionnez une discipline",
+      "bioLabel": "Biographie",
+      "bioPlaceholder": "Parlez de vous à vos clients...",
+      "portfolioLabel": "URL du Portfolio",
+      "portfolioPlaceholder": "https://votre-portfolio.com",
+      "hourlyRateLabel": "Tarif Horaire (XAF)",
+      "hourlyRatePlaceholder": "10000",
+      "experienceYearsLabel": "Années d'Expérience",
+      "experienceYearsPlaceholder": "5",
+      "addressLabel": "Adresse",
+      "addressPlaceholder": "Adresse de la rue",
+      "cityLabel": "Ville",
+      "cityPlaceholder": "Douala",
+      "countryLabel": "Pays",
+      "countryPlaceholder": "Cameroun",
+      "socialMediaTitle": "Liens de Réseaux Sociaux",
+      "instagramLabel": "URL Instagram",
+      "instagramPlaceholder": "https://instagram.com/votre-profil",
+      "facebookLabel": "URL Facebook",
+      "facebookPlaceholder": "https://facebook.com/votre-profil",
+      "tiktokLabel": "URL TikTok",
+      "tiktokPlaceholder": "https://tiktok.com/@votre-profil",
+      "twitterLabel": "URL X (Twitter)",
+      "twitterPlaceholder": "https://x.com/votre-profil",
+      "youtubeLabel": "URL YouTube",
+      "youtubePlaceholder": "https://youtube.com/@votre-profil",
+      "ageRangeLabel": "Tranche d'Âge",
+      "ageRangePlaceholder": "Sélectionnez une tranche d'âge",
+      "heightLabel": "Taille (cm)",
+      "heightPlaceholder": "170",
+      "weightLabel": "Poids (kg)",
+      "weightPlaceholder": "70",
+      "goalsLabel": "Objectifs Fitness",
+      "goalsPlaceholder": "Quels sont vos objectifs fitness?",
+      "saving": "Enregistrement...",
+      "saveBasicInfo": "Enregistrer les Informations de Base",
+      "saveCoachProfile": "Enregistrer le Profil de Coach",
+      "saveFitnessProfile": "Enregistrer le Profil Fitness",
+      "updateSuccess": "Profil mis à jour avec succès!",
+      "updateError": "Échec de la mise à jour du profil. Veuillez réessayer."
     }
   },
   "admin": {
@@ -510,9 +581,7 @@
       "messagePlaceholder": "Message à {name}...",
       "send": "Envoyer",
       "sending": "Envoi...",
-      "sendError": "Échec de l'envoi du message. Veuillez réessayer.",
-      "comingSoon": "Bientôt disponible",
-      "presenceLabel": "Présence"
+      "sendError": "Échec de l'envoi du message. Veuillez réessayer."
     }
   },
   "errors": {
@@ -578,6 +647,13 @@
     "coachApproved": "Coach approuvé avec succès",
     "coachRejected": "Coach rejeté avec succès"
   },
+  "profile": {
+    "tabs": {
+      "profile": "Profil",
+      "media": "Médias",
+      "account": "Compte"
+    }
+  },
   "footer": {
     "description": "Transformez votre parcours fitness avec des coachs certifiés qui vous guident à chaque étape.",
     "sections": {
@@ -603,20 +679,5 @@
       "cookies": "Politique des Cookies"
     },
     "copyright": "© {year} CoachMe. Tous droits réservés."
-  },
-  "coaches": {
-    "certified": "Certifié",
-    "hasPortfolio": "Portfolio",
-    "viewProfile": "Voir le Profil",
-    "yearsExperience": "ans",
-    "rateNotSet": "Tarif non défini",
-    "location": "Localisation",
-    "experience": "Expérience",
-    "years": "ans",
-    "rate": "Tarif",
-    "appliedOn": "Candidaté le",
-    "portfolio": "Portfolio",
-    "items": "éléments",
-    "certifications": "Certifications"
   }
 }

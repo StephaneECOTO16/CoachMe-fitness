@@ -7,6 +7,8 @@ import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/routing";
 import { useAuth } from "@/contexts/AuthContext";
 import Button from "@/components/ui/Button";
+import { MediaGallery, TabNavigation, StatusBadge, EmptyState } from "@/components";
+import toast from "@/lib/toast";
 import {
   Star,
   MapPin,
@@ -68,10 +70,6 @@ export default function CoachProfilePage() {
   const [activeTab, setActiveTab] = useState<"overview" | "reviews">(
     "overview"
   );
-  const [videoModalOpen, setVideoModalOpen] = useState(false);
-  const [selectedVideo, setSelectedVideo] = useState<Media | null>(null);
-  const [imageModalOpen, setImageModalOpen] = useState(false);
-  const [selectedImage, setSelectedImage] = useState<Media | null>(null);
 
   const coachId = params?.coachId as string;
 
@@ -87,10 +85,12 @@ export default function CoachProfilePage() {
           setCoach(data.coach);
         } else {
           setError(tErrors("coachNotFound"));
+          toast.error(tErrors("coachNotFound"));
         }
       } catch (err) {
         console.error("Error fetching coach:", err);
         setError(tErrors("coachLoadFailed"));
+        toast.error(tErrors("coachLoadFailed"));
       } finally {
         setLoading(false);
       }
@@ -106,7 +106,7 @@ export default function CoachProfilePage() {
     }
 
     if (user?.role !== "PROSPECT") {
-      alert(tErrors("onlyClientsCanContact"));
+      toast.error(tErrors("onlyClientsCanContact"));
       return;
     }
 
@@ -127,11 +127,11 @@ export default function CoachProfilePage() {
       if (data.success) {
         router.push(`/messages/${data.chat.id}`);
       } else {
-        alert(tErrors("chatInitFailed"));
+        toast.error(tErrors("chatInitFailed"));
       }
     } catch (err) {
       console.error("Error initiating chat:", err);
-      alert(tErrors("chatInitFailed"));
+      toast.error(tErrors("chatInitFailed"));
     }
   };
 
@@ -144,7 +144,7 @@ export default function CoachProfilePage() {
       });
     } else {
       navigator.clipboard.writeText(window.location.href);
-      alert(t("linkCopied"));
+      toast.success(t("linkCopied"));
     }
   };
 
@@ -179,26 +179,6 @@ export default function CoachProfilePage() {
   const mediaItems = [...videos, ...images]; // Combine videos and images for unified media section
   const location = [coach.city, coach.country].filter(Boolean).join(", ");
 
-  const handleVideoClick = (video: Media) => {
-    setSelectedVideo(video);
-    setVideoModalOpen(true);
-  };
-
-  const closeVideoModal = () => {
-    setVideoModalOpen(false);
-    setSelectedVideo(null);
-  };
-
-  const handleImageClick = (image: Media) => {
-    setSelectedImage(image);
-    setImageModalOpen(true);
-  };
-
-  const closeImageModal = () => {
-    setImageModalOpen(false);
-    setSelectedImage(null);
-  };
-
   return (
     <div className={styles.container}>
       <div className={styles.pageWrapper}>
@@ -210,31 +190,11 @@ export default function CoachProfilePage() {
               <div className={styles.coachAvatar}>
                 {coach.user.name?.[0]?.toUpperCase() || "C"}
               </div>
-              {/* {coach.status === 'APPROVED' && (
-                <div className={styles.verifiedBadge}>
-                  <CheckCircle size={20} />
-                </div>
-              )} */}
             </div>
 
             {/* Coach Name & Title */}
             <h1 className={styles.coachName}>{coach.user.name || "Coach"}</h1>
             <p className={styles.coachTitle}>{coach.discipline}</p>
-
-            {/* Rating */}
-            {/* {coach.minRating && (
-              <div className={styles.ratingSection}>
-                <div className={styles.ratingStars}>
-                  <Star size={20} fill="currentColor" />
-                  <span className={styles.ratingValue}>
-                    {coach.minRating.toFixed(1)}
-                  </span>
-                </div>
-                <span className={styles.reviewCount}>
-                  ({t("reviews", { count: 86 })})
-                </span>
-              </div>
-            )} */}
 
             {/* Quick Info */}
             <div className={styles.quickInfo}>
@@ -275,38 +235,21 @@ export default function CoachProfilePage() {
               >
                 {t("messageCoach")}
               </Button>
-              {/* <button
-                className={styles.shareButton}
-                onClick={handleShare}
-                aria-label={t("shareProfile")}
-              >
-                <Share2 size={20} />
-              </button> */}
             </div>
           </div>
         </aside>
 
         {/* Main Content */}
         <main className={styles.mainContent}>
-          {/* Tabs */}
-          <div className={styles.tabs}>
-            <button
-              className={`${styles.tab} ${
-                activeTab === "overview" ? styles.tabActive : ""
-              }`}
-              onClick={() => setActiveTab("overview")}
-            >
-              {t("overview")}
-            </button>
-            <button
-              className={`${styles.tab} ${
-                activeTab === "reviews" ? styles.tabActive : ""
-              }`}
-              onClick={() => setActiveTab("reviews")}
-            >
-              {t("reviewsTab")}
-            </button>
-          </div>
+          {/* Tab Navigation */}
+          <TabNavigation
+            tabs={[
+              { id: "overview", label: t("overview") },
+              { id: "reviews", label: t("reviewsTab") },
+            ]}
+            activeTab={activeTab}
+            onChange={(tabId) => setActiveTab(tabId as "overview" | "reviews")}
+          />
 
           {activeTab === "overview" && (
             <>
@@ -336,12 +279,6 @@ export default function CoachProfilePage() {
                       {t("experiencedProfessional")}
                     </span>
                   )}
-                  {/* {coach.minRating && coach.minRating >= 3.5 && (
-                    <span className={styles.badge}>
-                      <Star size={16} />
-                      {t("topRated")}
-                    </span>
-                  )} */}
                 </div>
               </section>
 
@@ -377,60 +314,21 @@ export default function CoachProfilePage() {
                 </section>
               )}
 
-              {/* Media Section - Combined Videos and Gallery */}
-              {mediaItems.length > 0 && (
-                <section className={styles.section}>
-                  <h2 className={styles.sectionTitle}>{t("media")}</h2>
-                  <p className={styles.sectionSubtitle}>
-                    {t("mediaDescription")}
-                  </p>
-                  <div className={styles.mediaGrid}>
-                    {mediaItems.map((item) => (
-                      <div key={item.id} className={styles.mediaCard}>
-                        {item.type === "VIDEO" ? (
-                          <div
-                            className={styles.videoThumbnail}
-                            onClick={() => handleVideoClick(item)}
-                          >
-                            <video
-                              src={item.url}
-                              className={styles.videoElement}
-                            />
-                            <div className={styles.videoPlayButton}>
-                              <VideoIcon size={40} />
-                            </div>
-                          </div>
-                        ) : (
-                          <div
-                            className={styles.imageWrapper}
-                            onClick={() => handleImageClick(item)}
-                          >
-                            <Image
-                              src={
-                                item.url.startsWith("http")
-                                  ? item.url
-                                  : `/${item.url}`
-                              }
-                              alt={item.description || t("coachPhoto")}
-                              width={0}
-                              height={0}
-                              sizes="100vw"
-                              style={{ width: "100%", height: "auto" }}
-                              className={styles.galleryImage}
-                              unoptimized
-                            />
-                          </div>
-                        )}
-                        {item.description && (
-                          <p className={styles.mediaCaption}>
-                            {item.description}
-                          </p>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </section>
-              )}
+              {/* Media Section - supports empty and populated states */}
+              <section className={styles.section}>
+                <h2 className={styles.sectionTitle}>{t("media")}</h2>
+                <p className={styles.sectionSubtitle}>{t("mediaDescription")}</p>
+                {mediaItems.length > 0 ? (
+                  <MediaGallery media={mediaItems} />
+                ) : (
+                  <EmptyState
+                    icon="📁"
+                    title="No media yet"
+                    description="This coach hasn't uploaded any media yet."
+                    size="sm"
+                  />
+                )}
+              </section>
 
               {/* Social Media */}
               {(coach.instagram ||
@@ -499,77 +397,6 @@ export default function CoachProfilePage() {
           )}
         </main>
       </div>
-
-      {/* Video Modal */}
-      {videoModalOpen && selectedVideo && (
-        <div className={styles.videoModal} onClick={closeVideoModal}>
-          <div
-            className={styles.videoModalContent}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button
-              className={styles.videoModalClose}
-              onClick={closeVideoModal}
-            >
-              ×
-            </button>
-            <video
-              src={selectedVideo.url}
-              controls
-              autoPlay
-              className={styles.videoModalPlayer}
-            />
-            {selectedVideo.description && (
-              <p className={styles.videoModalDescription}>
-                {selectedVideo.description}
-              </p>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* Image Modal */}
-      {imageModalOpen && selectedImage && (
-        <div className={styles.imageModal} onClick={closeImageModal}>
-          <div
-            className={styles.imageModalContent}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button
-              className={styles.imageModalClose}
-              onClick={closeImageModal}
-            >
-              ×
-            </button>
-            <div className={styles.imageModalWrapper}>
-              <Image
-                src={
-                  selectedImage.url.startsWith("http")
-                    ? selectedImage.url
-                    : `/${selectedImage.url}`
-                }
-                alt={selectedImage.description || t("coachPhoto")}
-                width={0}
-                height={0}
-                sizes="100vw"
-                style={{
-                  width: "100%",
-                  height: "auto",
-                  maxHeight: "85vh",
-                  objectFit: "contain",
-                }}
-                className={styles.imageModalImage}
-                unoptimized
-              />
-            </div>
-            {selectedImage.description && (
-              <p className={styles.imageModalDescription}>
-                {selectedImage.description}
-              </p>
-            )}
-          </div>
-        </div>
-      )}
     </div>
   );
 }

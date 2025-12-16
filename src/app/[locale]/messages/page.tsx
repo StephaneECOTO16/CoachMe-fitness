@@ -1,10 +1,12 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { Link } from '@/i18n/routing';
 import { useAuth } from '@/contexts/AuthContext';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
+import { HeroSection, ChatCard, EmptyState } from '@/components';
+import toast from '@/lib/toast';
 import styles from './page.module.css';
 
 interface Chat {
@@ -37,6 +39,7 @@ interface Chat {
 
 export default function MessagesPage() {
   const t = useTranslations('messages');
+  const locale = useLocale();
   const { user, token } = useAuth();
   const [chats, setChats] = useState<Chat[]>([]);
   const [loading, setLoading] = useState(true);
@@ -54,16 +57,19 @@ export default function MessagesPage() {
         const data = await response.json();
         if (data.success) {
           setChats(data.chats);
+        } else {
+          toast.error(t('errors.loadFailed'));
         }
       } catch (error) {
         console.error('Error fetching chats:', error);
+        toast.error(t('errors.loadFailed'));
       } finally {
         setLoading(false);
       }
     };
 
     fetchChats();
-  }, [token]);
+  }, [token, t]);
 
   const getOtherParticipant = (chat: Chat) => {
     if (user?.role === 'COACH') {
@@ -87,16 +93,15 @@ export default function MessagesPage() {
     <ProtectedRoute allowedRoles={['PROSPECT', 'COACH']}>
       <div className={styles.container}>
         {/* Hero Section */}
-        <div className={styles.hero}>
-          <div className={styles.heroContent}>
-            <h1 className={styles.title}>{t('title')} 💬</h1>
-            <p className={styles.subtitle}>
-              {user?.role === 'COACH'
-                ? t('subtitleCoach')
-                : t('subtitleClient')}
-            </p>
-          </div>
-        </div>
+        <HeroSection
+          title={t('title')}
+          subtitle={
+            user?.role === 'COACH'
+              ? t('subtitleCoach')
+              : t('subtitleClient')
+          }
+          backgroundImage="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=1740&auto=format&fit=crop"
+        />
 
         <div className={styles.content}>
           {loading ? (
@@ -108,54 +113,50 @@ export default function MessagesPage() {
             <div className={styles.chatList}>
               {chats.map((chat) => {
                 const participant = getOtherParticipant(chat);
+                const chatCardData = {
+                  id: String(chat.id),
+                  participant: {
+                    id:
+                      user?.role === 'COACH'
+                        ? String(chat.client.id)
+                        : String(chat.coach.id),
+                    name: participant.name,
+                    avatar: undefined,
+                    role: undefined,
+                    discipline: participant.type,
+                  },
+                  lastMessage: undefined,
+                  lastUpdate: chat.updatedAt,
+                  unreadCount: chat._count?.messages,
+                  isOnline: false,
+                };
                 return (
-                  <Link
+                  <ChatCard
                     key={chat.id}
-                    href={`/messages/${chat.id}`}
-                    className={styles.chatCard}
-                  >
-                    <div className={styles.chatAvatar}>{participant.avatar}</div>
-                    <div className={styles.chatInfo}>
-                      <div className={styles.chatHeader}>
-                        <h3 className={styles.chatName}>{participant.name}</h3>
-                        <span className={styles.chatTime}>
-                          {new Date(chat.updatedAt).toLocaleDateString('en-US', {
-                            month: 'short',
-                            day: 'numeric',
-                            hour: '2-digit',
-                            minute: '2-digit',
-                          })}
-                        </span>
-                      </div>
-                      <div className={styles.chatMeta}>
-                        <span className={styles.chatType}>{participant.type}</span>
-                        {chat._count && chat._count.messages > 0 && (
-                          <span className={styles.messageCount}>
-                            {chat._count.messages} {chat._count.messages === 1 ? t('message') : t('messages')}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                    <div className={styles.chatArrow}>→</div>
-                  </Link>
+                    chat={chatCardData}
+                    locale={locale}
+                    className={styles.listItem}
+                  />
                 );
               })}
             </div>
           ) : (
-            <div className={styles.emptyState}>
-              <div className={styles.emptyIcon}>💬</div>
-              <h2 className={styles.emptyTitle}>{t('noConversations')}</h2>
-              <p className={styles.emptyText}>
-                {user?.role === 'COACH'
+            <EmptyState
+              icon="💬"
+              title={t('noConversations')}
+              message={
+                user?.role === 'COACH'
                   ? t('noConversationsCoach')
-                  : t('noConversationsClient')}
-              </p>
-              {user?.role === 'PROSPECT' && (
-                <Link href="/coaches" className={styles.emptyButton}>
-                  {t('browseCoaches')}
-                </Link>
-              )}
-            </div>
+                  : t('noConversationsClient')
+              }
+              action={
+                user?.role === 'PROSPECT' ? (
+                  <Link href="/coaches" className={styles.emptyButton}>
+                    {t('browseCoaches')}
+                  </Link>
+                ) : undefined
+              }
+            />
           )}
         </div>
       </div>

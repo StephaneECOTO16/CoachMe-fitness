@@ -1,4 +1,4 @@
-import { ButtonHTMLAttributes, forwardRef } from 'react';
+import { ButtonHTMLAttributes, ElementType, forwardRef } from 'react';
 import { cn } from '@/lib/utils';
 import styles from './Button.module.css';
 
@@ -10,6 +10,7 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   iconOnly?: boolean;
   leftIcon?: React.ReactNode;
   rightIcon?: React.ReactNode;
+  as?: ElementType;
 }
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(
@@ -25,25 +26,29 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       leftIcon,
       rightIcon,
       disabled,
+      as,
       ...props
     },
     ref
   ) => {
+    const Component: ElementType = as || 'button';
+    const baseProps = {
+      className: cn(
+        styles.button,
+        styles[variant],
+        styles[size],
+        fullWidth && styles.fullWidth,
+        iconOnly && styles.iconOnly,
+        loading && styles.loading,
+        className
+      ),
+      ...(as ? {} : { disabled: disabled || loading }),
+      ...(disabled || loading ? { 'aria-disabled': true } : {}),
+      ...props,
+    };
+
     return (
-      <button
-        ref={ref}
-        className={cn(
-          styles.button,
-          styles[variant],
-          styles[size],
-          fullWidth && styles.fullWidth,
-          iconOnly && styles.iconOnly,
-          loading && styles.loading,
-          className
-        )}
-        disabled={disabled || loading}
-        {...props}
-      >
+      <Component ref={ref as any} {...baseProps}>
         <span className={styles.content}>
           {leftIcon && <span className={styles.icon}>{leftIcon}</span>}
           {children}
@@ -69,7 +74,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
             </svg>
           </span>
         )}
-      </button>
+      </Component>
     );
   }
 );

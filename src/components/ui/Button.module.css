@@ -62,14 +62,15 @@
 
 /* Primary Variant */
 .primary {
-  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  background: var(--primary);
   color: var(--white);
   box-shadow: 0 4px 14px 0 rgba(49, 56, 172, 0.39);
 }
 
 .primary:hover:not(:disabled) {
-  background: linear-gradient(135deg, var(--primary-light) 0%, var(--primary) 100%);
+  background: var(--secondary-light);
   box-shadow: 0 6px 20px rgba(49, 56, 172, 0.5);
+  color: var(--white);
   transform: translateY(-2px);
 }
 
@@ -80,13 +81,21 @@
 
 /* Secondary Variant */
 .secondary {
-  background: linear-gradient(135deg, var(--secondary) 0%, var(--secondary-dark) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--secondary) 0%,
+    var(--secondary-dark) 100%
+  );
   color: var(--white);
   box-shadow: 0 4px 14px 0 rgba(190, 34, 42, 0.39);
 }
 
 .secondary:hover:not(:disabled) {
-  background: linear-gradient(135deg, var(--secondary-light) 0%, var(--secondary) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--secondary-light) 0%,
+    var(--secondary) 100%
+  );
   box-shadow: 0 6px 20px rgba(190, 34, 42, 0.5);
   transform: translateY(-2px);
 }
@@ -134,14 +143,22 @@
 
 /* Danger Variant */
 .danger {
-  background: linear-gradient(135deg, var(--secondary) 0%, var(--secondary-dark) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--secondary) 0%,
+    var(--secondary-dark) 100%
+  );
   color: var(--white);
   border: none;
   box-shadow: 0 4px 14px 0 rgba(190, 34, 42, 0.39);
 }
 
 .danger:hover:not(:disabled) {
-  background: linear-gradient(135deg, var(--secondary-light) 0%, var(--secondary) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--secondary-light) 0%,
+    var(--secondary) 100%
+  );
   box-shadow: 0 6px 20px rgba(190, 34, 42, 0.5);
   transform: translateY(-2px);
 }

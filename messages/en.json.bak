@@ -283,10 +283,81 @@
     "typing": "typing..."
   },
   "profile": {
-    "tabs": {
-      "profile": "Profile",
-      "media": "Media",
-      "account": "Account"
+    "title": "My Profile",
+    "loading": "Loading profile...",
+    "notFound": "Profile Not Found",
+    "unableToLoad": "Unable to load your profile data.",
+    "editProfile": "Edit Profile",
+    "accountInformation": "Account Information",
+    "coachProfile": "Coach Profile",
+    "fitnessProfile": "Fitness Profile",
+    "name": "Name",
+    "email": "Email",
+    "role": "Role",
+    "memberSince": "Member Since",
+    "discipline": "Discipline",
+    "status": "Status",
+    "bio": "Bio",
+    "portfolio": "Portfolio",
+    "hourlyRate": "Hourly Rate",
+    "experience": "Experience",
+    "location": "Location",
+    "address": "Address",
+    "socialMedia": "Social Media",
+    "years": "years",
+    "ageRange": "Age Range",
+    "height": "Height",
+    "weight": "Weight",
+    "fitnessGoals": "Fitness Goals",
+    "notSet": "Not set",
+    "editModal": {
+      "title": "Edit Profile",
+      "basicInfo": "Basic Information",
+      "coachInfo": "Coach Profile",
+      "fitnessInfo": "Fitness Profile",
+      "nameLabel": "Name",
+      "namePlaceholder": "Your name",
+      "disciplineLabel": "Discipline",
+      "disciplinePlaceholder": "Select discipline",
+      "bioLabel": "Bio",
+      "bioPlaceholder": "Tell clients about yourself...",
+      "portfolioLabel": "Portfolio URL",
+      "portfolioPlaceholder": "https://your-portfolio.com",
+      "hourlyRateLabel": "Hourly Rate (XAF)",
+      "hourlyRatePlaceholder": "10000",
+      "experienceYearsLabel": "Years of Experience",
+      "experienceYearsPlaceholder": "5",
+      "addressLabel": "Address",
+      "addressPlaceholder": "Street address",
+      "cityLabel": "City",
+      "cityPlaceholder": "Douala",
+      "countryLabel": "Country",
+      "countryPlaceholder": "Cameroon",
+      "socialMediaTitle": "Social Media Links",
+      "instagramLabel": "Instagram URL",
+      "instagramPlaceholder": "https://instagram.com/yourprofile",
+      "facebookLabel": "Facebook URL",
+      "facebookPlaceholder": "https://facebook.com/yourprofile",
+      "tiktokLabel": "TikTok URL",
+      "tiktokPlaceholder": "https://tiktok.com/@yourprofile",
+      "twitterLabel": "X (Twitter) URL",
+      "twitterPlaceholder": "https://x.com/yourprofile",
+      "youtubeLabel": "YouTube URL",
+      "youtubePlaceholder": "https://youtube.com/@yourprofile",
+      "ageRangeLabel": "Age Range",
+      "ageRangePlaceholder": "Select age range",
+      "heightLabel": "Height (cm)",
+      "heightPlaceholder": "170",
+      "weightLabel": "Weight (kg)",
+      "weightPlaceholder": "70",
+      "goalsLabel": "Fitness Goals",
+      "goalsPlaceholder": "What are your fitness goals?",
+      "saving": "Saving...",
+      "saveBasicInfo": "Save Basic Info",
+      "saveCoachProfile": "Save Coach Profile",
+      "saveFitnessProfile": "Save Fitness Profile",
+      "updateSuccess": "Profile updated successfully!",
+      "updateError": "Failed to update profile. Please try again."
     }
   },
   "admin": {
@@ -560,9 +631,7 @@
       "messagePlaceholder": "Message {name}...",
       "send": "Send",
       "sending": "Sending...",
-      "sendError": "Failed to send message. Please try again.",
-      "comingSoon": "Coming soon",
-      "presenceLabel": "Presence"
+      "sendError": "Failed to send message. Please try again."
     }
   },
   "errors": {
@@ -628,6 +697,13 @@
     "coachApproved": "Coach approved successfully",
     "coachRejected": "Coach rejected successfully"
   },
+  "profile": {
+    "tabs": {
+      "profile": "Profile",
+      "media": "Media",
+      "account": "Account"
+    }
+  },
   "footer": {
     "description": "Transform your fitness journey with certified coaches who guide you every step of the way.",
     "sections": {
@@ -653,20 +729,5 @@
       "cookies": "Cookie Policy"
     },
     "copyright": "© {year} CoachMe. All rights reserved."
-  },
-  "coaches": {
-    "certified": "Certified",
-    "hasPortfolio": "Portfolio",
-    "viewProfile": "View Profile",
-    "yearsExperience": "years",
-    "rateNotSet": "Rate not set",
-    "location": "Location",
-    "experience": "Experience",
-    "years": "years",
-    "rate": "Rate",
-    "appliedOn": "Applied On",
-    "portfolio": "Portfolio",
-    "items": "items",
-    "certifications": "Certifications"
   }
 }
