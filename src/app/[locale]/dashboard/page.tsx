@@ -2,12 +2,18 @@
 
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-import Image from "next/image";
 import { Link } from "@/i18n/routing";
 import { useAuth } from "@/contexts/AuthContext";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
+import HeroSection from "@/components/sections/HeroSection";
+import DashboardSection from "@/components/sections/DashboardSection";
+import CoachCard from "@/components/cards/CoachCard";
+import ChatCard from "@/components/cards/ChatCard";
+import EmptyState from "@/components/ui/EmptyState";
 import Button from "@/components/ui/Button";
-import { AnimatedName } from "@/components/ui/animated-name";
+import toast from "@/lib/toast";
+import type { CoachData } from "@/components/cards/CoachCard";
+import type { ChatCardData } from "@/components/cards/ChatCard";
 import styles from "./page.module.css";
 
 interface Coach {
@@ -77,6 +83,7 @@ export default function ClientDashboard() {
         }
       } catch (error) {
         console.error("Error fetching dashboard data:", error);
+        toast.error("Failed to load dashboard data");
       } finally {
         setLoading(false);
       }
@@ -85,96 +92,83 @@ export default function ClientDashboard() {
     fetchDashboardData();
   }, [token]);
 
+  // Transform Coach data to CoachData format
+  const transformCoachData = (coach: Coach): CoachData => ({
+    _id: coach.id.toString(),
+    firstName: coach.user.name?.split(" ")[0] || "Coach",
+    lastName: coach.user.name?.split(" ").slice(1).join(" ") || "",
+    email: coach.user.email,
+    discipline: coach.discipline,
+    bio: coach.bio || undefined,
+  });
+
+  // Transform Chat data to ChatCardData format
+  const transformChatData = (chat: Chat): ChatCardData => ({
+    id: chat.id.toString(),
+    participant: {
+      id: chat.coach.user.id.toString(),
+      name: chat.coach.user.name || "Coach",
+      role: "COACH",
+      discipline: chat.coach.discipline,
+    },
+    lastUpdate: chat.updatedAt,
+  });
+
   return (
     <ProtectedRoute allowedRoles={["PROSPECT"]}>
       <div className={styles.container}>
-        <div className={styles.hero}>
-          {/* Background Image */}
-          <div className={styles.heroBackground}>
-            <Image
-              src="https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?q=80&w=1740&auto=format&fit=crop"
-              alt="Fitness Training"
-              fill
-              className={styles.heroImage}
-              priority
-            />
-            <div className={styles.heroOverlay} />
-          </div>
-
-          <div className={styles.heroContent}>
-            <h1 className={styles.title}>
-              <AnimatedName
-                prefix={t("welcomeBack")}
-                name={user?.name?.split(" ")[0] || "User"}
-                suffix="! 👋"
-              />
-            </h1>
-            <p className={styles.subtitle}>{t("subtitle")}</p>
-          </div>
-        </div>
+        <HeroSection
+          title={`${t("welcomeBack")}, ${user?.name?.split(" ")[0] || "User"}!`}
+          subtitle={t("subtitle")}
+          backgroundImage="https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?q=80&w=1740&auto=format&fit=crop"
+          overlayOpacity={0.6}
+          height="medium"
+          align="left"
+        />
 
         <div className={styles.content}>
           {/* Recent Chats Section */}
-          <section className={styles.section}>
-            <div className={styles.sectionHeader}>
-              <h2 className={styles.sectionTitle}>{t("recentChats")}</h2>
-              <Link href="/messages">
-                <Button variant="outline" size="sm">
-                  {t("viewAll")}
-                </Button>
-              </Link>
-            </div>
-
+          <DashboardSection
+            title={t("recentChats")}
+            headerAction={{
+              label: t("viewAll"),
+              href: "/messages",
+            }}
+          >
             {loading ? (
               <div className={styles.loading}>Loading...</div>
             ) : chats.length > 0 ? (
               <div className={styles.chatList}>
                 {chats.slice(0, 3).map((chat) => (
-                  <Link
+                  <ChatCard
                     key={chat.id}
-                    href={`/messages/${chat.id}`}
-                    className={styles.chatCard}
-                  >
-                    <div className={styles.chatAvatar}>
-                      {chat.coach.user.name?.[0]?.toUpperCase() || "C"}
-                    </div>
-                    <div className={styles.chatInfo}>
-                      <h3 className={styles.chatName}>
-                        {chat.coach.user.name || "Coach"}
-                      </h3>
-                      <p className={styles.chatDiscipline}>
-                        {chat.coach.discipline}
-                      </p>
-                    </div>
-                    <div className={styles.chatMeta}>
-                      <span className={styles.chatTime}>
-                        {new Date(chat.updatedAt).toLocaleDateString()}
-                      </span>
-                    </div>
-                  </Link>
+                    chat={transformChatData(chat)}
+                  />
                 ))}
               </div>
             ) : (
-              <div className={styles.emptyState}>
-                <p>{t("emptyConversations")}</p>
-                <Link href="/coaches">
-                  <Button variant="primary">{t("findCoach")}</Button>
-                </Link>
-              </div>
+              <EmptyState
+                icon="💬"
+                title={t("emptyConversations")}
+                actions={[
+                  {
+                    label: t("findCoach"),
+                    href: "/coaches",
+                    variant: "primary",
+                  },
+                ]}
+              />
             )}
-          </section>
+          </DashboardSection>
 
           {/* Discover Coaches Section */}
-          <section className={styles.section}>
-            <div className={styles.sectionHeader}>
-              <h2 className={styles.sectionTitle}>{t("browseCoaches")}</h2>
-              <Link href="/coaches">
-                <Button variant="outline" size="sm">
-                  {t("viewAll")}
-                </Button>
-              </Link>
-            </div>
-
+          <DashboardSection
+            title={t("browseCoaches")}
+            headerAction={{
+              label: t("viewAll"),
+              href: "/coaches",
+            }}
+          >
             <p className={styles.sectionDescription}>
               {t("discoverCoachesDesc")}
             </p>
@@ -185,29 +179,13 @@ export default function ClientDashboard() {
               <>
                 <div className={styles.coachGrid}>
                   {coaches.map((coach) => (
-                    <Link
+                    <CoachCard
                       key={coach.id}
-                      href={`/coaches/${coach.id}`}
-                      className={styles.coachCard}
-                    >
-                      <div className={styles.coachAvatar}>
-                        {coach.user.name?.[0]?.toUpperCase() || "C"}
-                      </div>
-                      <h3 className={styles.coachName}>
-                        {coach.user.name || "Coach"}
-                      </h3>
-                      <p className={styles.coachDiscipline}>{coach.discipline}</p>
-                      {coach.bio && (
-                        <p className={styles.coachBio}>
-                          {coach.bio.length > 80
-                            ? `${coach.bio.substring(0, 80)}...`
-                            : coach.bio}
-                        </p>
-                      )}
-                      <Button variant="primary" size="sm" fullWidth>
-                        {t("viewProfile")}
-                      </Button>
-                    </Link>
+                      coach={transformCoachData(coach)}
+                      variant="grid"
+                      bioMaxLength={80}
+                      showSocialLinks={false}
+                    />
                   ))}
                 </div>
                 <div className={styles.browseCoachesButtonWrapper}>
@@ -219,11 +197,11 @@ export default function ClientDashboard() {
                 </div>
               </>
             ) : (
-              <div className={styles.emptyState}>
-                <p>No coaches available at the moment.</p>
-              </div>
+              <EmptyState
+                title="No coaches available at the moment."
+              />
             )}
-          </section>
+          </DashboardSection>
 
           {/* Quick Actions */}
           <section className={styles.section}>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import Image from "next/image";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -11,7 +11,7 @@ import { z } from "zod";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import PublicRoute from "@/components/auth/PublicRoute";
-import { cn } from "@/lib/utils";
+import toast from "@/lib/toast";
 import styles from "../login/page.module.css";
 
 const resetPasswordSchema = z
@@ -41,16 +41,12 @@ export default function ResetPasswordPage() {
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
 
-  const [apiError, setApiError] = useState("");
-  const [success, setSuccess] = useState(false);
-  const [invalidToken, setInvalidToken] = useState(false);
-
   // Check if token is present on mount
   useEffect(() => {
     if (!token) {
-      setInvalidToken(true);
+      toast.error(t("invalidResetLink"), t("requestNewLink"));
     }
-  }, [token]);
+  }, [token, t]);
 
   const {
     register,
@@ -62,8 +58,10 @@ export default function ResetPasswordPage() {
   });
 
   const onSubmit = async (data: ResetPasswordInput) => {
-    if (!token) return;
-    setApiError("");
+    if (!token) {
+      toast.error(t("invalidResetLink"));
+      return;
+    }
 
     try {
       const response = await fetch("/api/auth/reset-password", {
@@ -78,11 +76,11 @@ export default function ResetPasswordPage() {
         throw new Error(result.error?.message || "Failed to reset password");
       }
 
-      setSuccess(true);
+      toast.success(t("passwordResetSuccess"), t("redirectingToLogin"));
       // Redirect to login after 3 seconds
       setTimeout(() => router.push("/login"), 3000);
     } catch (err) {
-      setApiError(err instanceof Error ? err.message : "An error occurred");
+      toast.error("Error", err instanceof Error ? err.message : "An error occurred");
     }
   };
 
@@ -106,31 +104,22 @@ export default function ResetPasswordPage() {
               <p className={styles.subtitle}>{t("resetPasswordSubtitle")}</p>
             </div>
 
-            {invalidToken ? (
-              <div className={cn(styles.alert, styles.error)} role="alert">
-                <p>{t("invalidResetLink")}</p>
-                <Link href="/forgot-password" style={{ display: "block", marginTop: "0.5rem" }}>
-                  {t("requestNewLink")}
-                </Link>
-              </div>
-            ) : success ? (
-              <div className={cn(styles.alert, styles.success)} role="alert">
-                <p>{t("passwordResetSuccess")}</p>
-                <p style={{ marginTop: "0.5rem", fontSize: "0.875rem" }}>{t("redirectingToLogin")}</p>
+            {!token ? (
+              <div className={styles.footer}>
+                <p>
+                  {t("invalidResetLink")} <Link href="/forgot-password">{t("requestNewLink")}</Link>
+                </p>
               </div>
             ) : (
-              <>
-                {apiError && <div className={cn(styles.alert, styles.error)} role="alert">{apiError}</div>}
-                <form onSubmit={handleSubmit(onSubmit)} className={styles.form}>
-                  <div className={styles.inputGroup}>
-                    <Input type="password" label={t("newPassword")} placeholder="••••••••" error={errors.password?.message} {...register("password")} />
-                    <Input type="password" label={t("confirmPassword")} placeholder="••••••••" error={errors.confirmPassword?.message} {...register("confirmPassword")} />
-                  </div>
-                  <Button type="submit" variant="primary" size="lg" fullWidth loading={isSubmitting} className={styles.submitButton}>
-                    {isSubmitting ? t("resetting") : t("resetPassword")}
-                  </Button>
-                </form>
-              </>
+              <form onSubmit={handleSubmit(onSubmit)} className={styles.form}>
+                <div className={styles.inputGroup}>
+                  <Input type="password" label={t("newPassword")} placeholder="••••••••" error={errors.password?.message} {...register("password")} />
+                  <Input type="password" label={t("confirmPassword")} placeholder="••••••••" error={errors.confirmPassword?.message} {...register("confirmPassword")} />
+                </div>
+                <Button type="submit" variant="primary" size="lg" fullWidth loading={isSubmitting} className={styles.submitButton}>
+                  {isSubmitting ? t("resetting") : t("resetPassword")}
+                </Button>
+              </form>
             )}
           </div>
         </div>

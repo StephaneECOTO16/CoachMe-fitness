@@ -11,7 +11,7 @@
   border-bottom: 2px solid var(--gray-200);
   padding: var(--space-4);
   position: fixed;
-  top: 72px;
+  top: 0;
   left: 0;
   right: 0;
   z-index: 10;
@@ -78,11 +78,50 @@
   margin: 0;
 }
 
+/* Header Actions */
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.iconAction {
+  color: var(--text-primary);
+  border-radius: var(--radius-lg);
+}
+
+.iconAction[aria-disabled] {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.presence {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-lg);
+  background: var(--white);
+  color: var(--text-secondary);
+}
+
+.presenceDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--gray-300);
+}
+
+.presenceText {
+  font-size: var(--text-sm);
+}
+
 /* Messages Container */
 .messagesContainer {
   flex: 1;
   overflow-y: auto;
-  padding-top: 140px;
+  padding-top: 100px;
   padding-bottom: 100px;
 }
 
@@ -229,6 +268,22 @@
   align-items: center;
 }
 
+.inputIconButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-2);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  border: 1px solid var(--gray-300);
+  background: var(--white);
+}
+
+.inputIconButton[aria-disabled] {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
 .input {
   flex: 1;
   padding: var(--space-3) var(--space-4);
@@ -320,10 +375,18 @@
   }
 
   .header {
-    top: 64px;
+    top: 0;
   }
 
   .messagesContainer {
-    padding-top: 130px;
+    padding-top: 90px;
+  }
+
+  .presenceText {
+    display: none;
+  }
+
+  .headerActions {
+    gap: var(--space-1);
   }
 }

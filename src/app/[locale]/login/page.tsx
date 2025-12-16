@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import Image from "next/image";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -10,16 +9,14 @@ import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import PublicRoute from "@/components/auth/PublicRoute";
 import { useAuth } from "@/contexts/AuthContext";
-import { cn } from "@/lib/utils";
 import { loginSchema, type LoginInput } from "@/lib/schemas";
+import toast from "@/lib/toast";
 import styles from "./page.module.css";
 
 export default function LoginPage() {
   const t = useTranslations("auth");
   const router = useRouter();
   const { login } = useAuth();
-  const [apiError, setApiError] = useState("");
-  const [success, setSuccess] = useState(false);
 
   const {
     register,
@@ -35,9 +32,6 @@ export default function LoginPage() {
   });
 
   const onSubmit = async (data: LoginInput) => {
-    setApiError("");
-    setSuccess(false);
-
     try {
       const response = await fetch("/api/auth/login", {
         method: "POST",
@@ -61,15 +55,16 @@ export default function LoginPage() {
         login(result.token);
       }
 
-      // Show success message briefly
-      setSuccess(true);
+      // Show success toast
+      toast.success(t("loginSuccess"), "Redirecting to dashboard...");
 
       // Auth context will handle redirect based on user role
       setTimeout(() => {
         router.push("/dashboard");
       }, 500);
     } catch (err) {
-      setApiError(err instanceof Error ? err.message : "An error occurred");
+      const errorMessage = err instanceof Error ? err.message : "An error occurred";
+      toast.error("Login Failed", errorMessage);
     }
   };
 
@@ -110,18 +105,6 @@ export default function LoginPage() {
               <h1 className={styles.title}>{t("loginTitle")}</h1>
               <p className={styles.subtitle}>{t("loginSubtitle")}</p>
             </div>
-
-            {apiError && (
-              <div className={cn(styles.alert, styles.error)} role="alert">
-                {apiError}
-              </div>
-            )}
-
-            {success && (
-              <div className={cn(styles.alert, styles.success)} role="alert">
-                {t("loginSuccess")}
-              </div>
-            )}
 
             <form onSubmit={handleSubmit(onSubmit)} className={styles.form}>
               <div className={styles.inputGroup}>

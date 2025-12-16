@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import Image from "next/image";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -10,7 +9,7 @@ import { z } from "zod";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import PublicRoute from "@/components/auth/PublicRoute";
-import { cn } from "@/lib/utils";
+import toast from "@/lib/toast";
 import styles from "../login/page.module.css";
 
 const forgotPasswordSchema = z.object({
@@ -25,22 +24,18 @@ type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>;
  */
 export default function ForgotPasswordPage() {
   const t = useTranslations("auth");
-  const [apiError, setApiError] = useState("");
-  const [success, setSuccess] = useState(false);
 
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
+    reset,
   } = useForm<ForgotPasswordInput>({
     resolver: zodResolver(forgotPasswordSchema),
     defaultValues: { email: "" },
   });
 
   const onSubmit = async (data: ForgotPasswordInput) => {
-    setApiError("");
-    setSuccess(false);
-
     try {
       const response = await fetch("/api/auth/forgot-password", {
         method: "POST",
@@ -54,9 +49,10 @@ export default function ForgotPasswordPage() {
         throw new Error(result.error?.message || "Failed to send reset link");
       }
 
-      setSuccess(true);
+      toast.success(t("resetLinkSent"), t("checkEmailInstructions"));
+      reset();
     } catch (err) {
-      setApiError(err instanceof Error ? err.message : "An error occurred");
+      toast.error("Error", err instanceof Error ? err.message : "An error occurred");
     }
   };
 
@@ -82,34 +78,21 @@ export default function ForgotPasswordPage() {
               <p className={styles.subtitle}>{t("forgotPasswordSubtitle")}</p>
             </div>
 
-            {apiError && (
-              <div className={cn(styles.alert, styles.error)} role="alert">
-                {apiError}
+            <form onSubmit={handleSubmit(onSubmit)} className={styles.form}>
+              <div className={styles.inputGroup}>
+                <Input
+                  type="email"
+                  label={t("email")}
+                  placeholder="name@example.com"
+                  error={errors.email?.message}
+                  {...register("email")}
+                />
               </div>
-            )}
 
-            {success ? (
-              <div className={cn(styles.alert, styles.success)} role="alert">
-                <p>{t("resetLinkSent")}</p>
-                <p style={{ marginTop: "0.5rem", fontSize: "0.875rem" }}>{t("checkEmailInstructions")}</p>
-              </div>
-            ) : (
-              <form onSubmit={handleSubmit(onSubmit)} className={styles.form}>
-                <div className={styles.inputGroup}>
-                  <Input
-                    type="email"
-                    label={t("email")}
-                    placeholder="name@example.com"
-                    error={errors.email?.message}
-                    {...register("email")}
-                  />
-                </div>
-
-                <Button type="submit" variant="primary" size="lg" fullWidth loading={isSubmitting} className={styles.submitButton}>
-                  {isSubmitting ? t("sending") : t("sendResetLink")}
-                </Button>
-              </form>
-            )}
+              <Button type="submit" variant="primary" size="lg" fullWidth loading={isSubmitting} className={styles.submitButton}>
+                {isSubmitting ? t("sending") : t("sendResetLink")}
+              </Button>
+            </form>
 
             <div className={styles.footer}>
               <p>

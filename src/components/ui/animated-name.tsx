@@ -17,7 +17,7 @@ export const AnimatedName = ({
   className,
 }: AnimatedNameProps) => {
   return (
-    <span className={cn("inline-flex flex-wrap items-center gap-2", className)}>
+    <span className={cn("inline-flex flex-wrap items-center gap-3", className)}>
       <motion.span
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}

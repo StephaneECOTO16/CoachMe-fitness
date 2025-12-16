@@ -13,6 +13,7 @@ import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import Button from '@/components/ui/Button';
 import Modal from '@/components/ui/Modal';
 import MediaUploadTab from '@/components/profile/MediaUploadTab';
+import { TabNavigation } from '@/components';
 import { DISCIPLINES } from '@/lib/schemas';
 import styles from './page.module.css';
 
@@ -503,31 +504,15 @@ export default function ProfilePage() {
           size="lg"
         >
           {/* Tab Navigation */}
-          <div className={styles.tabNavigation}>
-            <button
-              className={`${styles.tabButton} ${activeTab === 'profile' ? styles.tabButtonActive : ''}`}
-              onClick={() => setActiveTab('profile')}
-            >
-              <User size={18} />
-              <span>{t('tabs.profile')}</span>
-            </button>
-            {profileData?.user.role === 'COACH' && (
-              <button
-                className={`${styles.tabButton} ${activeTab === 'media' ? styles.tabButtonActive : ''}`}
-                onClick={() => setActiveTab('media')}
-              >
-                <ImageIcon size={18} />
-                <span>{t('tabs.media')}</span>
-              </button>
-            )}
-            <button
-              className={`${styles.tabButton} ${activeTab === 'account' ? styles.tabButtonActive : ''}`}
-              onClick={() => setActiveTab('account')}
-            >
-              <Settings size={18} />
-              <span>{t('tabs.account')}</span>
-            </button>
-          </div>
+          <TabNavigation
+            tabs={[
+              { id: 'profile', label: t('tabs.profile'), icon: <User size={18} /> },
+              ...(profileData?.user.role === 'COACH' ? [{ id: 'media', label: t('tabs.media'), icon: <ImageIcon size={18} /> }] : []),
+              { id: 'account', label: t('tabs.account'), icon: <Settings size={18} /> },
+            ]}
+            activeTab={activeTab}
+            onChange={(tabId) => setActiveTab(tabId as 'profile' | 'media' | 'account')}
+          />
 
           <div className={styles.modalContent}>
             {/* Profile Tab */}

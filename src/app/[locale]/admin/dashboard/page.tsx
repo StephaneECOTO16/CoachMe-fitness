@@ -6,6 +6,8 @@ import { Link } from '@/i18n/routing';
 import { useAuth } from '@/contexts/AuthContext';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import Button from '@/components/ui/Button';
+import { HeroSection, StatsGrid, DashboardSection, CoachCard, EmptyState } from '@/components';
+import toast from '@/lib/toast';
 import styles from './page.module.css';
 
 interface Stats {
@@ -57,6 +59,8 @@ export default function AdminDashboard() {
         const statsData = await statsRes.json();
         if (statsData.success) {
           setStats(statsData.stats);
+        } else {
+          toast.error('Failed to load statistics');
         }
 
         // Fetch pending coaches
@@ -68,9 +72,12 @@ export default function AdminDashboard() {
         const coachesData = await coachesRes.json();
         if (coachesData.success) {
           setPendingCoaches(coachesData.coaches);
+        } else {
+          toast.error('Failed to load pending coaches');
         }
       } catch (error) {
         console.error('Error fetching dashboard data:', error);
+        toast.error('Failed to load dashboard data');
       } finally {
         setLoading(false);
       }
@@ -83,16 +90,10 @@ export default function AdminDashboard() {
     <ProtectedRoute allowedRoles={['ADMIN']}>
       <div className={styles.container}>
         {/* Hero Section */}
-        <div className={styles.hero}>
-          <div className={styles.heroContent}>
-            <h1 className={styles.title}>
-              Admin Dashboard 🛡️
-            </h1>
-            <p className={styles.subtitle}>
-              Welcome back, {user?.name || 'Admin'}! Manage users, review coaches, and monitor platform activity.
-            </p>
-          </div>
-        </div>
+        <HeroSection
+          title="Admin Dashboard"
+          subtitle={`Welcome back, ${user?.name || 'Admin'}! Manage users, review coaches, and monitor platform activity.`}
+        />
 
         <div className={styles.content}>
           {loading ? (
@@ -102,137 +103,79 @@ export default function AdminDashboard() {
             </div>
           ) : (
             <>
-              {/* Stats Overview */}
-              <section className={styles.statsSection}>
-                <h2 className={styles.sectionTitle}>Platform Statistics</h2>
-                <div className={styles.statsGrid}>
-                  <div className={styles.statCard}>
-                    <div className={styles.statIcon}>👥</div>
-                    <div className={styles.statInfo}>
-                      <h3 className={styles.statValue}>{stats?.totalUsers || 0}</h3>
-                      <p className={styles.statLabel}>Total Users</p>
-                    </div>
-                  </div>
-
-                  <div className={styles.statCard}>
-                    <div className={styles.statIcon}>🏃</div>
-                    <div className={styles.statInfo}>
-                      <h3 className={styles.statValue}>{stats?.totalProspects || 0}</h3>
-                      <p className={styles.statLabel}>Prospects</p>
-                    </div>
-                  </div>
-
-                  <div className={styles.statCard}>
-                    <div className={styles.statIcon}>💪</div>
-                    <div className={styles.statInfo}>
-                      <h3 className={styles.statValue}>{stats?.totalCoaches || 0}</h3>
-                      <p className={styles.statLabel}>Total Coaches</p>
-                    </div>
-                  </div>
-
-                  <div className={styles.statCard}>
-                    <div className={styles.statIcon}>✓</div>
-                    <div className={styles.statInfo}>
-                      <h3 className={styles.statValue}>{stats?.approvedCoaches || 0}</h3>
-                      <p className={styles.statLabel}>Approved Coaches</p>
-                    </div>
-                  </div>
-
-                  <div className={styles.statCard}>
-                    <div className={styles.statIcon}>⏳</div>
-                    <div className={styles.statInfo}>
-                      <h3 className={styles.statValue}>{stats?.pendingCoaches || 0}</h3>
-                      <p className={styles.statLabel}>Pending Reviews</p>
-                    </div>
-                  </div>
-
-                  <div className={styles.statCard}>
-                    <div className={styles.statIcon}>💬</div>
-                    <div className={styles.statInfo}>
-                      <h3 className={styles.statValue}>{stats?.totalChats || 0}</h3>
-                      <p className={styles.statLabel}>Active Chats</p>
-                    </div>
-                  </div>
-                </div>
-              </section>
+              {/* Stats Grid */}
+              <StatsGrid
+                stats={[
+                  {
+                    icon: '👥',
+                    value: stats?.totalUsers?.toString() || '0',
+                    label: 'Total Users',
+                  },
+                  {
+                    icon: '🏃',
+                    value: stats?.totalProspects?.toString() || '0',
+                    label: 'Prospects',
+                  },
+                  {
+                    icon: '💪',
+                    value: stats?.totalCoaches?.toString() || '0',
+                    label: 'Total Coaches',
+                  },
+                  {
+                    icon: '✓',
+                    value: stats?.approvedCoaches?.toString() || '0',
+                    label: 'Approved Coaches',
+                  },
+                  {
+                    icon: '⏳',
+                    value: stats?.pendingCoaches?.toString() || '0',
+                    label: 'Pending Reviews',
+                  },
+                  {
+                    icon: '💬',
+                    value: stats?.totalChats?.toString() || '0',
+                    label: 'Active Chats',
+                  },
+                ]}
+              />
 
               {/* Pending Coach Applications */}
-              <section className={styles.section}>
-                <div className={styles.sectionHeader}>
-                  <h2 className={styles.sectionTitle}>
-                    Pending Coach Applications ({pendingCoaches.length})
-                  </h2>
+              <DashboardSection
+                title={`Pending Coach Applications (${pendingCoaches.length})`}
+                action={
                   <Link href="/admin/coaches">
                     <Button variant="outline" size="sm">
                       View All Coaches
                     </Button>
                   </Link>
-                </div>
-
+                }
+              >
                 {pendingCoaches.length > 0 ? (
                   <div className={styles.coachList}>
                     {pendingCoaches.map((coach) => (
-                      <div key={coach.id} className={styles.coachCard}>
-                        <div className={styles.coachHeader}>
-                          <div className={styles.coachAvatar}>
-                            {coach.user.name?.[0]?.toUpperCase() || 'C'}
-                          </div>
-                          <div className={styles.coachInfo}>
-                            <h3 className={styles.coachName}>{coach.user.name || 'Coach'}</h3>
-                            <p className={styles.coachEmail}>{coach.user.email}</p>
-                            <span className={styles.coachDiscipline}>{coach.discipline}</span>
-                          </div>
-                          <div className={styles.coachMeta}>
-                            <span className={styles.coachDate}>
-                              Applied {new Date(coach.createdAt).toLocaleDateString()}
-                            </span>
-                          </div>
-                        </div>
-
-                        {coach.bio && (
-                          <div className={styles.coachBio}>
-                            <p className={styles.bioText}>
-                              {coach.bio.length > 200
-                                ? `${coach.bio.substring(0, 200)}...`
-                                : coach.bio}
-                            </p>
-                          </div>
-                        )}
-
-                        {coach.portfolio && (
-                          <div className={styles.coachPortfolio}>
-                            <strong>Portfolio:</strong>{' '}
-                            <a
-                              href={coach.portfolio}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className={styles.portfolioLink}
-                            >
-                              {coach.portfolio}
-                            </a>
-                          </div>
-                        )}
-
-                        <div className={styles.coachActions}>
-                          <Link href={`/admin/coaches/${coach.id}`}>
-                            <Button variant="primary" size="sm">
-                              Review Application
-                            </Button>
-                          </Link>
-                        </div>
-                      </div>
+                      <CoachCard
+                        key={coach.id}
+                        id={coach.id}
+                        name={coach.user.name || 'Coach'}
+                        email={coach.user.email}
+                        discipline={coach.discipline}
+                        bio={coach.bio}
+                        portfolio={coach.portfolio}
+                        status={coach.status as 'PENDING' | 'APPROVED' | 'REJECTED'}
+                        appliedDate={new Date(coach.createdAt)}
+                        variant="admin"
+                        href={`/admin/coaches/${coach.id}`}
+                      />
                     ))}
                   </div>
                 ) : (
-                  <div className={styles.emptyState}>
-                    <div className={styles.emptyIcon}>✓</div>
-                    <h3 className={styles.emptyTitle}>All Caught Up!</h3>
-                    <p className={styles.emptyText}>
-                      There are no pending coach applications to review at this time.
-                    </p>
-                  </div>
+                  <EmptyState
+                    icon="✓"
+                    title="All Caught Up!"
+                    message="There are no pending coach applications to review at this time."
+                  />
                 )}
-              </section>
+              </DashboardSection>
 
               {/* Quick Actions */}
               <section className={styles.section}>
