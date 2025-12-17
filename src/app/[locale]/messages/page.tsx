@@ -17,7 +17,11 @@ interface Chat {
   updatedAt: string;
   coach: {
     id: number;
-    discipline: string;
+    discipline: {
+      id: number;
+      name: string;
+      imageUrl?: string;
+    };
     user: {
       id: number;
       name: string | null;
@@ -84,7 +88,7 @@ export default function MessagesPage() {
         name: chat.coach.user.name || 'Coach',
         email: chat.coach.user.email,
         avatar: chat.coach.user.name?.[0]?.toUpperCase() || 'C',
-        type: chat.coach.discipline,
+        type: chat.coach.discipline.name,
       };
     }
   };

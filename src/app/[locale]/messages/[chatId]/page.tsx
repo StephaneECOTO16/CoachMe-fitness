@@ -34,7 +34,11 @@ interface Chat {
   updatedAt: string;
   coach: {
     id: number;
-    discipline: string;
+    discipline: {
+      id: number;
+      name: string;
+      imageUrl?: string;
+    };
     user: {
       id: number;
       name: string | null;
@@ -186,7 +190,7 @@ export default function ConversationPage() {
         name: chat.coach.user.name || "Coach",
         email: chat.coach.user.email,
         avatar: chat.coach.user.name?.[0]?.toUpperCase() || "C",
-        type: chat.coach.discipline,
+        type: chat.coach.discipline.name,
       };
     }
   };
@@ -237,7 +241,7 @@ export default function ConversationPage() {
               </div>
               <div>
                 <h1 className={styles.participantName}>{participant?.name}</h1>
-                <p className={styles.participantType}>{participant?.type}</p>
+                <p className={styles.participantType}>{typeof participant?.type === 'string' ? participant.type : (participant?.type as any)?.name}</p>
               </div>
             </div>
             <div className={styles.headerActions}>

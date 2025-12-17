@@ -22,7 +22,9 @@ export async function GET(req: Request) {
         };
 
         if (discipline) {
-            whereClause.discipline = { contains: discipline, mode: 'insensitive' };
+            whereClause.discipline = {
+                name: { contains: discipline, mode: 'insensitive' }
+            };
         }
 
         if (minRating !== undefined) {
@@ -37,6 +39,7 @@ export async function GET(req: Request) {
             where: whereClause,
             include: {
                 user: { select: { id: true, name: true, email: true } },
+                discipline: { select: { id: true, name: true, imageUrl: true } },
                 media: { take: 5 }, // Limit media to 5 items per coach
             },
             take: limit,

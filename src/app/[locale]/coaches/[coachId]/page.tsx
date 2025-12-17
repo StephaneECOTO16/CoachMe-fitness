@@ -7,7 +7,12 @@ import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/routing";
 import { useAuth } from "@/contexts/AuthContext";
 import Button from "@/components/ui/Button";
-import { MediaGallery, TabNavigation, StatusBadge, EmptyState } from "@/components";
+import {
+  MediaGallery,
+  TabNavigation,
+  StatusBadge,
+  EmptyState,
+} from "@/components";
 import toast from "@/lib/toast";
 import {
   Star,
@@ -35,7 +40,11 @@ interface CoachProfile {
   id: number;
   userId: number;
   bio: string | null;
-  discipline: string;
+  discipline: {
+    id: number;
+    name: string;
+    imageUrl?: string;
+  };
   portfolio: string | null;
   status: string;
   hourlyRate: number | null;
@@ -138,7 +147,7 @@ export default function CoachProfilePage() {
   const handleShare = () => {
     if (navigator.share) {
       navigator.share({
-        title: `${coach?.user.name || "Coach"} - ${coach?.discipline}`,
+        title: `${coach?.user.name || "Coach"} - ${coach?.discipline.name}`,
         text: coach?.bio || "",
         url: window.location.href,
       });
@@ -194,7 +203,7 @@ export default function CoachProfilePage() {
 
             {/* Coach Name & Title */}
             <h1 className={styles.coachName}>{coach.user.name || "Coach"}</h1>
-            <p className={styles.coachTitle}>{coach.discipline}</p>
+            <p className={styles.coachTitle}>{coach.discipline.name}</p>
 
             {/* Quick Info */}
             <div className={styles.quickInfo}>
@@ -271,7 +280,7 @@ export default function CoachProfilePage() {
                 <div className={styles.badgeList}>
                   <span className={styles.badge}>
                     <Award size={16} />
-                    {coach.discipline}
+                    {coach.discipline.name}
                   </span>
                   {coach.experienceYears && coach.experienceYears >= 3 && (
                     <span className={styles.badge}>
@@ -317,7 +326,9 @@ export default function CoachProfilePage() {
               {/* Media Section - supports empty and populated states */}
               <section className={styles.section}>
                 <h2 className={styles.sectionTitle}>{t("media")}</h2>
-                <p className={styles.sectionSubtitle}>{t("mediaDescription")}</p>
+                <p className={styles.sectionSubtitle}>
+                  {t("mediaDescription")}
+                </p>
                 {mediaItems.length > 0 ? (
                   <MediaGallery media={mediaItems} />
                 ) : (

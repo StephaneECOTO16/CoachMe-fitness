@@ -20,7 +20,11 @@ interface Coach {
   id: number;
   userId: number;
   bio: string | null;
-  discipline: string;
+  discipline: {
+    id: number;
+    name: string;
+    imageUrl?: string;
+  };
   portfolio: string | null;
   status: string;
   user: {
@@ -98,7 +102,7 @@ export default function ClientDashboard() {
     firstName: coach.user.name?.split(" ")[0] || "Coach",
     lastName: coach.user.name?.split(" ").slice(1).join(" ") || "",
     email: coach.user.email,
-    discipline: coach.discipline,
+    discipline: coach.discipline.name,
     bio: coach.bio || undefined,
   });
 
@@ -109,7 +113,7 @@ export default function ClientDashboard() {
       id: chat.coach.user.id.toString(),
       name: chat.coach.user.name || "Coach",
       role: "COACH",
-      discipline: chat.coach.discipline,
+      discipline: chat.coach.discipline.name,
     },
     lastUpdate: chat.updatedAt,
   });

@@ -24,31 +24,32 @@ model User {
 }
 
 model CoachProfile {
-  id             Int             @id @default(autoincrement())
-  userId         Int             @unique
-  bio            String?
-  discipline     String
-  portfolio      String?
-  hourlyRate     Decimal?        @db.Decimal(10, 2)
-  address        String?
-  city           String?
-  country        String?         @default("Cameroon")
-  minRating      Float?          @default(0)
-  experienceYears Int?           @default(0)
-  instagram      String?
-  facebook       String?
-  tiktok         String?
-  twitter        String?
-  youtube        String?
-  status         ApprovalStatus  @default(PENDING)
-  statusReason   String?
-  createdAt      DateTime        @default(now())
-  updatedAt      DateTime        @updatedAt
-  adminReviews   AdminReview[]
-  chatsAsCoach   Chat[]          @relation("coachChats")
-  user           User            @relation(fields: [userId], references: [id])
-  commissionLogs CommissionLog[]
-  media          Media[]
+  id              Int             @id @default(autoincrement())
+  userId          Int             @unique
+  bio             String?
+  disciplineId    Int
+  discipline      Discipline      @relation(fields: [disciplineId], references: [id])
+  portfolio       String?
+  hourlyRate      Decimal?        @db.Decimal(10, 2)
+  address         String?
+  city            String?
+  country         String?         @default("Cameroon")
+  minRating       Float?          @default(0)
+  experienceYears Int?            @default(0)
+  instagram       String?
+  facebook        String?
+  tiktok          String?
+  twitter         String?
+  youtube         String?
+  status          ApprovalStatus  @default(PENDING)
+  statusReason    String?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  adminReviews    AdminReview[]
+  chatsAsCoach    Chat[]          @relation("coachChats")
+  user            User            @relation(fields: [userId], references: [id])
+  commissionLogs  CommissionLog[]
+  media           Media[]
 }
 
 model ClientProfile {
@@ -112,6 +113,15 @@ model AdminReview {
   createdAt DateTime     @default(now())
   admin     User         @relation(fields: [adminId], references: [id])
   coach     CoachProfile @relation(fields: [coachId], references: [id])
+}
+
+model Discipline {
+  id        Int            @id @default(autoincrement())
+  name      String         @unique
+  imageUrl  String?
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+  coaches   CoachProfile[]
 }
 
 model CommissionLog {
