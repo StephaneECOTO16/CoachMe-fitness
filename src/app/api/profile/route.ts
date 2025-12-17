@@ -31,7 +31,7 @@ export async function GET(req: Request) {
         if (user.role === 'COACH') {
             const coachProfile = await prisma.coachProfile.findUnique({
                 where: { userId: user.id },
-                include: { media: true },
+                include: { media: true, discipline: true, },
             });
             response.profile = coachProfile || undefined;
         } else if (user.role === 'PROSPECT') {

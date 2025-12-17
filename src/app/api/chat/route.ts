@@ -32,33 +32,60 @@ export async function POST(req: Request) {
 
     try {
         // Get prospect profile
-        const clientProfile = await prisma.clientProfile.findUnique({ where: { userId: payload.userId } });
+        const clientProfile = await prisma.clientProfile.findUnique({
+            where: { userId: payload.userId }
+        });
+
         if (!clientProfile) {
-            return NextResponse.json({ success: false, error: { code: 'NOT_FOUND', message: 'Prospect profile not found' } }, { status: 404 });
+            return NextResponse.json({
+                success: false,
+                error: { code: 'NOT_FOUND', message: 'Prospect profile not found' }
+            }, { status: 404 });
         }
 
         // Verify coach exists and is approved
-        const coach = await prisma.coachProfile.findUnique({ where: { id: coachId } });
-        if (!coach) return NextResponse.json({ success: false, error: { code: 'NOT_FOUND', message: 'Coach not found' } }, { status: 404 });
+        const coach = await prisma.coachProfile.findUnique({
+            where: { id: coachId }
+        });
+
+        if (!coach) {
+            return NextResponse.json({
+                success: false,
+                error: { code: 'NOT_FOUND', message: 'Coach not found' }
+            }, { status: 404 });
+        }
+
         if (coach.status !== 'APPROVED') {
-            return NextResponse.json({ success: false, error: { code: 'FORBIDDEN', message: 'Coach not available' } }, { status: 403 });
+            return NextResponse.json({
+                success: false,
+                error: { code: 'FORBIDDEN', message: 'Coach not available' }
+            }, { status: 403 });
         }
 
         // Find or create chat
         let chat = await prisma.chat.findFirst({
-            where: { coachId, clientId: clientProfile.id },
+            where: {
+                coachId,
+                clientId: clientProfile.id,
+            },
         });
 
         if (!chat) {
             chat = await prisma.chat.create({
-                data: { coachId, clientId: clientProfile.id },
+                data: {
+                    coachId,
+                    clientId: clientProfile.id,
+                },
             });
         }
 
         return NextResponse.json({ success: true, chat });
     } catch (err: unknown) {
-        console.error('[POST /api/chat/initiate]', err);
-        return NextResponse.json({ success: false, error: { code: 'INTERNAL_ERROR' } }, { status: 500 });
+        console.error('[POST /api/chat]', err);
+        return NextResponse.json({
+            success: false,
+            error: { code: 'INTERNAL_ERROR' }
+        }, { status: 500 });
     }
 }
 
@@ -69,37 +96,77 @@ export async function POST(req: Request) {
  */
 export async function GET(req: Request) {
     const payload = await requireAuth(req);
-    if (!payload) return NextResponse.json({ success: false, error: { code: 'UNAUTHORIZED' } }, { status: 401 });
+    if (!payload) {
+        return NextResponse.json({
+            success: false,
+            error: { code: 'UNAUTHORIZED' }
+        }, { status: 401 });
+    }
 
     try {
         let chats: any[] = [];
 
         if (payload.role === 'COACH') {
-            const coachProfile = await prisma.coachProfile.findUnique({ where: { userId: payload.userId } });
+            const coachProfile = await prisma.coachProfile.findUnique({
+                where: { userId: payload.userId }
+            });
+
             if (!coachProfile) {
                 return NextResponse.json({ success: true, chats: [] });
             }
+
             chats = await prisma.chat.findMany({
                 where: { coachId: coachProfile.id },
                 include: {
-                    client: { include: { user: { select: { id: true, name: true, email: true } } } },
+                    client: {
+                        include: {
+                            user: {
+                                select: { id: true, name: true, email: true }
+                            }
+                        }
+                    },
+                    coach: {
+                        include: {
+                            user: {
+                                select: { id: true, name: true, email: true }
+                            },
+                            discipline: {
+                                select: { id: true, name: true }
+                            }
+                        }
+                    },
                     _count: { select: { messages: true } }
                 },
                 orderBy: { updatedAt: 'desc' },
             });
+
         } else if (payload.role === 'PROSPECT') {
-            const clientProfile = await prisma.clientProfile.findUnique({ where: { userId: payload.userId } });
+            const clientProfile = await prisma.clientProfile.findUnique({
+                where: { userId: payload.userId }
+            });
+
             if (!clientProfile) {
                 return NextResponse.json({ success: true, chats: [] });
             }
+
             chats = await prisma.chat.findMany({
                 where: { clientId: clientProfile.id },
                 include: {
-                    coach: { include: { user: { select: { id: true, name: true, email: true } } } },
+                    coach: {
+                        include: {
+                            user: {
+                                select: { id: true, name: true, email: true }
+                            },
+                            discipline: {
+                                select: { id: true, name: true }
+                            }
+                        }
+                    },
                     _count: { select: { messages: true } }
                 },
                 orderBy: { updatedAt: 'desc' },
             });
+
         } else {
             // Admin cannot see chats (for now)
             chats = [];
@@ -108,6 +175,9 @@ export async function GET(req: Request) {
         return NextResponse.json({ success: true, chats });
     } catch (err: unknown) {
         console.error('[GET /api/chat]', err);
-        return NextResponse.json({ success: false, error: { code: 'INTERNAL_ERROR' } }, { status: 500 });
+        return NextResponse.json({
+            success: false,
+            error: { code: 'INTERNAL_ERROR' }
+        }, { status: 500 });
     }
 }
