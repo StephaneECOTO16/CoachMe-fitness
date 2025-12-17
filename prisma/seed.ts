@@ -13,6 +13,43 @@ const prisma = new PrismaClient();
 async function main() {
     console.log('🌱 Starting database seed...');
 
+    // Create disciplines
+    const disciplines = [
+        'Yoga',
+        'Strength Training',
+        'CrossFit',
+        'Pilates',
+        'Boxing',
+        'Running',
+        'Swimming',
+        'Personal Training',
+        'Nutrition Coaching',
+        'Cycling',
+        'Martial Arts',
+        'Dance',
+        'Calisthenics',
+        'Powerlifting',
+        'Bodybuilding',
+        // Combined disciplines used by coaches
+        'Yoga & Pilates',
+        'Boxing & Cardio',
+    ];
+
+    for (const disciplineName of disciplines) {
+        const existingDiscipline = await prisma.discipline.findUnique({
+            where: { name: disciplineName },
+        });
+
+        if (!existingDiscipline) {
+            await prisma.discipline.create({
+                data: { name: disciplineName },
+            });
+            console.log(`✅ Created discipline: ${disciplineName}`);
+        } else {
+            console.log(`✅ Discipline already exists: ${disciplineName}`);
+        }
+    }
+
     // Create admin user
     const adminEmail = 'admin@mandara-fitness.com';
     const adminPassword = 'Admin123!';
@@ -132,6 +169,16 @@ async function main() {
         });
 
         if (!existingCoach) {
+            // Find the discipline by name
+            const discipline = await prisma.discipline.findUnique({
+                where: { name: coachData.discipline },
+            });
+
+            if (!discipline) {
+                console.log(`❌ Discipline not found: ${coachData.discipline} for coach ${coachData.name}`);
+                continue;
+            }
+
             await prisma.user.create({
                 data: {
                     email: coachData.email,
@@ -140,7 +187,7 @@ async function main() {
                     name: coachData.name,
                     coachProfile: {
                         create: {
-                            discipline: coachData.discipline,
+                            disciplineId: discipline.id,
                             bio: coachData.bio,
                             portfolio: coachData.portfolio,
                             hourlyRate: coachData.hourlyRate,

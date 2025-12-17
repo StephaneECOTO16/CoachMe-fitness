@@ -17,6 +17,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ coachId:
             where: { id: coachId },
             include: {
                 user: { select: { id: true, name: true, email: true } },
+                discipline: true,
                 media: true,
             },
         });

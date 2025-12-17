@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslations } from "next-intl";
@@ -8,16 +9,24 @@ import { Link, useRouter } from "@/i18n/routing";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
-import { registerSchema, type RegisterInput, DISCIPLINES } from "@/lib/schemas";
+import { registerSchema, type RegisterInput } from "@/lib/schemas";
 import { useAuth } from "@/contexts/AuthContext";
 import PublicRoute from "@/components/auth/PublicRoute";
 import toast from "@/lib/toast";
 import styles from "./page.module.css";
 
+interface Discipline {
+  id: number;
+  name: string;
+  imageUrl?: string;
+}
+
 export default function RegisterPage() {
   const t = useTranslations("auth");
   const router = useRouter();
   const { login } = useAuth();
+  const [disciplines, setDisciplines] = useState<Discipline[]>([]);
+  const [loadingDisciplines, setLoadingDisciplines] = useState(true);
 
   const {
     register,
@@ -44,6 +53,25 @@ export default function RegisterPage() {
   });
 
   const accountType = watch("accountType");
+
+  // Fetch disciplines on component mount
+  useEffect(() => {
+    const fetchDisciplines = async () => {
+      try {
+        const response = await fetch("/api/disciplines");
+        const result = await response.json();
+        if (result.success) {
+          setDisciplines(result.disciplines);
+        }
+      } catch (error) {
+        console.error("Error fetching disciplines:", error);
+      } finally {
+        setLoadingDisciplines(false);
+      }
+    };
+
+    fetchDisciplines();
+  }, []);
 
   const onSubmit = async (data: RegisterInput) => {
     try {
@@ -289,11 +317,14 @@ export default function RegisterPage() {
                         errors.discipline && styles.selectError
                       )}
                       {...register("discipline")}
+                      disabled={loadingDisciplines}
                     >
-                      <option value="">{t("selectDiscipline")}</option>
-                      {DISCIPLINES.map((discipline) => (
-                        <option key={discipline} value={discipline}>
-                          {discipline}
+                      <option value="">
+                        {loadingDisciplines ? "Loading disciplines..." : t("selectDiscipline")}
+                      </option>
+                      {disciplines.map((discipline) => (
+                        <option key={discipline.id} value={discipline.name}>
+                          {discipline.name}
                         </option>
                       ))}
                     </select>

@@ -34,7 +34,11 @@ interface CoachProfile {
   id: number;
   userId: number;
   bio: string | null;
-  discipline: string;
+  discipline: {
+    id: number;
+    name: string;
+    imageUrl?: string;
+  };
   portfolio: string | null;
   status: "PENDING" | "APPROVED" | "REJECTED";
 }
@@ -298,7 +302,7 @@ export default function CoachDashboard() {
                       {user?.name || "Coach"}
                     </h3>
                     <p className={styles.profileDiscipline}>
-                      {profile.discipline}
+                      {profile.discipline.name}
                     </p>
                     {getStatusBadge(profile.status)}
                   </div>

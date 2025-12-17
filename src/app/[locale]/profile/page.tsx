@@ -14,8 +14,13 @@ import Button from '@/components/ui/Button';
 import Modal from '@/components/ui/Modal';
 import MediaUploadTab from '@/components/profile/MediaUploadTab';
 import { TabNavigation } from '@/components';
-import { DISCIPLINES } from '@/lib/schemas';
 import styles from './page.module.css';
+
+interface Discipline {
+  id: number;
+  name: string;
+  imageUrl?: string;
+}
 
 // Schema for editing user profile
 const EditProfileSchema = z.object({
@@ -85,7 +90,9 @@ export default function ProfilePage() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [profileData, setProfileData] = useState<ProfileData | null>(null);
+  const [disciplines, setDisciplines] = useState<Discipline[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingDisciplines, setLoadingDisciplines] = useState(true);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [activeTab, setActiveTab] = useState<'profile' | 'media' | 'account'>('profile');
@@ -126,6 +133,25 @@ export default function ProfilePage() {
       router.replace('/profile');
     }
   }, [searchParams, router]);
+
+  // Fetch disciplines
+  useEffect(() => {
+    const fetchDisciplines = async () => {
+      try {
+        const response = await fetch("/api/disciplines");
+        const result = await response.json();
+        if (result.success) {
+          setDisciplines(result.disciplines);
+        }
+      } catch (error) {
+        console.error("Error fetching disciplines:", error);
+      } finally {
+        setLoadingDisciplines(false);
+      }
+    };
+
+    fetchDisciplines();
+  }, []);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -527,11 +553,13 @@ export default function ProfilePage() {
                       <label htmlFor="discipline" className={styles.label}>
                         Discipline
                       </label>
-                      <select {...registerCoach('discipline')} id="discipline" className={styles.select}>
-                        <option value="">Select discipline</option>
-                        {DISCIPLINES.map((disc) => (
-                          <option key={disc} value={disc}>
-                            {disc}
+                      <select {...registerCoach('discipline')} id="discipline" className={styles.select} disabled={loadingDisciplines}>
+                        <option value="">
+                          {loadingDisciplines ? "Loading disciplines..." : "Select discipline"}
+                        </option>
+                        {disciplines.map((disc) => (
+                          <option key={disc.id} value={disc.name}>
+                            {disc.name}
                           </option>
                         ))}
                       </select>

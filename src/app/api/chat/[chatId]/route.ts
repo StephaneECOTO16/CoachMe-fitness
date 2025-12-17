@@ -28,6 +28,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ chatId: 
                 coach: {
                     include: {
                         user: { select: { id: true, name: true, email: true } },
+                        discipline: { select: { id: true, name: true, imageUrl: true } },
                     }
                 },
                 messages: {

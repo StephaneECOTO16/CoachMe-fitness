@@ -11,7 +11,11 @@ interface Coach {
   id: number;
   userId: number;
   bio: string | null;
-  discipline: string;
+  discipline: {
+    id: number;
+    name: string;
+    imageUrl?: string;
+  };
   portfolio: string | null;
   hourlyRate: number | null;
   address: string | null;
@@ -52,7 +56,8 @@ export default function CoachesPage() {
   const [tempMinRating, setTempMinRating] = useState<string>("");
   const [tempMaxHourlyRate, setTempMaxHourlyRate] = useState<string>("");
 
-  const [disciplines, setDisciplines] = useState<string[]>([]);
+  const [disciplines, setDisciplines] = useState<{ id: number; name: string; imageUrl?: string }[]>([]);
+  const [loadingDisciplines, setLoadingDisciplines] = useState(true);
 
   const fetchCoaches = async () => {
     setLoading(true);
@@ -75,14 +80,6 @@ export default function CoachesPage() {
 
       if (data.success) {
         setCoaches(data.coaches);
-
-        // Extract unique disciplines only on initial load
-        if (!selectedDiscipline && !minRating && !maxHourlyRate) {
-          const uniqueDisciplines = Array.from(
-            new Set(data.coaches.map((coach: Coach) => coach.discipline))
-          ) as string[];
-          setDisciplines(uniqueDisciplines);
-        }
       }
     } catch (error) {
       console.error("Error fetching coaches:", error);
@@ -91,7 +88,26 @@ export default function CoachesPage() {
     }
   };
 
-  // Only fetch on initial load
+  // Fetch disciplines on component mount
+  useEffect(() => {
+    const fetchDisciplines = async () => {
+      try {
+        const response = await fetch("/api/disciplines");
+        const result = await response.json();
+        if (result.success) {
+          setDisciplines(result.disciplines);
+        }
+      } catch (error) {
+        console.error("Error fetching disciplines:", error);
+      } finally {
+        setLoadingDisciplines(false);
+      }
+    };
+
+    fetchDisciplines();
+  }, []);
+
+  // Only fetch coaches on initial load
   useEffect(() => {
     fetchCoaches();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -159,11 +175,14 @@ export default function CoachesPage() {
               onChange={(e) => setTempDiscipline(e.target.value)}
               className={styles.filterSelect}
               aria-label={t("discipline")}
+              disabled={loadingDisciplines}
             >
-              <option value="">{t("allDisciplines")}</option>
+              <option value="">
+                {loadingDisciplines ? "Loading disciplines..." : t("allDisciplines")}
+              </option>
               {disciplines.map((discipline) => (
-                <option key={discipline} value={discipline}>
-                  {discipline}
+                <option key={discipline.id} value={discipline.name}>
+                  {discipline.name}
                 </option>
               ))}
             </select>
@@ -268,7 +287,7 @@ export default function CoachesPage() {
                             {coach.user.name || "Coach"}
                           </h3>
                           <p className={styles.coachDiscipline}>
-                            {coach.discipline}
+                            {coach.discipline.name}
                           </p>
                         </div>
                         {coach.hourlyRate && (
