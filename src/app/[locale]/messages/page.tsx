@@ -26,6 +26,7 @@ interface Chat {
       id: number;
       name: string | null;
       email: string;
+      avatar: string | null;
     };
   };
   client: {
@@ -34,6 +35,7 @@ interface Chat {
       id: number;
       name: string | null;
       email: string;
+      avatar: string | null;
     };
   };
   _count?: {
@@ -80,14 +82,14 @@ export default function MessagesPage() {
       return {
         name: chat.client.user.name || 'Client',
         email: chat.client.user.email,
-        avatar: chat.client.user.name?.[0]?.toUpperCase() || 'C',
+        avatar: chat.client.user.avatar || null,
         type: 'Client',
       };
     } else {
       return {
         name: chat.coach.user.name || 'Coach',
         email: chat.coach.user.email,
-        avatar: chat.coach.user.name?.[0]?.toUpperCase() || 'C',
+        avatar: chat.coach.user.avatar || null,
         type: chat.coach.discipline.name,
       };
     }
@@ -119,13 +121,13 @@ export default function MessagesPage() {
                 const participant = getOtherParticipant(chat);
                 const chatCardData = {
                   id: String(chat.id),
-                  participant: {
-                    id:
-                      user?.role === 'COACH'
-                        ? String(chat.client.id)
-                        : String(chat.coach.id),
+                    participant: {
+                      id:
+                        user?.role === 'COACH'
+                          ? String(chat.client.id)
+                          : String(chat.coach.id),
                     name: participant.name,
-                    avatar: undefined,
+                    avatar: participant.avatar || undefined,
                     role: undefined,
                     discipline: participant.type,
                   },

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { getPublicUrl } from '@/lib/aws-s3';
 
 
 /**
@@ -38,7 +39,7 @@ export async function GET(req: Request) {
         const coaches = await prisma.coachProfile.findMany({
             where: whereClause,
             include: {
-                user: { select: { id: true, name: true, email: true } },
+                user: { select: { id: true, name: true, avatar: true } },
                 discipline: { select: { id: true, name: true, imageUrl: true } },
                 media: { take: 5 }, // Limit media to 5 items per coach
             },
@@ -47,11 +48,23 @@ export async function GET(req: Request) {
             orderBy: { createdAt: 'desc' },
         });
 
+        const coachesWithUrls = coaches.map((coach) => ({
+            ...coach,
+            user: {
+                ...coach.user,
+                avatar: coach.user.avatar ? getPublicUrl(coach.user.avatar) : null,
+            },
+            media: coach.media.map((m) => ({
+                ...m,
+                url: getPublicUrl(m.url),
+            })),
+        }));
+
         const total = await prisma.coachProfile.count({
             where: whereClause,
         });
 
-        return NextResponse.json({ success: true, coaches, total, limit, offset });
+        return NextResponse.json({ success: true, coaches: coachesWithUrls, total, limit, offset });
     } catch (err: unknown) {
         console.error('[GET /api/coaches]', err);
         return NextResponse.json({ success: false, error: { code: 'INTERNAL_ERROR' } }, { status: 500 });

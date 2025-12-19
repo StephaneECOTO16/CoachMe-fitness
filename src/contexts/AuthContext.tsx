@@ -15,6 +15,7 @@ interface User {
   role: "PROSPECT" | "COACH" | "ADMIN";
   email?: string;
   name?: string;
+  avatar?: string | null;
 }
 
 interface AuthContextType {
@@ -23,6 +24,7 @@ interface AuthContextType {
   isLoading: boolean;
   isLoggingOut: boolean;
   login: (token: string) => void;
+  updateUser: (updates: Partial<User>) => void;
   logout: () => void;
   isAuthenticated: boolean;
   hasRole: (roles: string[]) => boolean;
@@ -61,6 +63,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         role: payload.role,
         email: payload.email,
         name: payload.name,
+        avatar: payload.avatar ?? null,
       };
     } catch (error) {
       console.error("Error decoding token:", error);
@@ -96,12 +99,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     [decodeToken]
   );
 
+  const updateUser = useCallback((updates: Partial<User>) => {
+    setUser((prev) => (prev ? { ...prev, ...updates } : prev));
+  }, []);
+
   const logout = useCallback(() => {
     setIsLoggingOut(true);
+    const tokenToRevoke = localStorage.getItem("token");
     localStorage.removeItem("token");
     setToken(null);
     setUser(null);
-    router.push("/");
+
+    (async () => {
+      try {
+        await fetch("/api/auth/logout", {
+          method: "POST",
+          headers: tokenToRevoke ? { Authorization: `Bearer ${tokenToRevoke}` } : undefined,
+        });
+      } catch (error) {
+        void error;
+      } finally {
+        setIsLoggingOut(false);
+        router.push("/");
+      }
+    })();
   }, [router]);
 
   const hasRole = useCallback(
@@ -117,6 +138,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     isLoading,
     isLoggingOut,
     login,
+    updateUser,
     logout,
     isAuthenticated: !!user && !!token,
     hasRole,

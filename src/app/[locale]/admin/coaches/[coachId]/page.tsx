@@ -30,6 +30,7 @@ interface Coach {
     id: number;
     name: string | null;
     email: string;
+    avatar: string | null;
     createdAt: string;
   };
   media: Media[];
@@ -157,7 +158,12 @@ export default function AdminCoachReviewPage() {
   const certificates = coach.media.filter((m) => m.type === 'CERTIFICATE');
   const images = coach.media.filter((m) => m.type === 'IMAGE');
   const videos = coach.media.filter((m) => m.type === 'VIDEO');
-  const mediaItems = [...videos, ...images];
+  const mediaItems = [...videos, ...images].map((m) => ({
+    id: String(m.id),
+    type: m.type === 'VIDEO' ? 'video' : 'image',
+    url: m.url,
+    caption: m.description || undefined,
+  }));
 
   return (
     <ProtectedRoute allowedRoles={['ADMIN']}>
@@ -179,7 +185,18 @@ export default function AdminCoachReviewPage() {
             <div className={styles.infoCard}>
               <div className={styles.infoHeader}>
                 <div className={styles.coachAvatar}>
-                  {coach.user.name?.[0]?.toUpperCase() || 'C'}
+                  {coach.user.avatar ? (
+                    <Image
+                      src={coach.user.avatar}
+                      alt={coach.user.name || 'Coach'}
+                      width={80}
+                      height={80}
+                      style={{ borderRadius: '50%', objectFit: 'cover' }}
+                      unoptimized
+                    />
+                  ) : (
+                    coach.user.name?.[0]?.toUpperCase() || 'C'
+                  )}
                 </div>
                 <div className={styles.infoDetails}>
                   <h2 className={styles.coachName}>{coach.user.name || 'Coach'}</h2>

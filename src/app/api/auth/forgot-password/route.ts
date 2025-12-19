@@ -55,7 +55,6 @@ export async function POST(req: Request) {
 
     // Always return success to prevent email enumeration
     if (!user) {
-      console.log(`[Forgot Password] No user found for email: ${normalizedEmail}`);
       return NextResponse.json({
         success: true,
         message: "If an account exists with this email, a reset link will be sent.",
@@ -95,9 +94,6 @@ export async function POST(req: Request) {
     //   html: `Click <a href="${resetUrl}">here</a> to reset your password. This link expires in 1 hour.`,
     // });
 
-    // For development, log the token (remove in production!)
-    console.log(`[Forgot Password] Reset token generated for ${normalizedEmail}: ${token}`);
-
     return NextResponse.json({
       success: true,
       message: "If an account exists with this email, a reset link will be sent.",
@@ -112,4 +108,3 @@ export async function POST(req: Request) {
     );
   }
 }
-

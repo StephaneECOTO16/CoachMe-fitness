@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { requireAuth } from '@/lib/auth';
 import { parseRequestBody, InitiateChatRequestSchema } from '@/lib/schemas';
+import { getPublicUrl } from '@/lib/aws-s3';
 
 /**
  * POST /api/chat
@@ -121,14 +122,14 @@ export async function GET(req: Request) {
                     client: {
                         include: {
                             user: {
-                                select: { id: true, name: true, email: true }
+                                select: { id: true, name: true, email: true, avatar: true }
                             }
                         }
                     },
                     coach: {
                         include: {
                             user: {
-                                select: { id: true, name: true, email: true }
+                                select: { id: true, name: true, email: true, avatar: true }
                             },
                             discipline: {
                                 select: { id: true, name: true }
@@ -139,6 +140,23 @@ export async function GET(req: Request) {
                 },
                 orderBy: { updatedAt: 'desc' },
             });
+            chats = chats.map((chat) => ({
+                ...chat,
+                client: {
+                    ...chat.client,
+                    user: {
+                        ...chat.client.user,
+                        avatar: chat.client.user.avatar ? getPublicUrl(chat.client.user.avatar) : null,
+                    },
+                },
+                coach: {
+                    ...chat.coach,
+                    user: {
+                        ...chat.coach.user,
+                        avatar: chat.coach.user.avatar ? getPublicUrl(chat.coach.user.avatar) : null,
+                    },
+                },
+            }));
 
         } else if (payload.role === 'PROSPECT') {
             const clientProfile = await prisma.clientProfile.findUnique({
@@ -155,7 +173,7 @@ export async function GET(req: Request) {
                     coach: {
                         include: {
                             user: {
-                                select: { id: true, name: true, email: true }
+                                select: { id: true, name: true, email: true, avatar: true }
                             },
                             discipline: {
                                 select: { id: true, name: true }
@@ -166,6 +184,16 @@ export async function GET(req: Request) {
                 },
                 orderBy: { updatedAt: 'desc' },
             });
+            chats = chats.map((chat) => ({
+                ...chat,
+                coach: {
+                    ...chat.coach,
+                    user: {
+                        ...chat.coach.user,
+                        avatar: chat.coach.user.avatar ? getPublicUrl(chat.coach.user.avatar) : null,
+                    },
+                },
+            }));
 
         } else {
             // Admin cannot see chats (for now)

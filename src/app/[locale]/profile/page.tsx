@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -8,6 +8,7 @@ import { useTranslations } from 'next-intl';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { User, ImageIcon, Settings } from 'lucide-react';
+import imageCompression from 'browser-image-compression';
 import { useAuth } from '@/contexts/AuthContext';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import Button from '@/components/ui/Button';
@@ -59,10 +60,11 @@ interface ProfileData {
     email: string;
     role: string;
     createdAt: string;
+    avatar?: string | null;
   };
   profile?: {
     id: number;
-    discipline?: string;
+    discipline?: string | Discipline;
     bio?: string | null;
     portfolio?: string | null;
     status?: string;
@@ -86,7 +88,7 @@ interface ProfileData {
 export default function ProfilePage() {
   const t = useTranslations('profile');
   const tToast = useTranslations('toast');
-  const { user, token } = useAuth();
+  const { user, token, login } = useAuth();
   const searchParams = useSearchParams();
   const router = useRouter();
   const [profileData, setProfileData] = useState<ProfileData | null>(null);
@@ -96,6 +98,18 @@ export default function ProfilePage() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [activeTab, setActiveTab] = useState<'profile' | 'media' | 'account'>('profile');
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  const getDisciplineName = (discipline: unknown): string => {
+    if (!discipline) return '';
+    if (typeof discipline === 'string') return discipline;
+    if (typeof discipline === 'object' && 'name' in discipline) {
+      const name = (discipline as { name?: unknown }).name;
+      return typeof name === 'string' ? name : '';
+    }
+    return '';
+  };
 
   const {
     register: registerUser,
@@ -171,7 +185,7 @@ export default function ProfilePage() {
           resetUser({ name: data.user.name || '' });
           if (data.user.role === 'COACH' && data.profile) {
             resetCoach({
-              discipline: data.profile.discipline || '',
+              discipline: getDisciplineName(data.profile.discipline),
               bio: data.profile.bio || '',
               portfolio: data.profile.portfolio || '',
               hourlyRate: data.profile.hourlyRate || undefined,
@@ -204,6 +218,106 @@ export default function ProfilePage() {
     fetchProfile();
   }, [token, resetUser, resetCoach, resetClient]);
 
+  const compressAvatar = async (file: File): Promise<File> => {
+    if (!file.type.startsWith('image/')) return file;
+    try {
+      return await imageCompression(file, {
+        maxSizeMB: 1,
+        maxWidthOrHeight: 512,
+        useWebWorker: true,
+      });
+    } catch (error) {
+      console.error('Avatar compression failed:', error);
+      return file;
+    }
+  };
+
+  const updateAvatar = async (avatarValue: string | null) => {
+    const response = await fetch('/api/profile', {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify({ avatar: avatarValue }),
+    });
+
+    const result = await response.json();
+    if (!result.success) throw new Error(result.error?.message || 'Failed to update avatar');
+
+    setProfileData(result);
+    if (result.token) login(result.token);
+  };
+
+  const uploadAvatarFile = async (file: File) => {
+    if (!token) return;
+
+    setIsUploadingAvatar(true);
+    try {
+      const processed = await compressAvatar(file);
+
+      const presignedResponse = await fetch('/api/user/avatar/presigned-url', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          fileName: processed.name,
+          mimeType: processed.type,
+          fileSize: processed.size,
+        }),
+      });
+
+      const presignedData = await presignedResponse.json();
+      if (!presignedData.success) {
+        throw new Error(presignedData.error?.message || 'Failed to get upload URL');
+      }
+
+      const { url: uploadUrl, key } = presignedData.presignedUrl as { url: string; key: string };
+
+      const uploadRes = await fetch(uploadUrl, {
+        method: 'PUT',
+        headers: { 'Content-Type': processed.type },
+        body: processed,
+      });
+
+      if (!uploadRes.ok) {
+        throw new Error(`Upload failed with status ${uploadRes.status}`);
+      }
+
+      await updateAvatar(key);
+      toast.success(tToast('success.profileUpdated'));
+    } catch (error) {
+      console.error('Avatar upload error:', error);
+      toast.error(tToast('error.profileUpdateFailed'));
+    } finally {
+      setIsUploadingAvatar(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
+
+  const handleAvatarInputChange = async (e: any) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    await uploadAvatarFile(file);
+  };
+
+  const handleRemoveAvatar = async () => {
+    if (!token) return;
+
+    setIsUploadingAvatar(true);
+    try {
+      await updateAvatar(null);
+      toast.success(tToast('success.profileUpdated'));
+    } catch (error) {
+      console.error('Avatar remove error:', error);
+      toast.error(tToast('error.profileUpdateFailed'));
+    } finally {
+      setIsUploadingAvatar(false);
+    }
+  };
+
   const onSubmitUser = async (data: any) => {
     setIsEditingProfile(true);
 
@@ -222,6 +336,7 @@ export default function ProfilePage() {
       if (result.success) {
         toast.success(tToast('success.profileUpdated'));
         setProfileData(result);
+        if (result.token) login(result.token);
         setIsEditModalOpen(false);
       } else {
         toast.error(tToast('error.profileUpdateFailed'));
@@ -266,6 +381,7 @@ export default function ProfilePage() {
       if (result.success) {
         toast.success(tToast('success.coachProfileUpdated'));
         setProfileData(result);
+        if (result.token) login(result.token);
         setIsEditModalOpen(false);
       } else {
         toast.error(tToast('error.profileUpdateFailed'));
@@ -301,6 +417,7 @@ export default function ProfilePage() {
       if (result.success) {
         toast.success(tToast('success.profileUpdated'));
         setProfileData(result);
+        if (result.token) login(result.token);
         setIsEditModalOpen(false);
       } else {
         toast.error(tToast('error.profileUpdateFailed'));
@@ -346,7 +463,15 @@ export default function ProfilePage() {
         <div className={styles.hero}>
           <div className={styles.heroContent}>
             <div className={styles.heroAvatar}>
-              {profileData.user.name?.[0]?.toUpperCase() || 'U'}
+              {profileData.user.avatar ? (
+                <img
+                  src={profileData.user.avatar}
+                  alt={profileData.user.name || 'User'}
+                  className={styles.heroAvatarImage}
+                />
+              ) : (
+                profileData.user.name?.[0]?.toUpperCase() || 'U'
+              )}
             </div>
             <h1 className={styles.title}>{profileData.user.name || 'User'}</h1>
             <p className={styles.subtitle}>{profileData.user.email}</p>
@@ -396,7 +521,7 @@ export default function ProfilePage() {
                 <div className={styles.infoGrid}>
                   <div className={styles.infoItem}>
                     <span className={styles.infoLabel}>Discipline:</span>
-                    <span className={styles.infoValue}>{profileData.profile.discipline}</span>
+                    <span className={styles.infoValue}>{getDisciplineName(profileData.profile.discipline) || 'Not set'}</span>
                   </div>
                   <div className={styles.infoItem}>
                     <span className={styles.infoLabel}>Status:</span>
@@ -861,6 +986,54 @@ export default function ProfilePage() {
             {activeTab === 'account' && (
               <form onSubmit={handleSubmitUser(onSubmitUser)} className={styles.form}>
                 <h3 className={styles.formTitle}>Basic Information</h3>
+
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  onChange={handleAvatarInputChange}
+                  className={styles.hiddenFileInput}
+                />
+
+                <div className={styles.avatarRow}>
+                  <div className={styles.avatarPreview}>
+                    {profileData.user.avatar ? (
+                      <img
+                        src={profileData.user.avatar}
+                        alt={profileData.user.name || 'User'}
+                        className={styles.avatarPreviewImage}
+                      />
+                    ) : (
+                      <div className={styles.avatarPreviewFallback}>
+                        {profileData.user.name?.[0]?.toUpperCase() || 'U'}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className={styles.avatarActions}>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      disabled={isUploadingAvatar}
+                      onClick={() => fileInputRef.current?.click()}
+                    >
+                      {isUploadingAvatar ? 'Uploading...' : 'Change Avatar'}
+                    </Button>
+
+                    {profileData.user.avatar && (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        disabled={isUploadingAvatar}
+                        onClick={handleRemoveAvatar}
+                      >
+                        Remove
+                      </Button>
+                    )}
+                  </div>
+                </div>
 
                 <div className={styles.formGroup}>
                   <label htmlFor="name" className={styles.label}>

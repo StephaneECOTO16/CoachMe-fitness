@@ -9,6 +9,7 @@ import Button from '@/components/ui/Button';
 import { HeroSection, StatsGrid, DashboardSection, CoachCard, EmptyState } from '@/components';
 import toast from '@/lib/toast';
 import styles from './page.module.css';
+import type { CoachData } from '@/components/cards/CoachCard';
 
 interface Stats {
   totalUsers: number;
@@ -34,6 +35,7 @@ interface PendingCoach {
     id: number;
     name: string | null;
     email: string;
+    avatar: string | null;
     createdAt: string;
   };
 }
@@ -44,6 +46,23 @@ export default function AdminDashboard() {
   const [stats, setStats] = useState<Stats | null>(null);
   const [pendingCoaches, setPendingCoaches] = useState<PendingCoach[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const transformCoach = (coach: PendingCoach): CoachData => {
+    const fullName = coach.user.name || 'Coach';
+    const [firstName, ...rest] = fullName.split(' ');
+    return {
+      _id: coach.id.toString(),
+      firstName: firstName || 'Coach',
+      lastName: rest.join(' '),
+      email: coach.user.email,
+      avatar: coach.user.avatar || undefined,
+      discipline: coach.discipline,
+      bio: coach.bio || undefined,
+      portfolio: coach.portfolio ? [{ type: 'LINK', url: coach.portfolio }] : undefined,
+      status: coach.status as 'PENDING' | 'APPROVED' | 'REJECTED',
+      createdAt: coach.createdAt,
+    };
+  };
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -153,19 +172,9 @@ export default function AdminDashboard() {
                 {pendingCoaches.length > 0 ? (
                   <div className={styles.coachList}>
                     {pendingCoaches.map((coach) => (
-                      <CoachCard
-                        key={coach.id}
-                        id={coach.id}
-                        name={coach.user.name || 'Coach'}
-                        email={coach.user.email}
-                        discipline={coach.discipline}
-                        bio={coach.bio}
-                        portfolio={coach.portfolio}
-                        status={coach.status as 'PENDING' | 'APPROVED' | 'REJECTED'}
-                        appliedDate={new Date(coach.createdAt)}
-                        variant="admin"
-                        href={`/admin/coaches/${coach.id}`}
-                      />
+                      <Link key={coach.id} href={`/admin/coaches/${coach.id}`}>
+                        <CoachCard coach={transformCoach(coach)} variant="admin" />
+                      </Link>
                     ))}
                   </div>
                 ) : (

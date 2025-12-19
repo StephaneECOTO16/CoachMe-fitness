@@ -70,6 +70,16 @@ export async function POST(req: Request) {
             return NextResponse.json({ success: true, userId: user.id }, { status: 201 });
 
         } else if (accountType === 'COACH') {
+            const disciplineRecord = await prisma.discipline.findUnique({
+                where: { name: data.discipline! },
+            });
+            if (!disciplineRecord) {
+                return NextResponse.json({
+                    success: false,
+                    error: { code: 'VALIDATION_ERROR', message: 'Invalid discipline' }
+                }, { status: 400 });
+            }
+
             // Create COACH user with CoachProfile in a transaction
             const user = await prisma.$transaction(async (tx) => {
                 const newUser = await tx.user.create({
@@ -85,7 +95,7 @@ export async function POST(req: Request) {
                 await tx.coachProfile.create({
                     data: {
                         userId: newUser.id,
-                        discipline: data.discipline!,
+                        disciplineId: disciplineRecord.id,
                         bio: data.bio || null,
                         portfolio: data.portfolio || null,
                         status: 'PENDING', // Coaches start with PENDING status

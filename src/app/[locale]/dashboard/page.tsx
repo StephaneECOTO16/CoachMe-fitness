@@ -31,6 +31,7 @@ interface Coach {
     id: number;
     name: string | null;
     email: string;
+    avatar?: string | null;
   };
   media: Array<{
     id: number;
@@ -47,11 +48,15 @@ interface Chat {
   updatedAt: string;
   coach: {
     id: number;
-    discipline: string;
+    discipline: {
+      id: number;
+      name: string;
+    };
     user: {
       id: number;
       name: string | null;
       email: string;
+      avatar?: string | null;
     };
   };
 }
@@ -102,6 +107,7 @@ export default function ClientDashboard() {
     firstName: coach.user.name?.split(" ")[0] || "Coach",
     lastName: coach.user.name?.split(" ").slice(1).join(" ") || "",
     email: coach.user.email,
+    avatar: coach.user.avatar || undefined,
     discipline: coach.discipline.name,
     bio: coach.bio || undefined,
   });
@@ -112,6 +118,7 @@ export default function ClientDashboard() {
     participant: {
       id: chat.coach.user.id.toString(),
       name: chat.coach.user.name || "Coach",
+      avatar: chat.coach.user.avatar || undefined,
       role: "COACH",
       discipline: chat.coach.discipline.name,
     },

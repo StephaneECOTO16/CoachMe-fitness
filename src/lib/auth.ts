@@ -12,16 +12,14 @@ function getJwtSecret(): string {
     return secret;
 }
 
-const JWT_SECRET = getJwtSecret();
-
 export function signJwt(payload: object, expiresIn: string | number = '7d'): string {
-    return jwt.sign(payload, JWT_SECRET, { expiresIn: expiresIn as any });
+    return jwt.sign(payload, getJwtSecret(), { expiresIn: expiresIn as any });
 }
 
 export function verifyJwt(token?: string) {
     if (!token) return null;
     try {
-        return jwt.verify(token, JWT_SECRET) as any;
+        return jwt.verify(token, getJwtSecret()) as any;
     } catch (e) {
         return null;
     }
@@ -34,8 +32,7 @@ export function verifyJwt(token?: string) {
  */
 export async function getTokenFromHeader(req: Request | NextRequest) {
     // Try to get token from Authorization header first (for backwards compatibility)
-    // @ts-ignore - both Request and NextRequest expose `.headers.get` in Next.js
-    const auth = (req as any).headers?.get?.('authorization') || '';
+    const auth = req.headers.get('authorization') || '';
     if (auth) {
         const parts = auth.split(' ');
         if (parts.length === 2 && parts[0] === 'Bearer') {

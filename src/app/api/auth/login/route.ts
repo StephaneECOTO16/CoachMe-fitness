@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma';
 import { signJwt, comparePassword } from '@/lib/auth';
 import { parseRequestBody, LoginRequestSchema } from '@/lib/schemas';
 import { checkRateLimit } from '@/lib/rate-limit';
+import { getPublicUrl } from '@/lib/aws-s3';
 
 export async function POST(req: Request) {
     // Rate limiting: 5 login attempts per minute per IP
@@ -47,18 +48,20 @@ export async function POST(req: Request) {
     }
 
     // Generate JWT token with user info
+    const avatar = user.avatar ? getPublicUrl(user.avatar) : null;
     const token = signJwt({
         userId: user.id,
         role: user.role,
         email: user.email,
-        name: user.name
+        name: user.name,
+        avatar,
     });
 
     // Set HTTP-only cookie
     const response = NextResponse.json({
         success: true,
         token,
-        user: { id: user.id, email: user.email, name: user.name, role: user.role }
+        user: { id: user.id, email: user.email, name: user.name, role: user.role, avatar }
     });
 
     response.cookies.set('token', token, {

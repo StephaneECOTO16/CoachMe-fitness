@@ -13,6 +13,7 @@ model User {
   password            String
   role                UserRole             @default(PROSPECT)
   name                String?
+  avatar              String?
   createdAt           DateTime             @default(now())
   updatedAt           DateTime             @updatedAt
   adminReviews        AdminReview[]

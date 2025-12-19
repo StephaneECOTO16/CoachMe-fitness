@@ -103,7 +103,20 @@ export default function Header() {
                 <div className={styles.userMenu}>
                   <button className={styles.avatarButton} type="button">
                     <div className={styles.avatar}>
-                      {user?.name ? user.name.charAt(0).toUpperCase() : "U"}
+                      {user?.avatar ? (
+                        <Image
+                          src={user.avatar}
+                          alt={user?.name || "User"}
+                          width={40}
+                          height={40}
+                          className={styles.avatarImage}
+                          unoptimized
+                        />
+                      ) : user?.name ? (
+                        user.name.charAt(0).toUpperCase()
+                      ) : (
+                        "U"
+                      )}
                     </div>
                   </button>
                   {/* Dropdown menu */}

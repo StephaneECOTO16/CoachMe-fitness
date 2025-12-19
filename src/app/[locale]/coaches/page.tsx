@@ -33,6 +33,7 @@ interface Coach {
     id: number;
     name: string | null;
     email: string;
+    avatar: string | null;
   };
   media: Array<{
     id: number;
@@ -261,7 +262,15 @@ export default function CoachesPage() {
                 {coaches.map((coach) => (
                   <div key={coach.id} className={styles.coachCard}>
                     <div className={styles.coachAvatar}>
-                      {coach.media.find((m) => m.type === "IMAGE") ? (
+                      {coach.user.avatar ? (
+                        <Image
+                          src={coach.user.avatar}
+                          alt={coach.user.name || "Coach"}
+                          fill
+                          className={styles.coachAvatarImage}
+                          unoptimized
+                        />
+                      ) : coach.media.find((m) => m.type === "IMAGE") ? (
                         <Image
                           src={
                             coach.media.find((m) => m.type === "IMAGE")!.url.startsWith('http')

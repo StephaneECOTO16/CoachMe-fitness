@@ -10,6 +10,7 @@ import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import Button from "@/components/ui/Button";
 import { ChatBubble } from "@/components";
 import toast from "@/lib/toast";
+import Image from "next/image";
 import styles from "./page.module.css";
 
 interface Message {
@@ -23,6 +24,7 @@ interface Message {
     name: string | null;
     email: string;
     role: string;
+    avatar: string | null;
   };
 }
 
@@ -43,6 +45,7 @@ interface Chat {
       id: number;
       name: string | null;
       email: string;
+      avatar: string | null;
     };
   };
   client: {
@@ -51,6 +54,7 @@ interface Chat {
       id: number;
       name: string | null;
       email: string;
+      avatar: string | null;
     };
   };
   messages: Message[];
@@ -182,14 +186,14 @@ export default function ConversationPage() {
       return {
         name: chat.client.user.name || "Client",
         email: chat.client.user.email,
-        avatar: chat.client.user.name?.[0]?.toUpperCase() || "C",
+        avatar: chat.client.user.avatar || null,
         type: "Client",
       };
     } else {
       return {
         name: chat.coach.user.name || "Coach",
         email: chat.coach.user.email,
-        avatar: chat.coach.user.name?.[0]?.toUpperCase() || "C",
+        avatar: chat.coach.user.avatar || null,
         type: chat.coach.discipline.name,
       };
     }
@@ -237,7 +241,18 @@ export default function ConversationPage() {
             </Link>
             <div className={styles.participantInfo}>
               <div className={styles.participantAvatar}>
-                {participant?.avatar}
+                {participant?.avatar ? (
+                  <Image
+                    src={participant.avatar}
+                    alt={participant.name}
+                    width={48}
+                    height={48}
+                    className={styles.participantAvatarImage}
+                    unoptimized
+                  />
+                ) : (
+                  participant?.name?.[0]?.toUpperCase() || "C"
+                )}
               </div>
               <div>
                 <h1 className={styles.participantName}>{participant?.name}</h1>
@@ -369,7 +384,7 @@ export default function ConversationPage() {
                       name: isOwnMessage
                         ? user?.name || "You"
                         : participant?.name || "User",
-                      avatar: isOwnMessage ? undefined : undefined,
+                      avatar: isOwnMessage ? user?.avatar || null : message.sender.avatar,
                     },
                     status: undefined,
                   };

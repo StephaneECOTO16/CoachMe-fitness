@@ -60,6 +60,13 @@
   font-weight: var(--font-bold);
   font-size: var(--text-lg);
   flex-shrink: 0;
+  overflow: hidden;
+}
+
+.participantAvatarImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .participantName {

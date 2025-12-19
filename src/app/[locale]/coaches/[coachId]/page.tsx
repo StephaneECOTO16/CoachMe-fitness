@@ -61,7 +61,7 @@ interface CoachProfile {
   user: {
     id: number;
     name: string | null;
-    email: string;
+    avatar: string | null;
   };
   media: Media[];
 }
@@ -185,7 +185,12 @@ export default function CoachProfilePage() {
   const certificates = coach.media.filter((m) => m.type === "CERTIFICATE");
   const images = coach.media.filter((m) => m.type === "IMAGE");
   const videos = coach.media.filter((m) => m.type === "VIDEO");
-  const mediaItems = [...videos, ...images]; // Combine videos and images for unified media section
+  const mediaItems = [...videos, ...images].map((m) => ({
+    id: String(m.id),
+    type: m.type === "VIDEO" ? "video" : "image",
+    url: m.url,
+    caption: m.description || undefined,
+  }));
   const location = [coach.city, coach.country].filter(Boolean).join(", ");
 
   return (
@@ -196,9 +201,20 @@ export default function CoachProfilePage() {
           <div className={styles.sidebarCard}>
             {/* Coach Avatar */}
             <div className={styles.avatarWrapper}>
-              <div className={styles.coachAvatar}>
-                {coach.user.name?.[0]?.toUpperCase() || "C"}
-              </div>
+              {coach.user.avatar ? (
+                <Image
+                  src={coach.user.avatar}
+                  alt={coach.user.name || "Coach"}
+                  width={400}
+                  height={200}
+                  className={styles.coachAvatar}
+                  unoptimized
+                />
+              ) : (
+                <div className={styles.coachAvatar}>
+                  {coach.user.name?.[0]?.toUpperCase() || "C"}
+                </div>
+              )}
             </div>
 
             {/* Coach Name & Title */}
