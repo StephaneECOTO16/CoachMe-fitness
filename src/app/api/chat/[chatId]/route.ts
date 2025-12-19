@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { requireAuth } from '@/lib/auth';
+import { getPublicUrl } from '@/lib/aws-s3';
 
 /**
  * GET /api/chat/[chatId]
@@ -22,18 +23,18 @@ export async function GET(req: Request, { params }: { params: Promise<{ chatId: 
             include: {
                 client: {
                     include: {
-                        user: { select: { id: true, name: true, email: true } }
+                        user: { select: { id: true, name: true, email: true, avatar: true } }
                     }
                 },
                 coach: {
                     include: {
-                        user: { select: { id: true, name: true, email: true } },
+                        user: { select: { id: true, name: true, email: true, avatar: true } },
                         discipline: { select: { id: true, name: true, imageUrl: true } },
                     }
                 },
                 messages: {
                     include: {
-                        sender: { select: { id: true, name: true, email: true, role: true } }
+                        sender: { select: { id: true, name: true, email: true, role: true, avatar: true } }
                     },
                     orderBy: { createdAt: 'asc' }
                 }
@@ -50,7 +51,32 @@ export async function GET(req: Request, { params }: { params: Promise<{ chatId: 
             return NextResponse.json({ success: false, error: { code: 'FORBIDDEN', message: 'Not a participant in this chat' } }, { status: 403 });
         }
 
-        return NextResponse.json({ success: true, chat });
+        const chatWithAvatars = {
+            ...chat,
+            client: {
+                ...chat.client,
+                user: {
+                    ...chat.client.user,
+                    avatar: chat.client.user.avatar ? getPublicUrl(chat.client.user.avatar) : null,
+                },
+            },
+            coach: {
+                ...chat.coach,
+                user: {
+                    ...chat.coach.user,
+                    avatar: chat.coach.user.avatar ? getPublicUrl(chat.coach.user.avatar) : null,
+                },
+            },
+            messages: chat.messages.map((m) => ({
+                ...m,
+                sender: {
+                    ...m.sender,
+                    avatar: m.sender.avatar ? getPublicUrl(m.sender.avatar) : null,
+                },
+            })),
+        };
+
+        return NextResponse.json({ success: true, chat: chatWithAvatars });
     } catch (err: unknown) {
         console.error('[GET /api/chat/:chatId]', err);
         return NextResponse.json({ success: false, error: { code: 'INTERNAL_ERROR' } }, { status: 500 });

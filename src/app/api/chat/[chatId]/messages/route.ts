@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { requireAuth } from '@/lib/auth';
 import { broadcastMessage } from '@/lib/pusher';
+import { getPublicUrl } from '@/lib/aws-s3';
 
 /**
  * POST /api/chat/[chatId]/messages
@@ -46,21 +47,29 @@ export async function POST(req: Request, { params }: { params: Promise<{ chatId:
                 content: content.trim(),
             },
             include: {
-                sender: { select: { id: true, name: true, email: true, role: true } }
+                sender: { select: { id: true, name: true, email: true, role: true, avatar: true } }
             }
         });
+
+        const messageWithAvatar = {
+            ...message,
+            sender: {
+                ...message.sender,
+                avatar: message.sender.avatar ? getPublicUrl(message.sender.avatar) : null,
+            },
+        };
 
         // Broadcast message via Pusher for real-time delivery
         // Using coachId and clientId (profile IDs) for consistent channel naming
         try {
-            await broadcastMessage(chat.coachId, chat.clientId, 'new-message', { message });
+            await broadcastMessage(chat.coachId, chat.clientId, 'new-message', { message: messageWithAvatar });
         } catch (pusherError) {
             // Log but don't fail the request if Pusher broadcast fails
             // The message is already saved, recipient can still see it on refresh
             console.error('[POST /api/chat/:chatId/messages] Pusher broadcast error:', pusherError);
         }
 
-        return NextResponse.json({ success: true, message });
+        return NextResponse.json({ success: true, message: messageWithAvatar });
     } catch (err: unknown) {
         console.error('[POST /api/chat/:chatId/messages]', err);
         return NextResponse.json({ success: false, error: { code: 'INTERNAL_ERROR' } }, { status: 500 });
@@ -103,7 +112,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ chatId: 
         // Fetch messages
         const messages = await prisma.message.findMany({
             where: { chatId },
-            include: { sender: { select: { id: true, name: true, email: true } } },
+            include: { sender: { select: { id: true, name: true, email: true, avatar: true } } },
             take: limit,
             skip: offset,
             orderBy: { createdAt: 'desc' },
@@ -111,7 +120,17 @@ export async function GET(req: Request, { params }: { params: Promise<{ chatId: 
 
         const total = await prisma.message.count({ where: { chatId } });
 
-        return NextResponse.json({ success: true, messages: messages.reverse(), total, limit, offset });
+        const messagesWithAvatars = messages
+            .reverse()
+            .map((m) => ({
+                ...m,
+                sender: {
+                    ...m.sender,
+                    avatar: m.sender.avatar ? getPublicUrl(m.sender.avatar) : null,
+                },
+            }));
+
+        return NextResponse.json({ success: true, messages: messagesWithAvatars, total, limit, offset });
     } catch (err: unknown) {
         console.error('[GET /api/chat/:chatId/messages]', err);
         return NextResponse.json({ success: false, error: { code: 'INTERNAL_ERROR' } }, { status: 500 });

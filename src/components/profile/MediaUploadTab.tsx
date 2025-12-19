@@ -372,7 +372,7 @@ function FileList({
         <div key={file.id} className={showPreview ? styles.gridItem : styles.listItem}>
           {showPreview && file.type === 'IMAGE' && (
             <div className={styles.previewImage}>
-              <img src={`${process.env.NEXT_PUBLIC_R2_URL}/${file.url}`} alt={file.description || 'Image'} />
+              <img src={file.url} alt={file.description || 'Image'} />
             </div>
           )}
           <div className={styles.fileInfo}>

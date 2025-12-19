@@ -88,7 +88,13 @@ const MediaGallery: React.FC<MediaGalleryProps> = ({
                 unoptimized
               />
             ) : (
-              <video src={getMediaUrl(item.url)} className={styles.media} />
+              <video
+                src={getMediaUrl(item.url)}
+                className={styles.media}
+                preload="metadata"
+                muted
+                playsInline
+              />
             )}
             <div className={styles.playButton}>
               <svg width="48" height="48" viewBox="0 0 24 24" fill="white">
@@ -153,6 +159,7 @@ const MediaGallery: React.FC<MediaGalleryProps> = ({
                 src={getMediaUrl(selectedMedia.url)}
                 controls
                 autoPlay
+                playsInline
                 className={styles.lightboxMedia}
               />
             ) : (

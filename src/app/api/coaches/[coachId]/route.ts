@@ -16,7 +16,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ coachId:
         const coach = await prisma.coachProfile.findUnique({
             where: { id: coachId },
             include: {
-                user: { select: { id: true, name: true, email: true } },
+                user: { select: { id: true, name: true, avatar: true } },
                 discipline: true,
                 media: true,
             },
@@ -32,6 +32,10 @@ export async function GET(req: Request, { params }: { params: Promise<{ coachId:
         // Convert S3 keys to full URLs
         const coachWithUrls = {
             ...coach,
+            user: {
+                ...coach.user,
+                avatar: coach.user.avatar ? getPublicUrl(coach.user.avatar) : null,
+            },
             media: coach.media.map(m => ({
                 ...m,
                 url: getPublicUrl(m.url)

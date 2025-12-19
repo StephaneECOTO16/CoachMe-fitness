@@ -36,11 +36,21 @@ export async function POST(req: Request) {
         }, { status: 409 });
     }
 
+    const disciplineRecord = await prisma.discipline.findUnique({
+        where: { name: discipline },
+    });
+    if (!disciplineRecord) {
+        return NextResponse.json({
+            success: false,
+            error: { code: 'VALIDATION_ERROR', message: 'Invalid discipline' }
+        }, { status: 400 });
+    }
+
     // Create coach profile with PENDING status
     const coach = await prisma.coachProfile.create({
         data: {
             userId: payload.userId,
-            discipline,
+            disciplineId: disciplineRecord.id,
             portfolio,
             bio,
             status: 'PENDING'

@@ -32,6 +32,7 @@ interface Chat {
       id: number;
       name: string | null;
       email: string;
+      avatar: string | null;
     };
   };
 }
@@ -302,15 +303,23 @@ export default function CoachDashboard() {
                 </Link>
               }
             >
-              <div className={styles.profileCard}>
-                <div className={styles.profileHeader}>
-                  <div className={styles.profileAvatar}>
-                    {user?.name?.[0]?.toUpperCase() || "C"}
-                  </div>
-                  <div className={styles.profileInfo}>
-                    <h3 className={styles.profileName}>
-                      {user?.name || "Coach"}
-                    </h3>
+                <div className={styles.profileCard}>
+                  <div className={styles.profileHeader}>
+                    <div className={styles.profileAvatar}>
+                    {user?.avatar ? (
+                      <img
+                        src={user.avatar}
+                        alt={user?.name || "Coach"}
+                        className={styles.profileAvatarImage}
+                      />
+                    ) : (
+                      user?.name?.[0]?.toUpperCase() || "C"
+                    )}
+                    </div>
+                    <div className={styles.profileInfo}>
+                      <h3 className={styles.profileName}>
+                        {user?.name || "Coach"}
+                      </h3>
                     <p className={styles.profileDiscipline}>
                       {profile.discipline.name}
                     </p>

@@ -22,6 +22,8 @@ const s3Client = new S3Client({
 
 const BUCKET_NAME = process.env.R2_BUCKET_NAME || '';
 const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
+const MAX_AVATAR_FILE_SIZE = 5 * 1024 * 1024;
+const AVATAR_ALLOWED_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp']);
 
 // Allowed MIME types and their corresponding MediaType enum values
 const ALLOWED_TYPES: Record<string, string> = {
@@ -86,6 +88,38 @@ export async function generatePresignedUrl(
     return { url, key, expiresIn: 3600 };
 }
 
+export async function generateAvatarPresignedUrl(
+    fileName: string,
+    mimeType: string,
+    userId: number,
+    fileSize: number
+): Promise<PresignedUrlResponse> {
+    if (!AVATAR_ALLOWED_TYPES.has(mimeType)) {
+        throw new Error(`MIME type ${mimeType} not allowed`);
+    }
+
+    if (fileSize > MAX_AVATAR_FILE_SIZE) {
+        throw new Error(`File size exceeds limit of ${MAX_AVATAR_FILE_SIZE / 1024 / 1024}MB`);
+    }
+
+    if (!BUCKET_NAME) {
+        throw new Error('R2_BUCKET_NAME not configured');
+    }
+
+    const timestamp = Date.now();
+    const sanitizedFileName = fileName.replace(/[^a-zA-Z0-9.-]/g, '_');
+    const key = `users/${userId}/avatar/${timestamp}-${sanitizedFileName}`;
+
+    const command = new PutObjectCommand({
+        Bucket: BUCKET_NAME,
+        Key: key,
+        ContentType: mimeType,
+    });
+
+    const url = await getSignedUrl(s3Client, command, { expiresIn: 3600 });
+    return { url, key, expiresIn: 3600 };
+}
+
 /**
  * Get the public URL for a media file stored in R2.
  * Uses R2 public bucket domain (e.g., https://<bucket>.r2.dev or custom domain).
@@ -93,6 +127,8 @@ export async function generatePresignedUrl(
  * @returns Full URL to the object
  */
 export function getPublicUrl(key: string): string {
+    if (key.startsWith('http://') || key.startsWith('https://')) return key;
+
     // Cloudflare R2 public bucket URL (must enable public access on bucket)
     // You can use either the default R2.dev domain or a custom domain
     const publicUrl = process.env.R2_PUBLIC_URL; // e.g., https://<bucket>.r2.dev
@@ -102,5 +138,6 @@ export function getPublicUrl(key: string): string {
     }
 
     const base = publicUrl.replace(/\/$/, '');
-    return `${base}/${key}`;
+    const normalizedKey = key.replace(/^\//, '');
+    return `${base}/${normalizedKey}`;
 }

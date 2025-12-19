@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { requireAuth } from '@/lib/auth';
+import { getPublicUrl } from '@/lib/aws-s3';
 
 /**
  * GET /api/admin/coaches/[coachId]
@@ -33,6 +34,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ coachId:
                         id: true,
                         name: true,
                         email: true,
+                        avatar: true,
                         createdAt: true,
                     }
                 },
@@ -56,7 +58,15 @@ export async function GET(req: Request, { params }: { params: Promise<{ coachId:
             }, { status: 404 });
         }
 
-        return NextResponse.json({ success: true, coach });
+        const coachWithUrls = {
+            ...coach,
+            user: {
+                ...coach.user,
+                avatar: coach.user.avatar ? getPublicUrl(coach.user.avatar) : null,
+            },
+        };
+
+        return NextResponse.json({ success: true, coach: coachWithUrls });
     } catch (err: unknown) {
         console.error('[GET /api/admin/coaches/:coachId]', err);
         return NextResponse.json({

@@ -41,6 +41,7 @@ interface Message {
     name: string | null;
     email: string;
     role: string;
+    avatar: string | null;
   };
 }
 
@@ -160,4 +161,3 @@ export function usePusher() {
   }
   return context;
 }
-
