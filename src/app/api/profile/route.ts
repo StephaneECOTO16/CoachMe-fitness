@@ -65,7 +65,28 @@ async function updateProfile(req: Request) {
 
     try {
         const body = await req.json();
-        const { name, avatar, ageRange, heightCm, weightKg, bio, discipline, portfolio, hourlyRate, address, city, country, experienceYears, instagram, facebook, tiktok, twitter, youtube } = body;
+        const {
+            name,
+            avatar,
+            ageRange,
+            heightCm,
+            weightKg,
+            bio,
+            discipline,
+            portfolio,
+            rateAmount,
+            rateType,
+            hourlyRate,
+            address,
+            city,
+            country,
+            experienceYears,
+            instagram,
+            facebook,
+            tiktok,
+            twitter,
+            youtube
+        } = body;
 
         if (avatar !== undefined && avatar !== null && typeof avatar !== 'string') {
             return NextResponse.json({
@@ -87,10 +108,26 @@ async function updateProfile(req: Request) {
                 error: { code: 'VALIDATION_ERROR', message: 'weightKg must be a positive number' }
             }, { status: 400 });
         }
+        if (rateAmount !== undefined && rateAmount !== null && (typeof rateAmount !== 'number' || rateAmount <= 0)) {
+            return NextResponse.json({
+                success: false,
+                error: { code: 'VALIDATION_ERROR', message: 'rateAmount must be a positive number' }
+            }, { status: 400 });
+        }
         if (hourlyRate !== undefined && hourlyRate !== null && (typeof hourlyRate !== 'number' || hourlyRate <= 0)) {
             return NextResponse.json({
                 success: false,
                 error: { code: 'VALIDATION_ERROR', message: 'hourlyRate must be a positive number' }
+            }, { status: 400 });
+        }
+        if (
+            rateType !== undefined &&
+            rateType !== null &&
+            (typeof rateType !== 'string' || !['HOUR', 'WEEK', 'MONTH'].includes(rateType.toUpperCase()))
+        ) {
+            return NextResponse.json({
+                success: false,
+                error: { code: 'VALIDATION_ERROR', message: 'rateType must be one of HOUR, WEEK, MONTH' }
             }, { status: 400 });
         }
         if (experienceYears !== undefined && experienceYears !== null && (typeof experienceYears !== 'number' || experienceYears < 0)) {
@@ -146,13 +183,23 @@ async function updateProfile(req: Request) {
                 disciplineId = disciplineRecord.id;
             }
 
+            const legacyHourlyRateProvided = hourlyRate !== undefined;
+            const effectiveRateAmount = rateAmount !== undefined ? rateAmount : hourlyRate;
+            const effectiveRateType =
+                rateType !== undefined
+                    ? rateType.toUpperCase()
+                    : legacyHourlyRateProvided
+                        ? 'HOUR'
+                        : undefined;
+
             const coachProfile = await prisma.coachProfile.update({
                 where: { userId: user.id },
                 data: {
                     bio: bio !== undefined ? bio : undefined,
                     disciplineId: disciplineId !== undefined ? disciplineId : undefined,
                     portfolio: portfolio !== undefined ? portfolio : undefined,
-                    hourlyRate: hourlyRate !== undefined ? hourlyRate : undefined,
+                    rateAmount: effectiveRateAmount !== undefined ? effectiveRateAmount : undefined,
+                    rateType: effectiveRateType !== undefined ? effectiveRateType : undefined,
                     address: address !== undefined ? address : undefined,
                     city: city !== undefined ? city : undefined,
                     country: country !== undefined ? country : undefined,

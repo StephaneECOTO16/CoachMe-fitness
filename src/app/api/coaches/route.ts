@@ -13,6 +13,8 @@ export async function GET(req: Request) {
     const url = new URL(req.url);
     const discipline = url.searchParams.get('discipline') || undefined;
     const minRating = url.searchParams.get('minRating') ? parseFloat(url.searchParams.get('minRating')!) : undefined;
+    const rateTypeParam = url.searchParams.get('rateType') || undefined;
+    const maxRate = url.searchParams.get('maxRate') ? parseFloat(url.searchParams.get('maxRate')!) : undefined;
     const maxHourlyRate = url.searchParams.get('maxHourlyRate') ? parseFloat(url.searchParams.get('maxHourlyRate')!) : undefined;
     const limit = Math.min(parseInt(url.searchParams.get('limit') || '20'), 100);
     const offset = parseInt(url.searchParams.get('offset') || '0');
@@ -21,6 +23,11 @@ export async function GET(req: Request) {
         const whereClause: any = {
             status: 'APPROVED',
         };
+
+        const normalizedRateType =
+            rateTypeParam && ['HOUR', 'WEEK', 'MONTH'].includes(rateTypeParam.toUpperCase())
+                ? rateTypeParam.toUpperCase()
+                : undefined;
 
         if (discipline) {
             whereClause.discipline = {
@@ -32,8 +39,16 @@ export async function GET(req: Request) {
             whereClause.minRating = { gte: minRating };
         }
 
-        if (maxHourlyRate !== undefined) {
-            whereClause.hourlyRate = { lte: maxHourlyRate };
+        if (normalizedRateType !== undefined) {
+            whereClause.rateType = normalizedRateType;
+        }
+
+        const effectiveMaxRate = maxRate ?? maxHourlyRate;
+        if (effectiveMaxRate !== undefined) {
+            whereClause.rateAmount = { lte: effectiveMaxRate };
+            if (normalizedRateType === undefined && maxHourlyRate !== undefined) {
+                whereClause.rateType = 'HOUR';
+            }
         }
 
         const coaches = await prisma.coachProfile.findMany({

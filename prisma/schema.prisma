@@ -31,7 +31,8 @@ model CoachProfile {
   disciplineId    Int
   discipline      Discipline      @relation(fields: [disciplineId], references: [id])
   portfolio       String?
-  hourlyRate      Decimal?        @db.Decimal(10, 2)
+  rateAmount      Decimal?        @db.Decimal(10, 2)
+  rateType        RateType        @default(HOUR)
   address         String?
   city            String?
   country         String?         @default("Cameroon")
@@ -173,4 +174,10 @@ enum ReviewAction {
   APPROVED
   REJECTED
   PENDING
+}
+
+enum RateType {
+  HOUR
+  WEEK
+  MONTH
 }
