@@ -1,13 +1,19 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { useTranslations, useLocale } from 'next-intl';
-import { Link } from '@/i18n/routing';
-import { useAuth } from '@/contexts/AuthContext';
-import ProtectedRoute from '@/components/auth/ProtectedRoute';
-import { HeroSection, ChatCard, EmptyState } from '@/components';
-import toast from '@/lib/toast';
-import styles from './page.module.css';
+import { useEffect, useState } from "react";
+import { useTranslations, useLocale } from "next-intl";
+import { Link } from "@/i18n/routing";
+import { useAuth } from "@/contexts/AuthContext";
+import ProtectedRoute from "@/components/auth/ProtectedRoute";
+import {
+  HeroSection,
+  ChatCard,
+  EmptyState,
+  LoadingIndicator,
+} from "@/components";
+import { AnimatedName } from "@/components/ui/animated-name";
+import toast from "@/lib/toast";
+import styles from "./page.module.css";
 
 interface Chat {
   id: number;
@@ -44,7 +50,8 @@ interface Chat {
 }
 
 export default function MessagesPage() {
-  const t = useTranslations('messages');
+  const t = useTranslations("messages");
+  const tErrors = useTranslations("errors");
   const locale = useLocale();
   const { user, token } = useAuth();
   const [chats, setChats] = useState<Chat[]>([]);
@@ -55,39 +62,39 @@ export default function MessagesPage() {
       if (!token) return;
 
       try {
-        const response = await fetch('/api/chat', {
+        const response = await fetch("/api/chat", {
           headers: {
-            'Authorization': `Bearer ${token}`,
+            Authorization: `Bearer ${token}`,
           },
         });
         const data = await response.json();
         if (data.success) {
           setChats(data.chats);
         } else {
-          toast.error(t('errors.loadFailed'));
+          toast.error(tErrors("generic"));
         }
       } catch (error) {
-        console.error('Error fetching chats:', error);
-        toast.error(t('errors.loadFailed'));
+        console.error("Error fetching chats:", error);
+        toast.error(tErrors("networkError"));
       } finally {
         setLoading(false);
       }
     };
 
     fetchChats();
-  }, [token, t]);
+  }, [token, tErrors]);
 
   const getOtherParticipant = (chat: Chat) => {
-    if (user?.role === 'COACH') {
+    if (user?.role === "COACH") {
       return {
-        name: chat.client.user.name || 'Client',
+        name: chat.client.user.name || "Client",
         email: chat.client.user.email,
         avatar: chat.client.user.avatar || null,
-        type: 'Client',
+        type: "Client",
       };
     } else {
       return {
-        name: chat.coach.user.name || 'Coach',
+        name: chat.coach.user.name || "Coach",
         email: chat.coach.user.email,
         avatar: chat.coach.user.avatar || null,
         type: chat.coach.discipline.name,
@@ -96,15 +103,20 @@ export default function MessagesPage() {
   };
 
   return (
-    <ProtectedRoute allowedRoles={['PROSPECT', 'COACH']}>
+    <ProtectedRoute allowedRoles={["PROSPECT", "COACH"]}>
       <div className={styles.container}>
-        {/* Hero Section */}
         <HeroSection
-          title={t('title')}
+          title={
+            <AnimatedName
+              prefix={t("title")}
+              name={
+                user?.name?.split(" ")[0] ||
+                (user?.role === "COACH" ? "Coach" : "User")
+              }
+            />
+          }
           subtitle={
-            user?.role === 'COACH'
-              ? t('subtitleCoach')
-              : t('subtitleClient')
+            user?.role === "COACH" ? t("subtitleCoach") : t("subtitleClient")
           }
           backgroundImage="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=1740&auto=format&fit=crop"
         />
@@ -112,8 +124,7 @@ export default function MessagesPage() {
         <div className={styles.content}>
           {loading ? (
             <div className={styles.loading}>
-              <div className={styles.spinner}></div>
-              <p>{t('loading')}</p>
+              <LoadingIndicator label={t("loading")} unstyledLabel />
             </div>
           ) : chats.length > 0 ? (
             <div className={styles.chatList}>
@@ -121,11 +132,11 @@ export default function MessagesPage() {
                 const participant = getOtherParticipant(chat);
                 const chatCardData = {
                   id: String(chat.id),
-                    participant: {
-                      id:
-                        user?.role === 'COACH'
-                          ? String(chat.client.id)
-                          : String(chat.coach.id),
+                  participant: {
+                    id:
+                      user?.role === "COACH"
+                        ? String(chat.client.id)
+                        : String(chat.coach.id),
                     name: participant.name,
                     avatar: participant.avatar || undefined,
                     role: undefined,
@@ -149,16 +160,16 @@ export default function MessagesPage() {
           ) : (
             <EmptyState
               icon="💬"
-              title={t('noConversations')}
+              title={t("noConversations")}
               message={
-                user?.role === 'COACH'
-                  ? t('noConversationsCoach')
-                  : t('noConversationsClient')
+                user?.role === "COACH"
+                  ? t("noConversationsCoach")
+                  : t("noConversationsClient")
               }
               action={
-                user?.role === 'PROSPECT' ? (
+                user?.role === "PROSPECT" ? (
                   <Link href="/coaches" className={styles.emptyButton}>
-                    {t('browseCoaches')}
+                    {t("browseCoaches")}
                   </Link>
                 ) : undefined
               }

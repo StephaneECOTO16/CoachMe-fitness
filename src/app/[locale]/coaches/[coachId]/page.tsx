@@ -12,6 +12,7 @@ import {
   TabNavigation,
   StatusBadge,
   EmptyState,
+  LoadingIndicator,
 } from "@/components";
 import toast from "@/lib/toast";
 import {
@@ -162,8 +163,7 @@ export default function CoachProfilePage() {
     return (
       <div className={styles.container}>
         <div className={styles.loading}>
-          <div className={styles.spinner}></div>
-          <p>{tCommon("loading")}</p>
+          <LoadingIndicator label={tCommon("loading")} unstyledLabel />
         </div>
       </div>
     );

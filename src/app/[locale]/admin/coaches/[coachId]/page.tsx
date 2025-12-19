@@ -7,7 +7,7 @@ import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/routing';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import Button from '@/components/ui/Button';
-import { MediaGallery, StatusBadge } from '@/components';
+import { MediaGallery, StatusBadge, LoadingIndicator } from '@/components';
 import toast from '@/lib/toast';
 import styles from './page.module.css';
 
@@ -50,6 +50,7 @@ export default function AdminCoachReviewPage() {
   const params = useParams();
   const router = useRouter();
   const t = useTranslations('admin.coaches');
+  const tCommon = useTranslations('common');
   const [coach, setCoach] = useState<Coach | null>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -131,8 +132,7 @@ export default function AdminCoachReviewPage() {
       <ProtectedRoute allowedRoles={['ADMIN']}>
         <div className={styles.container}>
           <div className={styles.loading}>
-            <div className={styles.spinner}></div>
-            <p>Loading coach details...</p>
+            <LoadingIndicator label={tCommon('loading')} unstyledLabel />
           </div>
         </div>
       </ProtectedRoute>

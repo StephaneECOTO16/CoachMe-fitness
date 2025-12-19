@@ -1,8 +1,10 @@
 'use client';
 
 import { useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import { useRouter } from '@/i18n/routing';
 import { useAuth } from '@/contexts/AuthContext';
+import LoadingIndicator from '@/components/loading/LoadingIndicator';
 
 interface PublicRouteProps {
   children: React.ReactNode;
@@ -13,6 +15,7 @@ interface PublicRouteProps {
  * Redirects authenticated users to their appropriate dashboard
  */
 export default function PublicRoute({ children }: PublicRouteProps) {
+  const tCommon = useTranslations('common');
   const { isAuthenticated, user, isLoading } = useAuth();
   const router = useRouter();
 
@@ -38,7 +41,7 @@ export default function PublicRoute({ children }: PublicRouteProps) {
         alignItems: 'center',
         minHeight: '100vh'
       }}>
-        <div>Loading...</div>
+        <LoadingIndicator label={tCommon('loading')} />
       </div>
     );
   }

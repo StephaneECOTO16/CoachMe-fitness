@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
 import { Link } from "@/i18n/routing";
+import { LoadingIndicator } from "@/components";
 import Button from "@/components/ui/Button";
 import styles from "./page.module.css";
 
@@ -284,8 +285,12 @@ export default function CoachesPage() {
         <section className={styles.coachesSection}>
           {loading ? (
             <div className={styles.loading}>
-              <div className={styles.spinner}></div>
-              <p>{t("loadingCoaches")}</p>
+              <LoadingIndicator
+                label={t("loadingCoaches")}
+                size={48}
+                thickness={4}
+                unstyledLabel
+              />
             </div>
           ) : coaches.length > 0 ? (
             <>
