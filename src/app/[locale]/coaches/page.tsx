@@ -17,7 +17,8 @@ interface Coach {
     imageUrl?: string;
   };
   portfolio: string | null;
-  hourlyRate: number | null;
+  rateAmount: number | string | null;
+  rateType: "HOUR" | "WEEK" | "MONTH";
   address: string | null;
   city: string | null;
   country: string | null;
@@ -50,12 +51,14 @@ export default function CoachesPage() {
   // Applied filters (used for fetching)
   const [selectedDiscipline, setSelectedDiscipline] = useState<string>("");
   const [minRating, setMinRating] = useState<string>("");
-  const [maxHourlyRate, setMaxHourlyRate] = useState<string>("");
+  const [selectedRateType, setSelectedRateType] = useState<string>("");
+  const [maxRate, setMaxRate] = useState<string>("");
 
   // Temporary filters (UI state before applying)
   const [tempDiscipline, setTempDiscipline] = useState<string>("");
   const [tempMinRating, setTempMinRating] = useState<string>("");
-  const [tempMaxHourlyRate, setTempMaxHourlyRate] = useState<string>("");
+  const [tempRateType, setTempRateType] = useState<string>("");
+  const [tempMaxRate, setTempMaxRate] = useState<string>("");
 
   const [disciplines, setDisciplines] = useState<{ id: number; name: string; imageUrl?: string }[]>([]);
   const [loadingDisciplines, setLoadingDisciplines] = useState(true);
@@ -71,8 +74,11 @@ export default function CoachesPage() {
       if (minRating) {
         params.append("minRating", minRating);
       }
-      if (maxHourlyRate) {
-        params.append("maxHourlyRate", maxHourlyRate);
+      if (selectedRateType) {
+        params.append("rateType", selectedRateType);
+      }
+      if (maxRate) {
+        params.append("maxRate", maxRate);
       }
 
       const url = `/api/coaches?${params.toString()}`;
@@ -117,7 +123,8 @@ export default function CoachesPage() {
   const handleApplyFilters = () => {
     setSelectedDiscipline(tempDiscipline);
     setMinRating(tempMinRating);
-    setMaxHourlyRate(tempMaxHourlyRate);
+    setSelectedRateType(tempRateType);
+    setMaxRate(tempMaxRate);
     // Trigger fetch after state update
     setTimeout(() => {
       fetchCoaches();
@@ -127,14 +134,22 @@ export default function CoachesPage() {
   const handleResetFilters = () => {
     setTempDiscipline("");
     setTempMinRating("");
-    setTempMaxHourlyRate("");
+    setTempRateType("");
+    setTempMaxRate("");
     setSelectedDiscipline("");
     setMinRating("");
-    setMaxHourlyRate("");
+    setSelectedRateType("");
+    setMaxRate("");
     // Trigger fetch after state update
     setTimeout(() => {
       fetchCoaches();
     }, 0);
+  };
+
+  const getRateLabel = (rateType: Coach["rateType"]) => {
+    if (rateType === "WEEK") return t("perWeek");
+    if (rateType === "MONTH") return t("perMonth");
+    return t("perHour");
   };
 
   return (
@@ -209,19 +224,38 @@ export default function CoachesPage() {
             </select>
           </div>
 
-          {/* Max Hourly Rate Filter */}
+          {/* Rate Type Filter */}
+          <div className={styles.filterGroup}>
+            <label htmlFor="rate-type-filter" className={styles.filterLabel}>
+              {t("rateType")}
+            </label>
+            <select
+              id="rate-type-filter"
+              value={tempRateType}
+              onChange={(e) => setTempRateType(e.target.value)}
+              className={styles.filterSelect}
+              aria-label={t("rateType")}
+            >
+              <option value="">{t("rateTypeAll")}</option>
+              <option value="HOUR">{t("rateTypeHour")}</option>
+              <option value="WEEK">{t("rateTypeWeek")}</option>
+              <option value="MONTH">{t("rateTypeMonth")}</option>
+            </select>
+          </div>
+
+          {/* Max Rate Filter */}
           <div className={styles.filterGroup}>
             <label htmlFor="rate-filter" className={styles.filterLabel}>
-              {t("maxHourlyRate")}
+              {t("maxRate")}
             </label>
             <input
               id="rate-filter"
               type="number"
-              value={tempMaxHourlyRate}
-              onChange={(e) => setTempMaxHourlyRate(e.target.value)}
+              value={tempMaxRate}
+              onChange={(e) => setTempMaxRate(e.target.value)}
               placeholder="10000"
               className={styles.filterInput}
-              aria-label={t("maxHourlyRate")}
+              aria-label={t("maxRate")}
             />
           </div>
 
@@ -299,16 +333,16 @@ export default function CoachesPage() {
                             {coach.discipline.name}
                           </p>
                         </div>
-                        {coach.hourlyRate && (
+                        {coach.rateAmount && (
                           <div className={styles.coachRate}>
                             <span className={styles.rateAmount}>
                               {new Intl.NumberFormat("fr-FR").format(
-                                Number(coach.hourlyRate)
+                                Number(coach.rateAmount)
                               )}{" "}
                               XAF
                             </span>
                             <span className={styles.rateLabel}>
-                              {t("perHour")}
+                              {getRateLabel(coach.rateType)}
                             </span>
                           </div>
                         )}
@@ -489,7 +523,7 @@ export default function CoachesPage() {
               <p className={styles.emptyText}>{t("tryAdjustFilters")}</p>
               <Button
                 variant="outline"
-                onClick={() => setSelectedDiscipline("")}
+                onClick={handleResetFilters}
               >
                 {t("clearFilters")}
               </Button>

@@ -47,7 +47,8 @@ interface CoachProfile {
   };
   portfolio: string | null;
   status: string;
-  hourlyRate: number | null;
+  rateAmount: number | string | null;
+  rateType: "HOUR" | "WEEK" | "MONTH";
   experienceYears: number | null;
   address: string | null;
   city: string | null;
@@ -192,6 +193,11 @@ export default function CoachProfilePage() {
     caption: m.description || undefined,
   }));
   const location = [coach.city, coach.country].filter(Boolean).join(", ");
+  const getRateLabel = (rateType: CoachProfile["rateType"]) => {
+    if (rateType === "WEEK") return t("perWeek");
+    if (rateType === "MONTH") return t("perMonth");
+    return t("perHour");
+  };
 
   return (
     <div className={styles.container}>
@@ -240,12 +246,12 @@ export default function CoachProfilePage() {
             </div>
 
             {/* Pricing */}
-            {coach.hourlyRate && (
+            {coach.rateAmount && (
               <div className={styles.pricingSection}>
                 <p className={styles.pricingLabel}>{t("startingAt")}</p>
                 <p className={styles.pricingAmount}>
-                  {new Intl.NumberFormat("fr-FR").format(coach.hourlyRate)} XAF
-                  <span>/mo</span>
+                  {new Intl.NumberFormat("fr-FR").format(Number(coach.rateAmount))} XAF
+                  <span>{getRateLabel(coach.rateType)}</span>
                 </p>
               </div>
             )}

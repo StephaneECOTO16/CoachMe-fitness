@@ -33,7 +33,8 @@ const EditCoachSchema = z.object({
   discipline: z.string().min(1, 'Discipline is required'),
   bio: z.string().optional(),
   portfolio: z.string().url('Must be a valid URL').or(z.literal('')).optional(),
-  hourlyRate: z.number().positive('Hourly rate must be positive').optional().or(z.nan()),
+  rateType: z.enum(['HOUR', 'WEEK', 'MONTH']).optional(),
+  rateAmount: z.number().positive('Rate must be positive').optional().or(z.nan()),
   address: z.string().optional(),
   city: z.string().optional(),
   country: z.string().optional(),
@@ -68,7 +69,8 @@ interface ProfileData {
     bio?: string | null;
     portfolio?: string | null;
     status?: string;
-    hourlyRate?: number | null;
+    rateAmount?: number | string | null;
+    rateType?: 'HOUR' | 'WEEK' | 'MONTH';
     address?: string | null;
     city?: string | null;
     country?: string | null;
@@ -109,6 +111,12 @@ export default function ProfilePage() {
       return typeof name === 'string' ? name : '';
     }
     return '';
+  };
+
+  const getRateLabel = (rateType?: 'HOUR' | 'WEEK' | 'MONTH') => {
+    if (rateType === 'WEEK') return t('perWeek');
+    if (rateType === 'MONTH') return t('perMonth');
+    return t('perHour');
   };
 
   const {
@@ -188,7 +196,8 @@ export default function ProfilePage() {
               discipline: getDisciplineName(data.profile.discipline),
               bio: data.profile.bio || '',
               portfolio: data.profile.portfolio || '',
-              hourlyRate: data.profile.hourlyRate || undefined,
+              rateType: data.profile.rateType || 'HOUR',
+              rateAmount: data.profile.rateAmount || undefined,
               address: data.profile.address || '',
               city: data.profile.city || '',
               country: data.profile.country || '',
@@ -363,7 +372,8 @@ export default function ProfilePage() {
           discipline: data.discipline,
           bio: data.bio || null,
           portfolio: data.portfolio || null,
-          hourlyRate: data.hourlyRate || null,
+          rateType: data.rateType || 'HOUR',
+          rateAmount: data.rateAmount || null,
           address: data.address || null,
           city: data.city || null,
           country: data.country || null,
@@ -527,11 +537,12 @@ export default function ProfilePage() {
                     <span className={styles.infoLabel}>Status:</span>
                     <span className={styles.infoValue}>{profileData.profile.status}</span>
                   </div>
-                  {profileData.profile.hourlyRate && (
+                  {profileData.profile.rateAmount && (
                     <div className={styles.infoItem}>
-                      <span className={styles.infoLabel}>{t('hourlyRate')}:</span>
+                      <span className={styles.infoLabel}>{t('rate')}:</span>
                       <span className={styles.infoValue}>
-                        {new Intl.NumberFormat('fr-FR').format(Number(profileData.profile.hourlyRate))} XAF
+                        {new Intl.NumberFormat('fr-FR').format(Number(profileData.profile.rateAmount))} XAF{' '}
+                        {getRateLabel(profileData.profile.rateType)}
                       </span>
                     </div>
                   )}
@@ -726,20 +737,38 @@ export default function ProfilePage() {
                     </div>
 
                     <div className={styles.formGroup}>
-                      <label htmlFor="hourlyRate" className={styles.label}>
-                        {t('editModal.hourlyRateLabel')}
+                      <label htmlFor="rateType" className={styles.label}>
+                        {t('editModal.rateTypeLabel')}
+                      </label>
+                      <select
+                        {...registerCoach('rateType')}
+                        id="rateType"
+                        className={styles.select}
+                      >
+                        <option value="HOUR">{t('editModal.rateTypeHour')}</option>
+                        <option value="WEEK">{t('editModal.rateTypeWeek')}</option>
+                        <option value="MONTH">{t('editModal.rateTypeMonth')}</option>
+                      </select>
+                      {errorsCoach.rateType && (
+                        <span className={styles.error}>{errorsCoach.rateType.message as string}</span>
+                      )}
+                    </div>
+
+                    <div className={styles.formGroup}>
+                      <label htmlFor="rateAmount" className={styles.label}>
+                        {t('editModal.rateAmountLabel')}
                       </label>
                       <input
-                        {...registerCoach('hourlyRate', { valueAsNumber: true })}
+                        {...registerCoach('rateAmount', { valueAsNumber: true })}
                         type="number"
-                        id="hourlyRate"
+                        id="rateAmount"
                         className={styles.input}
-                        placeholder={t('editModal.hourlyRatePlaceholder')}
+                        placeholder={t('editModal.rateAmountPlaceholder')}
                         min="0"
                         step="500"
                       />
-                      {errorsCoach.hourlyRate && (
-                        <span className={styles.error}>{errorsCoach.hourlyRate.message as string}</span>
+                      {errorsCoach.rateAmount && (
+                        <span className={styles.error}>{errorsCoach.rateAmount.message as string}</span>
                       )}
                     </div>
 
