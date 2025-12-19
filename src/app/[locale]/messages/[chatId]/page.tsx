@@ -8,7 +8,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { usePusher } from "@/contexts/PusherContext";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import Button from "@/components/ui/Button";
-import { ChatBubble } from "@/components";
+import { ChatBubble, LoadingIndicator } from "@/components";
 import toast from "@/lib/toast";
 import Image from "next/image";
 import styles from "./page.module.css";
@@ -63,6 +63,7 @@ interface Chat {
 export default function ConversationPage() {
   const params = useParams();
   const t = useTranslations("messages.conversation");
+  const tErrors = useTranslations("errors");
   const { user, token } = useAuth();
   const { subscribeToChat, isConnected } = usePusher();
   const [chat, setChat] = useState<Chat | null>(null);
@@ -91,18 +92,18 @@ export default function ConversationPage() {
           setChat(data.chat);
           setMessages(data.chat.messages || []);
         } else {
-          toast.error(t("errors.chatNotFound"));
+          toast.error(t("notFound"));
         }
       } catch (error) {
         console.error("Error fetching chat:", error);
-        toast.error(t("errors.loadFailed"));
+        toast.error(tErrors("networkError"));
       } finally {
         setLoading(false);
       }
     };
 
     fetchChat();
-  }, [token, chatId, t]);
+  }, [token, chatId, t, tErrors]);
 
   /**
    * Handle incoming real-time messages from Pusher.
@@ -166,13 +167,13 @@ export default function ConversationPage() {
       const data = await response.json();
 
       if (!data.success) {
-        toast.error(t("errors.sendFailed"));
+        toast.error(t("sendError"));
         setNewMessage(messageContent); // Restore message on failure
       }
       // Don't add here - let Pusher handle it to avoid duplicates
     } catch (error) {
       console.error("Error sending message:", error);
-      toast.error(t("errors.sendFailed"));
+      toast.error(t("sendError"));
       setNewMessage(messageContent); // Restore message on failure
     } finally {
       setSending(false);
@@ -204,8 +205,7 @@ export default function ConversationPage() {
       <ProtectedRoute allowedRoles={["PROSPECT", "COACH"]}>
         <div className={styles.container}>
           <div className={styles.loading}>
-            <div className={styles.spinner}></div>
-            <p>{t("loading")}</p>
+            <LoadingIndicator label={t("loading")} unstyledLabel />
           </div>
         </div>
       </ProtectedRoute>

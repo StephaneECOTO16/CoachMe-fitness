@@ -9,6 +9,8 @@ export { default as Avatar } from './ui/avatar';
 export { default as Switch } from './ui/switch';
 export { default as AnimatedName } from './ui/animated-name';
 export { default as LanguageToggle } from './ui/LanguageToggle';
+export { default as QuickActionsSection } from './quick-actions/QuickActionsSection';
+export { default as LoadingIndicator } from './loading/LoadingIndicator';
 
 // Card Components
 export { default as CoachCard } from './cards/CoachCard';
@@ -48,3 +50,5 @@ export type { ChatBubbleProps, ChatMessage } from './chat/ChatBubble';
 export type { StatusBadgeProps, StatusType } from './ui/StatusBadge';
 export type { TabNavigationProps, Tab } from './ui/TabNavigation';
 export type { EmptyStateProps, EmptyStateAction } from './ui/EmptyState';
+export type { QuickActionItem } from './quick-actions/QuickActionsSection';
+export type { LoadingIndicatorProps, LoadingIndicatorVariant } from './loading/LoadingIndicator';

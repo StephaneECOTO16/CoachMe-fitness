@@ -14,7 +14,7 @@ import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import Button from '@/components/ui/Button';
 import Modal from '@/components/ui/Modal';
 import MediaUploadTab from '@/components/profile/MediaUploadTab';
-import { TabNavigation } from '@/components';
+import { TabNavigation, LoadingIndicator } from '@/components';
 import styles from './page.module.css';
 
 interface Discipline {
@@ -90,6 +90,7 @@ interface ProfileData {
 export default function ProfilePage() {
   const t = useTranslations('profile');
   const tToast = useTranslations('toast');
+  const tCommon = useTranslations('common');
   const { user, token, login } = useAuth();
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -445,8 +446,7 @@ export default function ProfilePage() {
       <ProtectedRoute>
         <div className={styles.container}>
           <div className={styles.loading}>
-            <div className={styles.spinner}></div>
-            <p>Loading profile...</p>
+            <LoadingIndicator label={tCommon('loading')} unstyledLabel />
           </div>
         </div>
       </ProtectedRoute>

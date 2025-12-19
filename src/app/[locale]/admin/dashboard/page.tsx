@@ -6,7 +6,7 @@ import { Link } from '@/i18n/routing';
 import { useAuth } from '@/contexts/AuthContext';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import Button from '@/components/ui/Button';
-import { HeroSection, StatsGrid, DashboardSection, CoachCard, EmptyState } from '@/components';
+import { HeroSection, StatsGrid, DashboardSection, CoachCard, EmptyState, LoadingIndicator } from '@/components';
 import toast from '@/lib/toast';
 import styles from './page.module.css';
 import type { CoachData } from '@/components/cards/CoachCard';
@@ -42,6 +42,7 @@ interface PendingCoach {
 
 export default function AdminDashboard() {
   const t = useTranslations('admin.dashboard');
+  const tCommon = useTranslations('common');
   const { user } = useAuth();
   const [stats, setStats] = useState<Stats | null>(null);
   const [pendingCoaches, setPendingCoaches] = useState<PendingCoach[]>([]);
@@ -117,8 +118,7 @@ export default function AdminDashboard() {
         <div className={styles.content}>
           {loading ? (
             <div className={styles.loading}>
-              <div className={styles.spinner}></div>
-              <p>Loading dashboard...</p>
+              <LoadingIndicator label={tCommon('loading')} unstyledLabel />
             </div>
           ) : (
             <>

@@ -2,12 +2,13 @@
 
 import { useState, useCallback, useEffect } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { Upload, X, FileText, Image as ImageIcon, Video, Loader2 } from 'lucide-react';
+import { Upload, X, FileText, Image as ImageIcon, Video } from 'lucide-react';
 import { toast } from 'sonner';
 import imageCompression from 'browser-image-compression';
 import { useTranslations } from 'next-intl';
 import { useAuth } from '@/contexts/AuthContext';
 import Button from '@/components/ui/Button';
+import LoadingIndicator from '@/components/loading/LoadingIndicator';
 import styles from './MediaUploadTab.module.css';
 
 interface MediaFile {
@@ -29,6 +30,7 @@ interface UploadingFile {
 
 export default function MediaUploadTab() {
   const t = useTranslations('toast');
+  const tCommon = useTranslations('common');
   const { token } = useAuth();
   const [mediaFiles, setMediaFiles] = useState<MediaFile[]>([]);
   const [uploadingFiles, setUploadingFiles] = useState<Record<string, UploadingFile>>({});
@@ -245,8 +247,7 @@ export default function MediaUploadTab() {
   if (loading) {
     return (
       <div className={styles.loading}>
-        <Loader2 className={styles.spinner} />
-        <p>Loading media...</p>
+        <LoadingIndicator variant="icon" label={tCommon('loading')} unstyledLabel />
       </div>
     );
   }

@@ -1,8 +1,10 @@
 "use client";
 
 import { useEffect } from "react";
+import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/routing";
 import { useAuth } from "@/contexts/AuthContext";
+import LoadingIndicator from "@/components/loading/LoadingIndicator";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -15,6 +17,7 @@ export default function ProtectedRoute({
   allowedRoles,
   redirectTo = "/login",
 }: ProtectedRouteProps) {
+  const tCommon = useTranslations("common");
   const { isAuthenticated, user, isLoading, isLoggingOut } = useAuth();
   const router = useRouter();
 
@@ -59,7 +62,7 @@ export default function ProtectedRoute({
           minHeight: "100vh",
         }}
       >
-        <div>Loading...</div>
+        <LoadingIndicator label={tCommon("loading")} />
       </div>
     );
   }
