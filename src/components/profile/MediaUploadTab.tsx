@@ -31,6 +31,7 @@ interface UploadingFile {
 export default function MediaUploadTab() {
   const t = useTranslations('toast');
   const tCommon = useTranslations('common');
+  const tMedia = useTranslations('coachDashboard.settingsModal.media');
   const { token } = useAuth();
   const [mediaFiles, setMediaFiles] = useState<MediaFile[]>([]);
   const [uploadingFiles, setUploadingFiles] = useState<Record<string, UploadingFile>>({});
@@ -262,10 +263,10 @@ export default function MediaUploadTab() {
       <div className={styles.section}>
         <h3 className={styles.sectionTitle}>
           <FileText size={20} />
-          Professional Certificates
+          {tMedia('certificates.title')}
         </h3>
         <p className={styles.sectionDescription}>
-          Upload your coaching certifications (PDF, JPG, PNG)
+          {tMedia('certificates.description')}
         </p>
 
         <div
@@ -274,8 +275,8 @@ export default function MediaUploadTab() {
         >
           <input {...certificateDropzone.getInputProps()} />
           <Upload size={32} />
-          <p>{certificateDropzone.isDragActive ? 'Drop here...' : 'Drag & drop or click to upload'}</p>
-          <span className={styles.dropzoneHint}>Max 10MB • PDF, JPG, PNG</span>
+          <p>{certificateDropzone.isDragActive ? 'Drop here...' : tMedia('certificates.dropzone')}</p>
+          <span className={styles.dropzoneHint}>{tMedia('maxFileSize', { size: '10' })} • PDF, JPG, PNG</span>
         </div>
 
         <FileList files={certificates} onDelete={handleDelete} />
@@ -285,10 +286,10 @@ export default function MediaUploadTab() {
       <div className={styles.section}>
         <h3 className={styles.sectionTitle}>
           <ImageIcon size={20} />
-          Profile Gallery
+          {tMedia('images.title')}
         </h3>
         <p className={styles.sectionDescription}>
-          Showcase your training environment and client transformations
+          {tMedia('images.description')}
         </p>
 
         <div
@@ -297,8 +298,8 @@ export default function MediaUploadTab() {
         >
           <input {...imageDropzone.getInputProps()} />
           <Upload size={32} />
-          <p>{imageDropzone.isDragActive ? 'Drop here...' : 'Drag & drop or click to upload'}</p>
-          <span className={styles.dropzoneHint}>Max 10MB • Multiple files supported</span>
+          <p>{imageDropzone.isDragActive ? 'Drop here...' : tMedia('images.dropzone')}</p>
+          <span className={styles.dropzoneHint}>{tMedia('maxFileSize', { size: '10' })} • Multiple files supported</span>
         </div>
 
         <FileList files={images} onDelete={handleDelete} showPreview />
@@ -308,10 +309,10 @@ export default function MediaUploadTab() {
       <div className={styles.section}>
         <h3 className={styles.sectionTitle}>
           <Video size={20} />
-          Training Videos
+          {tMedia('videos.title')}
         </h3>
         <p className={styles.sectionDescription}>
-          Share short clips of your coaching sessions
+          {tMedia('videos.description')}
         </p>
 
         <div
@@ -320,8 +321,8 @@ export default function MediaUploadTab() {
         >
           <input {...videoDropzone.getInputProps()} />
           <Upload size={32} />
-          <p>{videoDropzone.isDragActive ? 'Drop here...' : 'Drag & drop or click to upload'}</p>
-          <span className={styles.dropzoneHint}>Max 50MB • MP4, WebM, MOV</span>
+          <p>{videoDropzone.isDragActive ? 'Drop here...' : tMedia('videos.dropzone')}</p>
+          <span className={styles.dropzoneHint}>{tMedia('maxFileSize', { size: '50' })} • MP4, WebM, MOV</span>
         </div>
 
         <FileList files={videos} onDelete={handleDelete} />
@@ -330,7 +331,7 @@ export default function MediaUploadTab() {
       {/* Uploading Files */}
       {Object.entries(uploadingFiles).length > 0 && (
         <div className={styles.uploadingSection}>
-          <h4 className={styles.uploadingTitle}>Uploading...</h4>
+          <h4 className={styles.uploadingTitle}>{tMedia('uploading')}</h4>
           {Object.entries(uploadingFiles).map(([key, { file, preview, progress }]) => (
             <div key={key} className={styles.uploadingItem}>
               {preview && <img src={preview} alt={file.name} className={styles.uploadingPreview} />}
@@ -362,7 +363,7 @@ function FileList({
   if (files.length === 0) {
     return (
       <div className={styles.emptyState}>
-        <p>No files uploaded yet</p>
+        <p>{tMedia('noFiles')}</p>
       </div>
     );
   }
