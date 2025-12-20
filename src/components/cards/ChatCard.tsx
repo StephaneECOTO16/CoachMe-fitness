@@ -4,6 +4,7 @@ import React from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import styles from './ChatCard.module.css';
+import UserAvatar from '../ui/UserAvatar/UserAvatar';
 
 export interface ChatParticipant {
   id: string;
@@ -38,15 +39,6 @@ const ChatCard: React.FC<ChatCardProps> = ({
   className = '',
 }) => {
   const router = useRouter();
-
-  const getAvatarUrl = () => {
-    if (chat.participant.avatar) {
-      return chat.participant.avatar.startsWith('http')
-        ? chat.participant.avatar
-        : `${process.env.NEXT_PUBLIC_API_URL}${chat.participant.avatar}`;
-    }
-    return `https://ui-avatars.com/api/?name=${chat.participant.name}&background=random`;
-  };
 
   const formatTime = (timestamp: string) => {
     const date = new Date(timestamp);
@@ -83,7 +75,7 @@ const ChatCard: React.FC<ChatCardProps> = ({
     }
   };
 
-  const truncateMessage = (message: string, maxLength = 50) => {
+  const truncateMessage = (message: string, maxLength = 60) => {
     return message.length > maxLength
       ? `${message.substring(0, maxLength)}...`
       : message;
@@ -103,13 +95,7 @@ const ChatCard: React.FC<ChatCardProps> = ({
       onClick={handleClick}
     >
       <div className={styles.avatarWrapper}>
-        <Image
-          src={getAvatarUrl()}
-          alt={chat.participant.name}
-          width={48}
-          height={48}
-          className={styles.avatar}
-        />
+        <UserAvatar user={chat.participant} size="lg" />
         {chat.isOnline && <span className={styles.onlineIndicator} />}
         {chat.unreadCount && chat.unreadCount > 0 && (
           <span className={styles.unreadBadge}>

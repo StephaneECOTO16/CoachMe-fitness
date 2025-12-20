@@ -5,15 +5,14 @@ export { default as Modal } from './ui/Modal';
 export { default as StatusBadge } from './ui/StatusBadge';
 export { default as TabNavigation } from './ui/TabNavigation';
 export { default as EmptyState } from './ui/EmptyState';
-export { default as Avatar } from './ui/avatar';
-export { default as Switch } from './ui/switch';
-export { default as AnimatedName } from './ui/animated-name';
+export { Switch } from './ui/switch';
+export { AnimatedName } from './ui/animated-name';
 export { default as LanguageToggle } from './ui/LanguageToggle';
 export { default as QuickActionsSection } from './quick-actions/QuickActionsSection';
 export { default as LoadingIndicator } from './loading/LoadingIndicator';
 
 // Card Components
-export { default as CoachCard } from './cards/CoachCard';
+export { default as CoachCard } from './coach/CoachCard/CoachCard';
 export { default as ChatCard } from './cards/ChatCard';
 
 // Section Components
@@ -25,6 +24,8 @@ export { default as MediaGallery } from './sections/MediaGallery';
 
 // Chat Components
 export { default as ChatBubble } from './chat/ChatBubble';
+export { default as ConversationList } from './chat/ConversationList/ConversationList';
+export type { Chat } from './chat/types';
 
 // Layout Components
 export { default as Header } from './layout/Header';
@@ -39,7 +40,7 @@ export { default as PublicRoute } from './auth/PublicRoute';
 export { default as MediaUploadTab } from './profile/MediaUploadTab';
 
 // Type exports
-export type { CoachData, CoachCardProps } from './cards/CoachCard';
+export type { CoachData, CoachCardProps } from './coach/CoachCard/CoachCard';
 export type { ChatCardData, ChatCardProps, ChatParticipant } from './cards/ChatCard';
 export type { HeroSectionProps, HeroButton } from './sections/HeroSection';
 export type { StatsGridProps, StatItem } from './sections/StatsGrid';

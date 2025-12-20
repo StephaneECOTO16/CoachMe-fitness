@@ -1,0 +1,21 @@
+.list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+}
+
+/* .listItem can be used for overrides if needed */
+
+/* Empty state wrapper to center it if needed */
+.emptyStateWrapper {
+    display: flex;
+    justify-content: center;
+    padding: var(--space-8) 0;
+}
+
+/* Loading wrapper */
+.loadingWrapper {
+    display: flex;
+    justify-content: center;
+    padding: var(--space-8);
+}

@@ -14,6 +14,7 @@ export interface DashboardSectionAction {
 export interface DashboardSectionProps {
   title: string;
   headerAction?: DashboardSectionAction;
+  action?: ReactNode; // Added to support custom action nodes
   children: ReactNode;
   className?: string;
   contentClassName?: string;
@@ -23,6 +24,7 @@ export interface DashboardSectionProps {
 const DashboardSection: React.FC<DashboardSectionProps> = ({
   title,
   headerAction,
+  action,
   children,
   className = '',
   contentClassName = '',
@@ -32,7 +34,9 @@ const DashboardSection: React.FC<DashboardSectionProps> = ({
     <section className={`${styles.section} ${className}`}>
       <div className={styles.header}>
         <h2 className={styles.title}>{title}</h2>
-        {headerAction && (
+        {action ? (
+          action
+        ) : headerAction && (
           <>
             {headerAction.href ? (
               <Link href={headerAction.href} className={styles.action}>

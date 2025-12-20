@@ -256,6 +256,7 @@
     opacity: 0;
     transform: translateX(20px);
   }
+
   to {
     opacity: 1;
     transform: translateX(0);
@@ -265,30 +266,39 @@
 .mobileNavLink:nth-child(1) {
   animation-delay: 0.05s;
 }
+
 .mobileNavLink:nth-child(2) {
   animation-delay: 0.1s;
 }
+
 .mobileNavLink:nth-child(3) {
   animation-delay: 0.15s;
 }
+
 .mobileNavLink:nth-child(4) {
   animation-delay: 0.2s;
 }
+
 .mobileNavLink:nth-child(5) {
   animation-delay: 0.25s;
 }
+
 .mobileNavLink:nth-child(6) {
   animation-delay: 0.3s;
 }
+
 .mobileNavLink:nth-child(7) {
   animation-delay: 0.35s;
 }
+
 .mobileNavLink:nth-child(8) {
   animation-delay: 0.4s;
 }
+
 .mobileNavLink:nth-child(9) {
   animation-delay: 0.45s;
 }
+
 .mobileNavLink:nth-child(10) {
   animation-delay: 0.5s;
 }
@@ -309,33 +319,11 @@
   justify-content: center;
 }
 
-.avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: var(--font-semibold);
-  font-size: var(--text-base);
-  transition: all var(--transition-base);
-  box-shadow: var(--shadow-md);
-  overflow: hidden;
-}
 
-.avatarImage {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: 50%;
-}
 
-.avatar:hover {
-  transform: scale(1.1);
-  box-shadow: var(--shadow-lg);
-}
+
+
+
 
 .dropdown {
   position: absolute;

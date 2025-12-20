@@ -7,47 +7,16 @@ import { useAuth } from "@/contexts/AuthContext";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import {
   HeroSection,
-  ChatCard,
   EmptyState,
   LoadingIndicator,
+  ConversationList,
+  Chat,
 } from "@/components";
 import { AnimatedName } from "@/components/ui/animated-name";
 import toast from "@/lib/toast";
 import styles from "./page.module.css";
 
-interface Chat {
-  id: number;
-  coachId: number;
-  clientId: number;
-  createdAt: string;
-  updatedAt: string;
-  coach: {
-    id: number;
-    discipline: {
-      id: number;
-      name: string;
-      imageUrl?: string;
-    };
-    user: {
-      id: number;
-      name: string | null;
-      email: string;
-      avatar: string | null;
-    };
-  };
-  client: {
-    id: number;
-    user: {
-      id: number;
-      name: string | null;
-      email: string;
-      avatar: string | null;
-    };
-  };
-  _count?: {
-    messages: number;
-  };
-}
+
 
 export default function MessagesPage() {
   const t = useTranslations("messages");
@@ -84,23 +53,7 @@ export default function MessagesPage() {
     fetchChats();
   }, [token, tErrors]);
 
-  const getOtherParticipant = (chat: Chat) => {
-    if (user?.role === "COACH") {
-      return {
-        name: chat.client.user.name || "Client",
-        email: chat.client.user.email,
-        avatar: chat.client.user.avatar || null,
-        type: "Client",
-      };
-    } else {
-      return {
-        name: chat.coach.user.name || "Coach",
-        email: chat.coach.user.email,
-        avatar: chat.coach.user.avatar || null,
-        type: chat.coach.discipline.name,
-      };
-    }
-  };
+
 
   return (
     <ProtectedRoute allowedRoles={["PROSPECT", "COACH"]}>
@@ -122,59 +75,25 @@ export default function MessagesPage() {
         />
 
         <div className={styles.content}>
-          {loading ? (
-            <div className={styles.loading}>
-              <LoadingIndicator label={t("loading")} unstyledLabel />
-            </div>
-          ) : chats.length > 0 ? (
-            <div className={styles.chatList}>
-              {chats.map((chat) => {
-                const participant = getOtherParticipant(chat);
-                const chatCardData = {
-                  id: String(chat.id),
-                  participant: {
-                    id:
-                      user?.role === "COACH"
-                        ? String(chat.client.id)
-                        : String(chat.coach.id),
-                    name: participant.name,
-                    avatar: participant.avatar || undefined,
-                    role: undefined,
-                    discipline: participant.type,
-                  },
-                  lastMessage: undefined,
-                  lastUpdate: chat.updatedAt,
-                  unreadCount: chat._count?.messages,
-                  isOnline: false,
-                };
-                return (
-                  <ChatCard
-                    key={chat.id}
-                    chat={chatCardData}
-                    locale={locale}
-                    className={styles.listItem}
-                  />
-                );
-              })}
-            </div>
-          ) : (
-            <EmptyState
-              icon="💬"
-              title={t("noConversations")}
-              message={
+          <ConversationList
+            chats={chats}
+            isLoading={loading}
+            userRole={user?.role}
+            locale={locale}
+            emptyState={{
+              title: t("noConversations"),
+              message:
                 user?.role === "COACH"
                   ? t("noConversationsCoach")
-                  : t("noConversationsClient")
-              }
-              action={
+                  : t("noConversationsClient"),
+              action:
                 user?.role === "PROSPECT" ? (
                   <Link href="/coaches" className={styles.emptyButton}>
                     {t("browseCoaches")}
                   </Link>
-                ) : undefined
-              }
-            />
-          )}
+                ) : undefined,
+            }}
+          />
         </div>
       </div>
     </ProtectedRoute>

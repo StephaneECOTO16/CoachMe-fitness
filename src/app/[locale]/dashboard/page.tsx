@@ -1,21 +1,25 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { Link } from "@/i18n/routing";
 import { useAuth } from "@/contexts/AuthContext";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import HeroSection from "@/components/sections/HeroSection";
 import DashboardSection from "@/components/sections/DashboardSection";
-import CoachCard from "@/components/cards/CoachCard";
-import ChatCard from "@/components/cards/ChatCard";
-import EmptyState from "@/components/ui/EmptyState";
-import Button from "@/components/ui/Button";
-import QuickActionsSection from "@/components/quick-actions/QuickActionsSection";
+import {
+  ConversationList,
+  Chat,
+  CoachCard,
+  ChatCard,
+  type CoachData,
+  Button,
+  EmptyState,
+  QuickActionsSection,
+  LoadingIndicator
+} from "@/components";
 import toast from "@/lib/toast";
 import { MessageSquare, Search, User } from "lucide-react";
-import type { CoachData } from "@/components/cards/CoachCard";
-import type { ChatCardData } from "@/components/cards/ChatCard";
 import styles from "./page.module.css";
 
 interface Coach {
@@ -28,12 +32,24 @@ interface Coach {
     imageUrl?: string;
   };
   portfolio: string | null;
+  rateAmount: number | string | null;
+  rateType: "HOUR" | "WEEK" | "MONTH";
+  address: string | null;
+  city: string | null;
+  country: string | null;
+  minRating: number | null;
+  experienceYears: number | null;
+  instagram: string | null;
+  facebook: string | null;
+  tiktok: string | null;
+  twitter: string | null;
+  youtube: string | null;
   status: string;
   user: {
     id: number;
     name: string | null;
     email: string;
-    avatar?: string | null;
+    avatar: string | null;
   };
   media: Array<{
     id: number;
@@ -42,29 +58,9 @@ interface Coach {
   }>;
 }
 
-interface Chat {
-  id: number;
-  coachId: number;
-  clientId: number;
-  createdAt: string;
-  updatedAt: string;
-  coach: {
-    id: number;
-    discipline: {
-      id: number;
-      name: string;
-    };
-    user: {
-      id: number;
-      name: string | null;
-      email: string;
-      avatar?: string | null;
-    };
-  };
-}
-
 export default function ClientDashboard() {
   const t = useTranslations("client.dashboard");
+  const locale = useLocale();
   const { user, token } = useAuth();
   const [coaches, setCoaches] = useState<Coach[]>([]);
   const [chats, setChats] = useState<Chat[]>([]);
@@ -76,10 +72,11 @@ export default function ClientDashboard() {
 
       try {
         // Fetch coaches
-        const coachesRes = await fetch("/api/coaches?limit=6");
+        const coachesRes = await fetch("/api/coaches?limit=4");
         const coachesData = await coachesRes.json();
         if (coachesData.success) {
-          setCoaches(coachesData.coaches);
+          // Enforce limit strictly on client side as well
+          setCoaches(coachesData.coaches.slice(0, 4));
         }
 
         // Fetch user's chats
@@ -104,6 +101,7 @@ export default function ClientDashboard() {
   }, [token]);
 
   // Transform Coach data to CoachData format
+  // Transform Coach data to CoachData format
   const transformCoachData = (coach: Coach): CoachData => ({
     _id: coach.id.toString(),
     firstName: coach.user.name?.split(" ")[0] || "Coach",
@@ -112,19 +110,20 @@ export default function ClientDashboard() {
     avatar: coach.user.avatar || undefined,
     discipline: coach.discipline.name,
     bio: coach.bio || undefined,
-  });
-
-  // Transform Chat data to ChatCardData format
-  const transformChatData = (chat: Chat): ChatCardData => ({
-    id: chat.id.toString(),
-    participant: {
-      id: chat.coach.user.id.toString(),
-      name: chat.coach.user.name || "Coach",
-      avatar: chat.coach.user.avatar || undefined,
-      role: "COACH",
-      discipline: chat.coach.discipline.name,
+    location: [coach.city, coach.country].filter(Boolean).join(", "),
+    experience: coach.experienceYears || undefined,
+    rateAmount: typeof coach.rateAmount === 'string' ? parseFloat(coach.rateAmount) : (coach.rateAmount || undefined), // Handle possible string from API
+    rateType: coach.rateType,
+    socialMedia: {
+      instagram: coach.instagram || undefined,
+      facebook: coach.facebook || undefined,
+      tiktok: coach.tiktok || undefined,
+      twitter: coach.twitter || undefined,
+      youtube: coach.youtube || undefined,
     },
-    lastUpdate: chat.updatedAt,
+    // Map media to portfolio/certifications if needed, purely visual here
+    portfolio: coach.media.filter(m => m.type === 'IMAGE').map(m => ({ type: 'image', url: m.url })),
+    certifications: coach.media.filter(m => m.type === 'CERTIFICATE').map(() => 'Certified'), // simplified
   });
 
   return (
@@ -148,30 +147,27 @@ export default function ClientDashboard() {
               href: "/messages",
             }}
           >
-            {loading ? (
-              <div className={styles.loading}>Loading...</div>
-            ) : chats.length > 0 ? (
-              <div className={styles.chatList}>
-                {chats.slice(0, 3).map((chat) => (
-                  <ChatCard
-                    key={chat.id}
-                    chat={transformChatData(chat)}
-                  />
-                ))}
-              </div>
-            ) : (
-              <EmptyState
-                icon="💬"
-                title={t("emptyConversations")}
-                actions={[
-                  {
-                    label: t("findCoach"),
-                    href: "/coaches",
-                    variant: "primary",
-                  },
-                ]}
-              />
-            )}
+            <ConversationList
+              chats={chats}
+              isLoading={loading}
+              loadingSize="sm"
+              userRole="PROSPECT" // or 'CLIENT' depending on what's expected, but PROSPECT is in allowedRoles
+              limit={3}
+              locale={locale}
+              className={styles.chatList}
+              emptyState={{
+                icon: "💬",
+                title: t("emptyConversations"),
+                message: t("emptyConversations"), // Providing a fallback message from title if needed, or check if 'emptyConversations' is suitable
+                action: (
+                  <Link href="/coaches">
+                    <Button variant="primary">
+                      {t("findCoach")}
+                    </Button>
+                  </Link>
+                )
+              }}
+            />
           </DashboardSection>
 
           {/* Discover Coaches Section */}
@@ -187,7 +183,9 @@ export default function ClientDashboard() {
             </p>
 
             {loading ? (
-              <div className={styles.loading}>Loading...</div>
+              <div className={styles.loading}>
+                <LoadingIndicator size="md" />
+              </div>
             ) : coaches.length > 0 ? (
               <>
                 <div className={styles.coachGrid}>
@@ -195,9 +193,8 @@ export default function ClientDashboard() {
                     <CoachCard
                       key={coach.id}
                       coach={transformCoachData(coach)}
-                      variant="grid"
-                      bioMaxLength={80}
-                      showSocialLinks={false}
+                      variant="list"
+                    // bioMaxLength={150} // Optional: default is usually fine
                     />
                   ))}
                 </div>

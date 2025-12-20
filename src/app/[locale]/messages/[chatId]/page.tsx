@@ -11,6 +11,7 @@ import Button from "@/components/ui/Button";
 import { ChatBubble, LoadingIndicator } from "@/components";
 import toast from "@/lib/toast";
 import Image from "next/image";
+import UserAvatar from "@/components/ui/UserAvatar/UserAvatar";
 import styles from "./page.module.css";
 
 interface Message {
@@ -241,18 +242,7 @@ export default function ConversationPage() {
             </Link>
             <div className={styles.participantInfo}>
               <div className={styles.participantAvatar}>
-                {participant?.avatar ? (
-                  <Image
-                    src={participant.avatar}
-                    alt={participant.name}
-                    width={48}
-                    height={48}
-                    className={styles.participantAvatarImage}
-                    unoptimized
-                  />
-                ) : (
-                  participant?.name?.[0]?.toUpperCase() || "C"
-                )}
+                <UserAvatar user={participant} size="lg" />
               </div>
               <div>
                 <h1 className={styles.participantName}>{participant?.name}</h1>

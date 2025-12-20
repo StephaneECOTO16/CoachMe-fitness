@@ -3,6 +3,7 @@
 import React from 'react';
 import Image from 'next/image';
 import styles from './ChatBubble.module.css';
+import UserAvatar from '../ui/UserAvatar/UserAvatar';
 
 export interface ChatMessage {
   id?: string;
@@ -32,14 +33,7 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({
   showStatus = true,
   className = '',
 }) => {
-  const getAvatarUrl = () => {
-    if (message.sender.avatar) {
-      return message.sender.avatar.startsWith('http')
-        ? message.sender.avatar
-        : `${process.env.NEXT_PUBLIC_API_URL}${message.sender.avatar}`;
-    }
-    return `https://ui-avatars.com/api/?name=${message.sender.name}&background=random`;
-  };
+
 
   const formatTime = (timestamp: string) => {
     const date = new Date(timestamp);
@@ -96,15 +90,7 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({
   return (
     <div className={`${styles.messageWrapper} ${isOwn ? styles.own : styles.other} ${className}`}>
       {!isOwn && showAvatar && (
-        <div className={styles.avatar}>
-          <Image
-            src={getAvatarUrl()}
-            alt={message.sender.name}
-            width={32}
-            height={32}
-            className={styles.avatarImage}
-          />
-        </div>
+        <UserAvatar user={message.sender} size="sm" className={styles.avatarWrapper} />
       )}
 
       <div className={styles.messageContent}>
@@ -123,15 +109,7 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({
       </div>
 
       {isOwn && showAvatar && (
-        <div className={styles.avatar}>
-          <Image
-            src={getAvatarUrl()}
-            alt={message.sender.name}
-            width={32}
-            height={32}
-            className={styles.avatarImage}
-          />
-        </div>
+        <UserAvatar user={message.sender} size="sm" className={styles.avatarWrapper} />
       )}
     </div>
   );
