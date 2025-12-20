@@ -5,11 +5,12 @@ import { Loader2 } from "lucide-react";
 import styles from "./LoadingIndicator.module.css";
 
 export type LoadingIndicatorVariant = "ring" | "icon";
+export type LoadingIndicatorSize = "sm" | "md" | "lg" | "xl" | number;
 
 export interface LoadingIndicatorProps {
   label?: React.ReactNode;
   className?: string;
-  size?: number;
+  size?: LoadingIndicatorSize;
   thickness?: number;
   variant?: LoadingIndicatorVariant;
   unstyledLabel?: boolean;
@@ -18,16 +19,31 @@ export interface LoadingIndicatorProps {
 const LoadingIndicator: React.FC<LoadingIndicatorProps> = ({
   label,
   className = "",
-  size,
+  size = "lg",
   thickness,
   variant = "ring",
   unstyledLabel = false,
 }) => {
+  // Helper to determine dimensions based on size prop
+  const getDimensions = (s: LoadingIndicatorSize) => {
+    if (typeof s === "number") {
+      return { size: s, thickness: thickness || 6 }; // Default thickness for custom numbers
+    }
+
+    switch (s) {
+      case "sm": return { size: 24, thickness: thickness || 2 };
+      case "md": return { size: 40, thickness: thickness || 4 };
+      case "xl": return { size: 80, thickness: thickness || 8 };
+      case "lg":
+      default: return { size: 64, thickness: thickness || 6 };
+    }
+  };
+
+  const dims = getDimensions(size);
+
   const styleVars: React.CSSProperties = {
-    ...(size ? { ["--loading-size" as string]: `${size}px` } : {}),
-    ...(thickness
-      ? { ["--loading-thickness" as string]: `${thickness}px` }
-      : {}),
+    ["--loading-size" as string]: `${dims.size}px`,
+    ["--loading-thickness" as string]: `${dims.thickness}px`,
   };
 
   return (

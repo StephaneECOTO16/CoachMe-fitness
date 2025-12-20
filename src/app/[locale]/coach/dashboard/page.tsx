@@ -11,31 +11,16 @@ import {
   HeroSection,
   StatsGrid,
   DashboardSection,
-  ChatCard,
+  ConversationList,
   EmptyState,
   QuickActionsSection,
+  Chat,
 } from "@/components";
 import toast from "@/lib/toast";
 import { motion, AnimatePresence } from "framer-motion";
 import { AlertCircle, MessageSquare, Pencil, Search, Sparkles } from "lucide-react";
 import styles from "./page.module.css";
-
-interface Chat {
-  id: number;
-  coachId: number;
-  clientId: number;
-  createdAt: string;
-  updatedAt: string;
-  client: {
-    id: number;
-    user: {
-      id: number;
-      name: string | null;
-      email: string;
-      avatar: string | null;
-    };
-  };
-}
+import UserAvatar from "@/components/ui/UserAvatar/UserAvatar";
 
 interface CoachProfile {
   id: number;
@@ -301,23 +286,15 @@ export default function CoachDashboard() {
                 </Link>
               }
             >
-                <div className={styles.profileCard}>
-                  <div className={styles.profileHeader}>
-                    <div className={styles.profileAvatar}>
-                    {user?.avatar ? (
-                      <img
-                        src={user.avatar}
-                        alt={user?.name || "Coach"}
-                        className={styles.profileAvatarImage}
-                      />
-                    ) : (
-                      user?.name?.[0]?.toUpperCase() || "C"
-                    )}
-                    </div>
-                    <div className={styles.profileInfo}>
-                      <h3 className={styles.profileName}>
-                        {user?.name || "Coach"}
-                      </h3>
+              <div className={styles.profileCard}>
+                <div className={styles.profileHeader}>
+                  <div className={styles.profileAvatar}>
+                    <UserAvatar user={user} size="xl" />
+                  </div>
+                  <div className={styles.profileInfo}>
+                    <h3 className={styles.profileName}>
+                      {user?.name || "Coach"}
+                    </h3>
                     <p className={styles.profileDiscipline}>
                       {profile.discipline.name}
                     </p>
@@ -376,51 +353,20 @@ export default function CoachDashboard() {
               ) : undefined
             }
           >
-            {loading ? (
-              <div className={styles.loading}>{t("loading")}</div>
-            ) : chats.length > 0 ? (
-              <div className={styles.chatList}>
-                {chats.slice(0, 5).map((chatItem) => (
-                  <ChatCard
-                    key={chatItem.id}
-                    chat={{
-                      id: chatItem.id.toString(),
-                      participant: {
-                        id: chatItem.client.id.toString(),
-                        name: chatItem.client.user.name || "Client",
-                        avatar: chatItem.client.user.avatar, // optional
-                        role: "CLIENT",
-                      },
-                      lastMessage: chatItem.lastMessage || "",
-                      lastUpdate: chatItem.updatedAt,
-                      unreadCount: chatItem.unreadCount,
-                      isOnline: chatItem.isOnline,
-                    }}
-                  />
-                ))}
-
-                {/* {chats.slice(0, 5).map((chat) => (
-                  <ChatCard
-                    key={chat.id}
-                    id={chat.id}
-                    name={chat.client.user.name || "Client"}
-                    email={chat.client.user.email}
-                    lastMessageTime={new Date(chat.updatedAt)}
-                    href={`/messages/${chat.id}`}
-                  />
-                ))} */}
-              </div>
-            ) : (
-              <EmptyState
-                icon="💬"
-                title={t("noConversations")}
-                message={
+            <ConversationList
+              chats={chats as Chat[]}
+              isLoading={loading}
+              loadingSize="sm"
+              userRole="COACH"
+              limit={5}
+              emptyState={{
+                title: t("noConversations"),
+                message:
                   profile?.status === "APPROVED"
                     ? t("noConversationsApproved")
-                    : t("noConversationsPending")
-                }
-              />
-            )}
+                    : t("noConversationsPending"),
+              }}
+            />
           </DashboardSection>
 
           {/* Quick Actions */}

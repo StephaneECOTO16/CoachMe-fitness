@@ -8,6 +8,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";
 import LanguageToggle from "../ui/LanguageToggle";
 import Button from "../ui/Button";
+
+import UserAvatar from "../ui/UserAvatar/UserAvatar";
 import styles from "./Header.module.css";
 
 export default function Header() {
@@ -42,8 +44,8 @@ export default function Header() {
             user?.role === "ADMIN"
               ? "/admin/dashboard"
               : user?.role === "COACH"
-              ? "/coach/dashboard"
-              : "/dashboard",
+                ? "/coach/dashboard"
+                : "/dashboard",
           label: t("dashboard"),
         },
         { href: "/messages", label: t("messages") },
@@ -102,22 +104,7 @@ export default function Header() {
                 {/* User Avatar with Dropdown */}
                 <div className={styles.userMenu}>
                   <button className={styles.avatarButton} type="button">
-                    <div className={styles.avatar}>
-                      {user?.avatar ? (
-                        <Image
-                          src={user.avatar}
-                          alt={user?.name || "User"}
-                          width={40}
-                          height={40}
-                          className={styles.avatarImage}
-                          unoptimized
-                        />
-                      ) : user?.name ? (
-                        user.name.charAt(0).toUpperCase()
-                      ) : (
-                        "U"
-                      )}
-                    </div>
+                    <UserAvatar user={user} />
                   </button>
                   {/* Dropdown menu */}
                   <div className={styles.dropdown}>
