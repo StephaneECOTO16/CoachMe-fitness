@@ -15,7 +15,8 @@
     "search": "Search",
     "filter": "Filter",
     "viewMore": "View More",
-    "learnMore": "Learn More"
+    "learnMore": "Learn More",
+    "actionIrreversible": "This action is irreversible."
   },
   "nav": {
     "home": "Home",
@@ -451,7 +452,8 @@
       "actions": {
         "approve": "Approve",
         "reject": "Reject",
-        "viewDetails": "View Details"
+        "viewDetails": "View Details",
+        "save": "Save"
       },
       "rejectModal": {
         "title": "Reject Coach Application",
@@ -470,6 +472,17 @@
         "provideReason": "Please provide a reason for rejection",
         "reasonTooShort": "Reason must be at least 5 characters",
         "errorOccurred": "An error occurred"
+      },
+      "deleteDiscipline": {
+        "title": "Delete Discipline",
+        "confirm": "Are you sure you want to delete the discipline \"{name}\"? This action cannot be undone.",
+        "success": "Discipline deleted successfully",
+        "error": "Failed to delete discipline. Ensure no coaches are assigned to it."
+      },
+      "updateDiscipline": {
+        "title": "Update Discipline",
+        "success": "Discipline updated successfully",
+        "error": "Failed to update discipline"
       }
     },
     "coaches": {
@@ -502,6 +515,18 @@
       "confirmPending": "Are you sure you want to set this application back to pending?",
       "updateSuccess": "Coach application {status} successfully!",
       "updateError": "Failed to update coach status. Please try again."
+    },
+    "disciplines": {
+      "title": "Manage Disciplines",
+      "searchPlaceholder": "Search disciplines...",
+      "addDiscipline": "Add Discipline",
+      "noDisciplines": "No disciplines found matching your search.",
+      "coaches": "Coaches",
+      "sessions": "Sessions",
+      "actions": {
+        "edit": "Edit discipline",
+        "delete": "Delete discipline"
+      }
     }
   },
   "media": {

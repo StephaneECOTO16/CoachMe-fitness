@@ -15,7 +15,8 @@
     "search": "Rechercher",
     "filter": "Filtrer",
     "viewMore": "Voir Plus",
-    "learnMore": "En Savoir Plus"
+    "learnMore": "En Savoir Plus",
+    "actionIrreversible": "Cette action est irréversible."
   },
   "nav": {
     "home": "Accueil",
@@ -451,7 +452,8 @@
       "actions": {
         "approve": "Approuver",
         "reject": "Rejeter",
-        "viewDetails": "Voir Détails"
+        "viewDetails": "Voir Détails",
+        "save": "Enregistrer"
       },
       "rejectModal": {
         "title": "Rejeter la Candidature du Coach",
@@ -470,6 +472,17 @@
         "provideReason": "Veuillez fournir une raison pour le rejet",
         "reasonTooShort": "La raison doit comporter au moins 5 caractères",
         "errorOccurred": "Une erreur s'est produite"
+      },
+      "deleteDiscipline": {
+        "title": "Supprimer la Discipline",
+        "confirm": "Êtes-vous sûr de vouloir supprimer la discipline \"{name}\" ? Cette action est irréversible.",
+        "success": "Discipline supprimée avec succès",
+        "error": "Échec de la suppression. Assurez-vous qu'aucun coach n'y est associé."
+      },
+      "updateDiscipline": {
+        "title": "Mettre à jour la Discipline",
+        "success": "Discipline mise à jour avec succès",
+        "error": "Échec de la mise à jour de la discipline"
       }
     },
     "coaches": {
@@ -502,6 +515,18 @@
       "confirmPending": "Êtes-vous sûr de vouloir remettre cette candidature en attente?",
       "updateSuccess": "Candidature de coach {status} avec succès!",
       "updateError": "Échec de la mise à jour du statut du coach. Veuillez réessayer."
+    },
+    "disciplines": {
+      "title": "Gérer les Disciplines",
+      "searchPlaceholder": "Rechercher des disciplines...",
+      "addDiscipline": "Ajouter une Discipline",
+      "noDisciplines": "Aucune discipline trouvée.",
+      "coaches": "Coachs",
+      "sessions": "Sessions",
+      "actions": {
+        "edit": "Modifier la discipline",
+        "delete": "Supprimer la discipline"
+      }
     }
   },
   "coachDashboard": {
