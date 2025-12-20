@@ -771,5 +771,56 @@
     "perWeek": "/ wk",
     "perMonth": "/ mo",
     "yearsExperienceSuffix": "Years Exp."
+  },
+  "settings": {
+    "title": "Settings",
+    "subtitle": "Manage your account credentials and security",
+    "sections": {
+      "profile": {
+        "title": "Profile Information",
+        "description": "Update your public profile and avatar",
+        "link": "Edit Profile"
+      },
+      "credentials": {
+        "title": "Login Credentials",
+        "description": "Manage your email and password"
+      },
+      "danger": {
+        "title": "Danger Zone",
+        "description": "Permanently delete your account and all data"
+      }
+    },
+    "credentials": {
+      "email": {
+        "label": "Email Address",
+        "currentLabel": "Current Email",
+        "placeholder": "Enter your email",
+        "updateButton": "Update Email",
+        "success": "Email updated successfully"
+      },
+      "password": {
+        "labelCurrent": "Current Password",
+        "labelNew": "New Password",
+        "labelConfirm": "Confirm New Password",
+        "placeholderCurrent": "••••••••",
+        "placeholderNew": "••••••••",
+        "updateButton": "Change Password",
+        "success": "Password changed successfully"
+      }
+    },
+    "deleteAccount": {
+      "title": "Delete Account",
+      "description": "Once you delete your account, there is no going back. Please be certain.",
+      "button": "Delete My Account",
+      "modalTitle": "Are you absolutely sure?",
+      "modalDescription": "This action cannot be undone. This will permanently delete your account and remove your data from our servers.",
+      "confirmPlaceholder": "Enter your password to confirm",
+      "success": "Account deleted successfully"
+    },
+    "errors": {
+      "incorrectPassword": "The password you entered is incorrect",
+      "emailInUse": "This email is already in use",
+      "deleteFailed": "Failed to delete account. Please try again."
+    }
   }
 }

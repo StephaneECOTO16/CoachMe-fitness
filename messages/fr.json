@@ -721,5 +721,56 @@
     "perWeek": "/ sem.",
     "perMonth": "/ mois",
     "yearsExperienceSuffix": "ans d'exp."
+  },
+  "settings": {
+    "title": "Paramètres",
+    "subtitle": "Gérez vos identifiants de compte et votre sécurité",
+    "sections": {
+      "profile": {
+        "title": "Informations du Profil",
+        "description": "Mettez à jour votre profil public et votre avatar",
+        "link": "Modifier le Profil"
+      },
+      "credentials": {
+        "title": "Identifiants de Connexion",
+        "description": "Gérez votre e-mail et votre mot de passe"
+      },
+      "danger": {
+        "title": "Zone de Danger",
+        "description": "Supprimez définitivement votre compte et toutes vos données"
+      }
+    },
+    "credentials": {
+      "email": {
+        "label": "Adresse E-mail",
+        "currentLabel": "E-mail Actuel",
+        "placeholder": "Entrez votre e-mail",
+        "updateButton": "Mettre à jour l'e-mail",
+        "success": "E-mail mis à jour avec succès"
+      },
+      "password": {
+        "labelCurrent": "Mot de Passe Actuel",
+        "labelNew": "Nouveau Mot de Passe",
+        "labelConfirm": "Confirmer le Nouveau Mot de Passe",
+        "placeholderCurrent": "••••••••",
+        "placeholderNew": "••••••••",
+        "updateButton": "Changer le Mot de Passe",
+        "success": "Mot de passe changé avec succès"
+      }
+    },
+    "deleteAccount": {
+      "title": "Supprimer le Compte",
+      "description": "Une fois votre compte supprimé, vous ne pourrez plus revenir en arrière. Soyez-en certain.",
+      "button": "Supprimer Mon Compte",
+      "modalTitle": "Êtes-vous absolument sûr ?",
+      "modalDescription": "Cette action est irréversible. Cela supprimera définitivement votre compte et effacera vos données de nos serveurs.",
+      "confirmPlaceholder": "Entrez votre mot de passe pour confirmer",
+      "success": "Compte supprimé avec succès"
+    },
+    "errors": {
+      "incorrectPassword": "Le mot de passe que vous avez entré est incorrect",
+      "emailInUse": "Cet e-mail est déjà utilisé",
+      "deleteFailed": "Échec de la suppression du compte. Veuillez réessayer."
+    }
   }
 }
