@@ -228,7 +228,7 @@
   bottom: 1rem;
   right: 1rem;
   width: 320px;
-  max-height: 400px;
+  max-height: 300px;
   overflow-y: auto;
   background: var(--white);
   border: 1px solid var(--gray-200);
@@ -242,7 +242,7 @@
   font-size: 0.875rem;
   font-weight: 600;
   color: var(--text-primary);
-  margin: 0 0 1rem 0;
+  /* margin: 0 0 1rem 0; */
 }
 
 .uploadingItem {
@@ -273,7 +273,7 @@
   font-size: 0.75rem;
   font-weight: 500;
   color: var(--text-primary);
-  margin: 0 0 0.5rem 0;
+  /* margin: 0 0 0.5rem 0; */
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -285,7 +285,7 @@
   background: var(--gray-200);
   border-radius: 3px;
   overflow: hidden;
-  margin-bottom: 0.25rem;
+  /* margin-bottom: 0.25rem; */
 }
 
 .progressFill {
