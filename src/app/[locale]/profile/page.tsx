@@ -7,8 +7,9 @@ import { z } from 'zod';
 import { useTranslations } from 'next-intl';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { toast } from 'sonner';
-import { User, ImageIcon, Settings } from 'lucide-react';
+import { User, ImageIcon, Settings, Upload, X } from 'lucide-react';
 import imageCompression from 'browser-image-compression';
+import { useDropzone } from 'react-dropzone';
 import { useAuth } from '@/contexts/AuthContext';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import Button from '@/components/ui/Button';
@@ -325,6 +326,19 @@ export default function ProfilePage() {
       setIsUploadingAvatar(false);
     }
   };
+
+  // Dropzone for avatar
+  const avatarDropzone = useDropzone({
+    accept: { 'image/*': ['.jpeg', '.jpg', '.png', '.webp'] },
+    maxSize: 5 * 1024 * 1024, // 5MB
+    maxFiles: 1,
+    onDrop: async (acceptedFiles) => {
+      if (acceptedFiles.length > 0) {
+        await uploadAvatarFile(acceptedFiles[0]);
+      }
+    },
+    disabled: isUploadingAvatar,
+  });
 
   const onSubmitUser = async (data: any) => {
     setIsEditingProfile(true);
@@ -1013,52 +1027,69 @@ export default function ProfilePage() {
               <form onSubmit={handleSubmitUser(onSubmitUser)} className={styles.form}>
                 <h3 className={styles.formTitle}>{t('labels.basicInfo')}</h3>
 
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/jpeg,image/png,image/webp"
-                  onChange={handleAvatarInputChange}
-                  className={styles.hiddenFileInput}
-                />
+                {/* Avatar Upload Section */}
+                <div className={styles.avatarUploadSection}>
+                  <label className={styles.label}>{t('labels.avatar')}</label>
+                  <p className={styles.avatarHint}>
+                    {t('placeholders.avatarHint', { defaultValue: 'Upload a profile picture (max 5MB)' })}
+                  </p>
 
-                <div className={styles.avatarRow}>
-                  <div className={styles.avatarPreview}>
-                    {profileData.user.avatar ? (
+                  {profileData.user.avatar ? (
+                    <div className={styles.avatarPreviewContainer}>
                       <img
                         src={profileData.user.avatar}
-                        alt={profileData.user.name || 'User'}
-                        className={styles.avatarPreviewImage}
+                        alt={profileData.user.name || 'Avatar'}
+                        className={styles.avatarPreviewLarge}
                       />
-                    ) : (
-                      <div className={styles.avatarPreviewFallback}>
-                        {profileData.user.name?.[0]?.toUpperCase() || 'U'}
-                      </div>
-                    )}
-                  </div>
+                      <button
+                        type="button"
+                        onClick={handleRemoveAvatar}
+                        disabled={isUploadingAvatar}
+                        className={styles.avatarDeleteButton}
+                        aria-label="Remove avatar"
+                      >
+                        <X size={20} />
+                      </button>
+                    </div>
+                  ) : (
+                    <div
+                      {...avatarDropzone.getRootProps()}
+                      className={`${styles.avatarDropzone} ${avatarDropzone.isDragActive ? styles.avatarDropzoneActive : ''
+                        } ${isUploadingAvatar ? styles.avatarDropzoneDisabled : ''}`}
+                    >
+                      <input {...avatarDropzone.getInputProps()} />
+                      {isUploadingAvatar ? (
+                        <LoadingIndicator size="sm" label={t('buttons.uploading')} />
+                      ) : (
+                        <>
+                          <Upload size={32} />
+                          <p>
+                            {avatarDropzone.isDragActive
+                              ? 'Drop here...'
+                              : t('placeholders.avatarDropzone', {
+                                defaultValue: 'Drag & drop or click to upload',
+                              })}
+                          </p>
+                          <span className={styles.avatarDropzoneHint}>
+                            {t('placeholders.avatarMaxSize', { defaultValue: 'Max 5MB • JPEG, PNG, WebP' })}
+                          </span>
+                        </>
+                      )}
+                    </div>
+                  )}
 
-                  <div className={styles.avatarActions}>
+                  {profileData.user.avatar && (
                     <Button
                       type="button"
                       variant="outline"
                       size="sm"
                       disabled={isUploadingAvatar}
-                      onClick={() => fileInputRef.current?.click()}
+                      onClick={() => avatarDropzone.open()}
+                      className={styles.changeAvatarButton}
                     >
                       {isUploadingAvatar ? t('buttons.uploading') : t('buttons.changeAvatar')}
                     </Button>
-
-                    {profileData.user.avatar && (
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        disabled={isUploadingAvatar}
-                        onClick={handleRemoveAvatar}
-                      >
-                        {t('buttons.remove')}
-                      </Button>
-                    )}
-                  </div>
+                  )}
                 </div>
 
                 <div className={styles.formGroup}>

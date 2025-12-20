@@ -82,14 +82,14 @@ const CoachCard: React.FC<CoachCardProps> = ({
 
         // For now, keep generic or attempt XAF if consistent
         // Since this is a shared card, let's try to be consistent with what was seen in the page.
-        return `${new Intl.NumberFormat("fr-FR").format(amount)} XAF`;
+        return `${new Intl.NumberFormat(locale === 'fr' ? 'fr-FR' : 'en-US').format(amount)} XAF`;
     };
 
     const getRateLabel = (rateType?: "HOUR" | "WEEK" | "MONTH") => {
-        if (!rateType) return "/ hr"; // Default
-        if (rateType === "WEEK") return "/ week";
-        if (rateType === "MONTH") return "/ month";
-        return "/ hour";
+        if (!rateType) return t('perHour');
+        if (rateType === "WEEK") return t('perWeek');
+        if (rateType === "MONTH") return t('perMonth');
+        return t('perHour');
     };
 
     const getSocialIcon = (platform: string) => {
@@ -136,12 +136,12 @@ const CoachCard: React.FC<CoachCardProps> = ({
             <div className={styles.badges}>
                 {coach.certifications && coach.certifications.length > 0 && (
                     <span className={`${styles.badge} ${styles.badgeCertified}`}>
-                        Certified
+                        {t('certified')}
                     </span>
                 )}
                 {coach.portfolio && coach.portfolio.length > 0 && (
                     <span className={`${styles.badge} ${styles.badgePortfolio}`}>
-                        Has Portfolio
+                        {t('hasPortfolio')}
                     </span>
                 )}
             </div>
@@ -214,7 +214,7 @@ const CoachCard: React.FC<CoachCardProps> = ({
                                 <svg className={styles.metaIcon} viewBox="0 0 24 24" fill="none">
                                     <path d="M20 6h-4V4c0-1.11-.89-2-2-2h-4c-1.11 0-2 .89-2 2v2H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-6 0h-4V4h4v2z" fill="currentColor" />
                                 </svg>
-                                <span>{coach.experience} Years Exp.</span>
+                                <span>{coach.experience} {t('yearsExperienceSuffix')}</span>
                             </div>
                         )}
                         {renderBadges()}
@@ -229,7 +229,7 @@ const CoachCard: React.FC<CoachCardProps> = ({
                             as={Link}
                             href={`/${locale}/coaches/${coach._id}`}
                         >
-                            View Profile
+                            {t('viewProfile')}
                         </Button>
                     </div>
                 </div>
@@ -280,7 +280,7 @@ const CoachCard: React.FC<CoachCardProps> = ({
                     href={`/${locale}/coaches/${coach._id}`}
                     fullWidth
                 >
-                    View Profile
+                    {t('viewProfile')}
                 </Button>
             </div>
         );

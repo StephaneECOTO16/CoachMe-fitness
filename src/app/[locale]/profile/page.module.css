@@ -275,6 +275,124 @@
   display: none;
 }
 
+/* Avatar Upload Section - New Dropzone Style */
+.avatarUploadSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.avatarHint {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.avatarDropzone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  padding: var(--space-8);
+  border: 2px dashed var(--gray-300);
+  border-radius: var(--radius-lg);
+  background: var(--gray-50);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: center;
+  min-height: 200px;
+}
+
+.avatarDropzone:hover {
+  border-color: var(--primary);
+  background: var(--gray-100);
+}
+
+.avatarDropzone svg {
+  color: var(--gray-500);
+  transition: color 0.3s ease;
+}
+
+.avatarDropzone:hover svg {
+  color: var(--primary);
+}
+
+.avatarDropzone p {
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.avatarDropzoneActive {
+  border-color: var(--primary);
+  background: var(--gray-100);
+  transform: scale(1.02);
+}
+
+.avatarDropzoneActive svg {
+  color: var(--primary);
+}
+
+.avatarDropzoneDisabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.avatarDropzoneHint {
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+}
+
+.avatarPreviewContainer {
+  position: relative;
+  width: 200px;
+  height: 200px;
+  margin: 0 auto;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+}
+
+.avatarPreviewLarge {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatarDeleteButton {
+  position: absolute;
+  top: var(--space-2);
+  right: var(--space-2);
+  padding: var(--space-2);
+  background: rgba(239, 68, 68, 0.9);
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.avatarDeleteButton:hover {
+  background: var(--error);
+  transform: scale(1.1);
+}
+
+.avatarDeleteButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.changeAvatarButton {
+  margin-top: var(--space-3);
+  align-self: center;
+}
+
+/* Old avatar styles - keeping for hero section */
 .avatarRow {
   display: flex;
   align-items: center;

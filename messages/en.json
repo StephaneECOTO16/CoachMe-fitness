@@ -334,7 +334,10 @@
       "name": "Your name",
       "selectDiscipline": "Select discipline",
       "selectAgeRange": "Select age range",
-      "loadingDisciplines": "Loading disciplines..."
+      "loadingDisciplines": "Loading disciplines...",
+      "avatarHint": "Upload a profile picture (max 5MB)",
+      "avatarDropzone": "Drag & drop or click to upload",
+      "avatarMaxSize": "Max 5MB • JPEG, PNG, WebP"
     },
     "buttons": {
       "saveCoachProfile": "Save Coach Profile",
@@ -763,6 +766,10 @@
     "appliedOn": "Applied On",
     "portfolio": "Portfolio",
     "items": "items",
-    "certifications": "Certifications"
+    "certifications": "Certifications",
+    "perHour": "/ hr",
+    "perWeek": "/ wk",
+    "perMonth": "/ mo",
+    "yearsExperienceSuffix": "Years Exp."
   }
 }

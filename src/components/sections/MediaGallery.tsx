@@ -14,7 +14,6 @@ export interface MediaItem {
 
 export interface MediaGalleryProps {
   media: MediaItem[];
-  columns?: 2 | 3 | 4;
   onMediaClick?: (media: MediaItem) => void;
   showCaptions?: boolean;
   className?: string;
@@ -22,7 +21,6 @@ export interface MediaGalleryProps {
 
 const MediaGallery: React.FC<MediaGalleryProps> = ({
   media,
-  columns = 3,
   onMediaClick,
   showCaptions = true,
   className = '',
@@ -83,7 +81,7 @@ const MediaGallery: React.FC<MediaGalleryProps> = ({
                 src={getMediaUrl(item.thumbnail)}
                 alt={item.caption || 'Video thumbnail'}
                 width={400}
-                height={300}
+                height={500}
                 className={styles.media}
                 unoptimized
               />
@@ -117,7 +115,7 @@ const MediaGallery: React.FC<MediaGalleryProps> = ({
             src={getMediaUrl(item.url)}
             alt={item.caption || 'Gallery image'}
             width={400}
-            height={300}
+            height={500}
             className={styles.media}
             unoptimized
           />
@@ -131,7 +129,7 @@ const MediaGallery: React.FC<MediaGalleryProps> = ({
 
   return (
     <>
-      <div className={`${styles.gallery} ${styles[`columns${columns}`]} ${className}`}>
+      <div className={`${styles.gallery} ${className}`}>
         {media.map((item, index) => renderMediaItem(item, index))}
       </div>
 
@@ -141,13 +139,13 @@ const MediaGallery: React.FC<MediaGalleryProps> = ({
             <button className={styles.lightboxClose} onClick={closeLightbox} aria-label="Close">
               ×
             </button>
-            
+
             {selectedIndex !== null && selectedIndex > 0 && (
               <button className={`${styles.lightboxNav} ${styles.lightboxPrev}`} onClick={goToPrevious} aria-label="Previous">
                 ‹
               </button>
             )}
-            
+
             {selectedIndex !== null && selectedIndex < media.length - 1 && (
               <button className={`${styles.lightboxNav} ${styles.lightboxNext}`} onClick={goToNext} aria-label="Next">
                 ›
@@ -173,7 +171,7 @@ const MediaGallery: React.FC<MediaGalleryProps> = ({
                 unoptimized
               />
             )}
-            
+
             {selectedMedia.caption && (
               <p className={styles.lightboxCaption}>{selectedMedia.caption}</p>
             )}

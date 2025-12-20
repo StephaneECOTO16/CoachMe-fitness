@@ -17,12 +17,12 @@
   gap: 0.5rem;
   font-size: 1.125rem;
   font-weight: 600;
-  color: var(--foreground);
+  color: var(--text-primary);
 }
 
 .sectionDescription {
   font-size: 0.875rem;
-  color: var(--muted-foreground);
+  color: var(--text-secondary);
   margin-bottom: 0.5rem;
 }
 
@@ -33,9 +33,9 @@
   justify-content: center;
   gap: 0.5rem;
   padding: 2rem;
-  border: 2px dashed var(--border);
-  border-radius: 0.5rem;
-  background: var(--muted);
+  border: 2px dashed var(--gray-300);
+  border-radius: var(--radius-lg);
+  background: var(--gray-50);
   cursor: pointer;
   transition: all 0.3s ease;
   text-align: center;
@@ -43,11 +43,11 @@
 
 .dropzone:hover {
   border-color: var(--primary);
-  background: var(--accent);
+  background: var(--gray-100);
 }
 
 .dropzone svg {
-  color: var(--muted-foreground);
+  color: var(--gray-500);
   transition: color 0.3s ease;
 }
 
@@ -58,13 +58,13 @@
 .dropzone p {
   font-size: 0.875rem;
   font-weight: 500;
-  color: var(--foreground);
+  color: var(--text-primary);
   margin: 0;
 }
 
 .dropzoneActive {
   border-color: var(--primary);
-  background: var(--accent);
+  background: var(--gray-100);
   transform: scale(1.02);
 }
 
@@ -74,7 +74,7 @@
 
 .dropzoneHint {
   font-size: 0.75rem;
-  color: var(--muted-foreground);
+  color: var(--text-secondary);
 }
 
 /* File Lists */
@@ -90,15 +90,15 @@
   align-items: center;
   gap: 1rem;
   padding: 1rem;
-  border: 1px solid var(--border);
-  border-radius: 0.5rem;
-  background: var(--card);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-lg);
+  background: var(--white);
   transition: all 0.2s ease;
 }
 
 .listItem:hover {
   border-color: var(--primary);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-md);
 }
 
 .gridList {
@@ -111,9 +111,9 @@
 .gridItem {
   display: flex;
   flex-direction: column;
-  border: 1px solid var(--border);
-  border-radius: 0.5rem;
-  background: var(--card);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-lg);
+  background: var(--white);
   overflow: hidden;
   transition: all 0.2s ease;
   position: relative;
@@ -121,7 +121,7 @@
 
 .gridItem:hover {
   border-color: var(--primary);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--shadow-lg);
 }
 
 .previewImage {
@@ -129,10 +129,24 @@
   height: 150px;
   position: relative;
   overflow: hidden;
-  background: var(--muted);
+  background: var(--gray-100);
 }
 
 .previewImage img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.previewVideo {
+  width: 100%;
+  height: 150px;
+  position: relative;
+  overflow: hidden;
+  background: var(--gray-100);
+}
+
+.previewVideo video {
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -147,7 +161,7 @@
 .fileName {
   font-size: 0.875rem;
   font-weight: 500;
-  color: var(--foreground);
+  color: var(--text-primary);
   margin: 0 0 0.25rem 0;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -156,7 +170,7 @@
 
 .fileSize {
   font-size: 0.75rem;
-  color: var(--muted-foreground);
+  color: var(--text-secondary);
   margin: 0;
 }
 
@@ -164,9 +178,9 @@
   padding: 0.5rem;
   border: none;
   background: transparent;
-  color: var(--muted-foreground);
+  color: var(--gray-500);
   cursor: pointer;
-  border-radius: 0.25rem;
+  border-radius: var(--radius-md);
   transition: all 0.2s ease;
   position: absolute;
   top: 0.5rem;
@@ -182,13 +196,13 @@
 }
 
 .deleteButton:hover {
-  background: var(--destructive);
-  color: var(--destructive-foreground);
+  background: var(--error);
+  color: var(--white);
 }
 
 .listItem .deleteButton:hover {
-  background: var(--destructive);
-  color: var(--destructive-foreground);
+  background: var(--error);
+  color: var(--white);
 }
 
 .emptyState {
@@ -196,15 +210,15 @@
   align-items: center;
   justify-content: center;
   padding: 2rem;
-  border: 1px dashed var(--border);
-  border-radius: 0.5rem;
-  background: var(--muted);
+  border: 1px dashed var(--gray-300);
+  border-radius: var(--radius-lg);
+  background: var(--gray-50);
   margin-top: 1rem;
 }
 
 .emptyState p {
   font-size: 0.875rem;
-  color: var(--muted-foreground);
+  color: var(--text-secondary);
   margin: 0;
 }
 
@@ -216,18 +230,18 @@
   width: 320px;
   max-height: 400px;
   overflow-y: auto;
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 0.5rem;
+  background: var(--white);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-lg);
   padding: 1rem;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
-  z-index: 1000;
+  box-shadow: var(--shadow-2xl);
+  z-index: 10000;
 }
 
 .uploadingTitle {
   font-size: 0.875rem;
   font-weight: 600;
-  color: var(--foreground);
+  color: var(--text-primary);
   margin: 0 0 1rem 0;
 }
 
@@ -235,7 +249,7 @@
   display: flex;
   gap: 0.75rem;
   padding: 0.75rem 0;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--gray-200);
 }
 
 .uploadingItem:last-child {
@@ -246,8 +260,8 @@
   width: 48px;
   height: 48px;
   object-fit: cover;
-  border-radius: 0.25rem;
-  background: var(--muted);
+  border-radius: var(--radius-md);
+  background: var(--gray-100);
 }
 
 .uploadingInfo {
@@ -258,7 +272,7 @@
 .uploadingName {
   font-size: 0.75rem;
   font-weight: 500;
-  color: var(--foreground);
+  color: var(--text-primary);
   margin: 0 0 0.5rem 0;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -268,7 +282,7 @@
 .progressBar {
   width: 100%;
   height: 6px;
-  background: var(--muted);
+  background: var(--gray-200);
   border-radius: 3px;
   overflow: hidden;
   margin-bottom: 0.25rem;
@@ -276,13 +290,13 @@
 
 .progressFill {
   height: 100%;
-  background: var(--primary);
+  background: var(--success);
   transition: width 0.3s ease;
 }
 
 .progressText {
   font-size: 0.7rem;
-  color: var(--muted-foreground);
+  color: var(--text-secondary);
 }
 
 /* Loading State */
@@ -303,6 +317,7 @@
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }
@@ -310,7 +325,7 @@
 
 .loading p {
   font-size: 0.875rem;
-  color: var(--muted-foreground);
+  color: var(--text-secondary);
   margin: 0;
 }
 
