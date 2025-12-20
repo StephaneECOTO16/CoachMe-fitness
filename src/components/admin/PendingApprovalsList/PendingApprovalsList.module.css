@@ -1,0 +1,144 @@
+.container {
+    background: white;
+    border-radius: var(--radius-xl);
+    border: 1px solid var(--gray-200);
+    padding: 1.5rem;
+    box-shadow: var(--shadow-small);
+    width: 100%;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.title {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.viewAll {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.viewAll:hover {
+    color: var(--primary);
+}
+
+.tableContainer {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 600px;
+}
+
+.th {
+    text-align: left;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--gray-100);
+}
+
+.row {
+    border-bottom: 1px solid var(--gray-50);
+}
+
+.row:last-child {
+    border-bottom: none;
+}
+
+.td {
+    padding: 1rem 0;
+    vertical-align: top;
+}
+
+.coachCell {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.coachInfo {
+    display: flex;
+    flex-direction: column;
+}
+
+.coachName {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.coachEmail {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.specialty {
+    font-size: 0.95rem;
+    color: var(--text-primary);
+}
+
+.applied {
+    font-size: 0.95rem;
+    color: var(--text-primary);
+}
+
+.actions {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+}
+
+.iconBtn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: background-color 0.2s;
+}
+
+.iconBtn:hover {
+    background-color: var(--gray-100);
+}
+
+.approveIcon {
+    color: var(--success);
+}
+
+.rejectIcon {
+    color: var(--error);
+}
+
+.viewIcon {
+    color: var(--text-secondary);
+}
+
+/* Status Badge Override */
+.pendingBadge {
+    background-color: #FEF3C7;
+    /* Amber 100 */
+    color: #D97706;
+    /* Amber 600 */
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    display: inline-block;
+}

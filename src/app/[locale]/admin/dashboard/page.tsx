@@ -6,10 +6,13 @@ import { Link } from '@/i18n/routing';
 import { useAuth } from '@/contexts/AuthContext';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import Button from '@/components/ui/Button';
-import { HeroSection, StatsGrid, DashboardSection, CoachCard, EmptyState, LoadingIndicator } from '@/components';
+import { HeroSection, StatsGrid, LoadingIndicator, PendingApprovalsList, DisciplinesList, Modal } from '@/components';
+import { Users, UserCheck, MessageSquare, Upload, X, Image as ImageIcon } from 'lucide-react';
 import toast from '@/lib/toast';
 import styles from './page.module.css';
-import type { CoachData } from '@/components/cards/CoachCard';
+import type { DisciplineStat } from '@/components/admin/DisciplinesList/DisciplinesList';
+import { useDropzone } from 'react-dropzone';
+import imageCompression from 'browser-image-compression';
 
 interface Stats {
   totalUsers: number;
@@ -46,73 +49,249 @@ export default function AdminDashboard() {
   const { user } = useAuth();
   const [stats, setStats] = useState<Stats | null>(null);
   const [pendingCoaches, setPendingCoaches] = useState<PendingCoach[]>([]);
+  const [disciplineStats, setDisciplineStats] = useState<DisciplineStat[]>([]);
   const [loading, setLoading] = useState(true);
+  const [rejectModalOpen, setRejectModalOpen] = useState(false);
+  const [selectedCoachId, setSelectedCoachId] = useState<number | null>(null);
+  const [rejectionReason, setRejectionReason] = useState('');
+  const [isProcessing, setIsProcessing] = useState(false);
 
-  const transformCoach = (coach: PendingCoach): CoachData => {
-    const fullName = coach.user.name || 'Coach';
-    const [firstName, ...rest] = fullName.split(' ');
-    return {
-      _id: coach.id.toString(),
-      firstName: firstName || 'Coach',
-      lastName: rest.join(' '),
-      email: coach.user.email,
-      avatar: coach.user.avatar || undefined,
-      discipline: coach.discipline,
-      bio: coach.bio || undefined,
-      portfolio: coach.portfolio ? [{ type: 'LINK', url: coach.portfolio }] : undefined,
-      status: coach.status as 'PENDING' | 'APPROVED' | 'REJECTED',
-      createdAt: coach.createdAt,
-    };
+  // Create Discipline State
+  const [createDisciplineModalOpen, setCreateDisciplineModalOpen] = useState(false);
+  const [newDisciplineName, setNewDisciplineName] = useState('');
+  const [newDisciplineImage, setNewDisciplineImage] = useState<{ file: File, preview: string } | null>(null);
+  const [isCreatingDiscipline, setIsCreatingDiscipline] = useState(false);
+
+  const fetchDashboardData = async () => {
+    try {
+      const token = localStorage.getItem('token');
+
+      // Fetch stats
+      const statsRes = await fetch('/api/admin/stats', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+      const statsData = await statsRes.json();
+      if (statsData.success) {
+        setStats(statsData.stats);
+        setDisciplineStats(statsData.disciplines || []);
+      } else {
+        toast.error(t('messages.loadStatsError'));
+      }
+
+      // Fetch pending coaches
+      const coachesRes = await fetch('/api/admin/coaches?status=PENDING&limit=5', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+      const coachesData = await coachesRes.json();
+      if (coachesData.success) {
+        setPendingCoaches(coachesData.coaches);
+      } else {
+        toast.error(t('messages.loadCoachesError'));
+      }
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error);
+      toast.error(t('messages.loadDashboardError'));
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
-    const fetchDashboardData = async () => {
-      try {
-        const token = localStorage.getItem('token');
-
-        // Fetch stats
-        const statsRes = await fetch('/api/admin/stats', {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-          },
-        });
-        const statsData = await statsRes.json();
-        if (statsData.success) {
-          setStats(statsData.stats);
-        } else {
-          toast.error('Failed to load statistics');
-        }
-
-        // Fetch pending coaches
-        const coachesRes = await fetch('/api/admin/coaches?status=PENDING', {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-          },
-        });
-        const coachesData = await coachesRes.json();
-        if (coachesData.success) {
-          setPendingCoaches(coachesData.coaches);
-        } else {
-          toast.error('Failed to load pending coaches');
-        }
-      } catch (error) {
-        console.error('Error fetching dashboard data:', error);
-        toast.error('Failed to load dashboard data');
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchDashboardData();
   }, []);
+
+  const handleApprove = async (coachId: number) => {
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`/api/admin/coaches/${coachId}/approve`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (res.ok) {
+        toast.success(t('messages.approveSuccess'));
+        setPendingCoaches((prev) => prev.filter((c) => c.id !== coachId));
+        // Optionally decrement pending stats count locally
+        setStats(prev => prev ? { ...prev, pendingCoaches: prev.pendingCoaches - 1, approvedCoaches: prev.approvedCoaches + 1 } : null);
+      } else {
+        toast.error(t('messages.approveError'));
+      }
+    } catch (error) {
+      console.error('Error approving coach:', error);
+      toast.error(t('messages.errorOccurred'));
+    }
+  };
+
+  const openRejectModal = (coachId: number) => {
+    setSelectedCoachId(coachId);
+    setRejectionReason('');
+    setRejectModalOpen(true);
+  };
+
+  const handleReject = async () => {
+    if (!selectedCoachId || !rejectionReason.trim()) {
+      toast.error(t('messages.provideReason'));
+      return;
+    }
+
+    if (rejectionReason.length < 5) {
+      toast.error(t('messages.reasonTooShort'));
+      return;
+    }
+
+    setIsProcessing(true);
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`/api/admin/coaches/${selectedCoachId}/reject`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ reason: rejectionReason }),
+      });
+
+      if (res.ok) {
+        toast.success(t('messages.rejectSuccess'));
+        setPendingCoaches((prev) => prev.filter((c) => c.id !== selectedCoachId));
+        // Optionally update stats locally
+        setStats(prev => prev ? { ...prev, pendingCoaches: prev.pendingCoaches - 1, rejectedCoaches: prev.rejectedCoaches + 1 } : null);
+        setRejectModalOpen(false);
+      } else {
+        const data = await res.json();
+        toast.error(data.error?.message || t('messages.rejectError'));
+      }
+    } catch (error) {
+      console.error('Error rejecting coach:', error);
+      toast.error(t('messages.errorOccurred'));
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  // Handle Discipline Image Drop
+  const onDropDisciplineImage = async (acceptedFiles: File[]) => {
+    if (acceptedFiles?.length > 0) {
+      const file = acceptedFiles[0];
+      // Compress if image
+      try {
+        const compressed = await imageCompression(file, {
+          maxSizeMB: 1,
+          maxWidthOrHeight: 1200,
+          useWebWorker: true,
+        });
+        setNewDisciplineImage({
+          file: compressed,
+          preview: URL.createObjectURL(compressed)
+        });
+      } catch (error) {
+        console.error('Compression failed', error);
+        setNewDisciplineImage({
+          file,
+          preview: URL.createObjectURL(file)
+        });
+      }
+    }
+  };
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    accept: { 'image/*': ['.jpeg', '.jpg', '.png', '.webp'] },
+    maxFiles: 1,
+    onDrop: onDropDisciplineImage,
+  });
+
+  const removeDisciplineImage = () => {
+    if (newDisciplineImage?.preview) {
+      URL.revokeObjectURL(newDisciplineImage.preview);
+    }
+    setNewDisciplineImage(null);
+  };
+
+  const handleCreateDiscipline = async () => {
+    if (!newDisciplineName.trim()) {
+      toast.error(t('createDiscipline.nameLabel') + ' is required');
+      return;
+    }
+    if (!newDisciplineImage) {
+      toast.error(t('createDiscipline.imageLabel') + ' is required');
+      return;
+    }
+
+    setIsCreatingDiscipline(true);
+    try {
+      const token = localStorage.getItem('token');
+
+      // 1. Upload Image
+      const presignedResponse = await fetch('/api/admin/media/presigned-url', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          fileName: newDisciplineImage.file.name,
+          mimeType: newDisciplineImage.file.type,
+          fileSize: newDisciplineImage.file.size,
+        }),
+      });
+
+      const presignedData = await presignedResponse.json();
+      if (!presignedData.success) throw new Error('Failed to get upload URL');
+      const { url: uploadUrl, key } = presignedData.presignedUrl;
+
+      await fetch(uploadUrl, {
+        method: 'PUT',
+        body: newDisciplineImage.file,
+        headers: { 'Content-Type': newDisciplineImage.file.type }
+      });
+
+      // 2. Create Discipline
+      const response = await fetch('/api/disciplines/create', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          name: newDisciplineName,
+          imageKey: key,
+        }),
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        toast.success(t('createDiscipline.success'));
+        setCreateDisciplineModalOpen(false);
+        setNewDisciplineName('');
+        setNewDisciplineImage(null);
+        fetchDashboardData();
+      } else {
+        toast.error(data.error?.message || t('createDiscipline.error'));
+      }
+
+    } catch (error) {
+      console.error('Create discipline error', error);
+      toast.error(t('createDiscipline.error'));
+    } finally {
+      setIsCreatingDiscipline(false);
+    }
+  };
 
   return (
     <ProtectedRoute allowedRoles={['ADMIN']}>
       <div className={styles.container}>
         {/* Hero Section */}
         <HeroSection
-          title="Admin Dashboard"
-          subtitle={`Welcome back, ${user?.name || 'Admin'}! Manage users, review coaches, and monitor platform activity.`}
+          title={t('title')}
+          subtitle={t('welcome', { name: user?.name || 'Admin' })}
+          backgroundImage="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=1740&auto=format&fit=crop"
+          overlayOpacity={0.6}
         />
 
         <div className={styles.content}>
@@ -126,95 +305,150 @@ export default function AdminDashboard() {
               <StatsGrid
                 stats={[
                   {
-                    icon: '👥',
+                    icon: <Users size={24} className="text-blue-500" />,
                     value: stats?.totalUsers?.toString() || '0',
-                    label: 'Total Users',
+                    label: t('totalUsers'),
                   },
                   {
-                    icon: '🏃',
-                    value: stats?.totalProspects?.toString() || '0',
-                    label: 'Prospects',
-                  },
-                  {
-                    icon: '💪',
-                    value: stats?.totalCoaches?.toString() || '0',
-                    label: 'Total Coaches',
-                  },
-                  {
-                    icon: '✓',
-                    value: stats?.approvedCoaches?.toString() || '0',
-                    label: 'Approved Coaches',
-                  },
-                  {
-                    icon: '⏳',
+                    icon: <UserCheck size={24} className="text-orange-500" />,
                     value: stats?.pendingCoaches?.toString() || '0',
-                    label: 'Pending Reviews',
+                    label: t('pendingReviews'), // Changed from "Pending Coaches" to "Pending Reviews" to match en.json key better or use totalProspects
                   },
                   {
-                    icon: '💬',
+                    icon: <MessageSquare size={24} className="text-green-500" />,
                     value: stats?.totalChats?.toString() || '0',
-                    label: 'Active Chats',
+                    label: t('activeChats'),
                   },
                 ]}
               />
 
-              {/* Pending Coach Applications */}
-              <DashboardSection
-                title={`Pending Coach Applications (${pendingCoaches.length})`}
-                action={
-                  <Link href="/admin/coaches">
-                    <Button variant="outline" size="sm">
-                      View All Coaches
-                    </Button>
-                  </Link>
-                }
+              {/* Dashboard Grid */}
+              <div className={styles.dashboardGrid}>
+                {/* Pending Approvals */}
+                <PendingApprovalsList
+                  coaches={pendingCoaches}
+                  onApprove={handleApprove}
+                  onReject={openRejectModal}
+                />
+
+                {/* Disciplines */}
+                <DisciplinesList
+                  disciplines={disciplineStats}
+                  onAddNew={() => setCreateDisciplineModalOpen(true)}
+                />
+              </div>
+
+              {/* Create Discipline Modal */}
+              <Modal
+                isOpen={createDisciplineModalOpen}
+                onClose={() => setCreateDisciplineModalOpen(false)}
+                title={t('createDiscipline.title')}
+                size="md"
               >
-                {pendingCoaches.length > 0 ? (
-                  <div className={styles.coachList}>
-                    {pendingCoaches.map((coach) => (
-                      <Link key={coach.id} href={`/admin/coaches/${coach.id}`}>
-                        <CoachCard coach={transformCoach(coach)} variant="admin" />
-                      </Link>
-                    ))}
+                <div className={styles.createDisciplineForm}>
+                  <div className={styles.inputGroup}>
+                    <label className={styles.inputLabel}>
+                      {t('createDiscipline.nameLabel')}
+                    </label>
+                    <input
+                      type="text"
+                      className={styles.textInput}
+                      placeholder={t('createDiscipline.namePlaceholder')}
+                      value={newDisciplineName}
+                      onChange={(e) => setNewDisciplineName(e.target.value)}
+                    />
                   </div>
-                ) : (
-                  <EmptyState
-                    icon="✓"
-                    title="All Caught Up!"
-                    message="There are no pending coach applications to review at this time."
-                  />
-                )}
-              </DashboardSection>
 
-              {/* Quick Actions */}
-              <section className={styles.section}>
-                <h2 className={styles.sectionTitle}>Quick Actions</h2>
-                <div className={styles.quickActions}>
-                  <Link href="/admin/coaches" className={styles.actionCard}>
-                    <div className={styles.actionIcon}>👥</div>
-                    <h3 className={styles.actionTitle}>Manage Coaches</h3>
-                    <p className={styles.actionDescription}>
-                      Review, approve, or reject coach applications
-                    </p>
-                  </Link>
+                  <div className={styles.inputGroup}>
+                    <label className={styles.inputLabel}>
+                      {t('createDiscipline.imageLabel')}
+                    </label>
+                    {newDisciplineImage ? (
+                      <div className={styles.previewContainer}>
+                        <img
+                          src={newDisciplineImage.preview}
+                          alt="Preview"
+                          className={styles.previewImage}
+                        />
+                        <button
+                          className={styles.removeImageBtn}
+                          onClick={removeDisciplineImage}
+                          type="button"
+                        >
+                          <X size={16} />
+                        </button>
+                      </div>
+                    ) : (
+                      <div
+                        {...getRootProps()}
+                        className={`${styles.dropzone} ${isDragActive ? styles.dropzoneActive : ''}`}
+                      >
+                        <input {...getInputProps()} />
+                        <ImageIcon size={32} className="text-gray-400" />
+                        <p className={styles.dropzoneText}>
+                          {t('createDiscipline.dropzone')}
+                        </p>
+                      </div>
+                    )}
+                  </div>
 
-                  <Link href="/admin/users" className={styles.actionCard}>
-                    <div className={styles.actionIcon}>🔍</div>
-                    <h3 className={styles.actionTitle}>View All Users</h3>
-                    <p className={styles.actionDescription}>
-                      Browse and manage all platform users
-                    </p>
-                  </Link>
-
-                  <Link href="/admin/reports" className={styles.actionCard}>
-                    <div className={styles.actionIcon}>📊</div>
-                    <h3 className={styles.actionTitle}>View Reports</h3>
-                    <p className={styles.actionDescription}>
-                      Access detailed platform analytics
-                    </p>
-                  </Link>
+                  <div className={styles.modalFooter}>
+                    <Button
+                      variant="outline"
+                      onClick={() => setCreateDisciplineModalOpen(false)}
+                      disabled={isCreatingDiscipline}
+                    >
+                      {tCommon('cancel')}
+                    </Button>
+                    <Button
+                      variant="primary"
+                      onClick={handleCreateDiscipline}
+                      disabled={isCreatingDiscipline}
+                      loading={isCreatingDiscipline}
+                    >
+                      {t('createDiscipline.submit')}
+                    </Button>
+                  </div>
                 </div>
-              </section>
+              </Modal>
+
+              {/* Reject Modal */}
+              <Modal
+                isOpen={rejectModalOpen}
+                onClose={() => setRejectModalOpen(false)}
+                title={t('rejectModal.title')}
+                size="md"
+              >
+                <div className={styles.modalContent}>
+                  <p className={styles.modalDescription}>
+                    {t('rejectModal.description')}
+                  </p>
+                  <textarea
+                    className={styles.textarea}
+                    rows={4}
+                    placeholder={t('rejectModal.placeholder')}
+                    value={rejectionReason}
+                    onChange={(e) => setRejectionReason(e.target.value)}
+                  />
+                  <div className={styles.modalActions}>
+                    <Button
+                      variant="outline"
+                      onClick={() => setRejectModalOpen(false)}
+                      disabled={isProcessing}
+                    >
+                      {tCommon('cancel')}
+                    </Button>
+                    <Button
+                      variant="danger"
+                      onClick={handleReject}
+                      disabled={isProcessing}
+                      loading={isProcessing}
+                    >
+                      {t('rejectModal.confirm')}
+                    </Button>
+                  </div>
+                </div>
+              </Modal>
             </>
           )}
         </div>

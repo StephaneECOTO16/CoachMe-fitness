@@ -62,7 +62,7 @@
   align-items: center;
   justify-content: space-between;
   padding: var(--space-6);
-  border-bottom: 2px solid var(--gray-200);
+  border-bottom: 1px solid var(--gray-100);
   position: sticky;
   top: 0;
   background: white;
@@ -72,9 +72,12 @@
 
 .title {
   font-size: var(--text-2xl);
-  font-weight: var(--font-bold);
-  color: var(--text-primary);
+  font-weight: 800; /* Extra bold */
+  color: #111827; /* Gray 900 */
   margin: 0;
+  text-transform: uppercase;
+  font-family: 'Oswald', var(--font-sans); /* Use Oswald if available or just sans */
+  letter-spacing: 0.5px;
 }
 
 .closeButton {

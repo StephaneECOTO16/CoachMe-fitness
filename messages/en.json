@@ -28,7 +28,10 @@
     "settings": "Settings",
     "logout": "Logout",
     "login": "Login",
-    "signUp": "Sign Up"
+    "signUp": "Sign Up",
+    "disciplines": "Disciplines",
+    "users": "Users",
+    "pendingCoaches": "Pending Coaches"
   },
   "auth": {
     "back": "Back",
@@ -418,6 +421,55 @@
       "viewReports": {
         "title": "View Reports",
         "description": "Access detailed platform analytics"
+      },
+      "createDiscipline": {
+        "title": "Add New Discipline",
+        "nameLabel": "Discipline Name",
+        "namePlaceholder": "e.g. Yoga, HIIT",
+        "imageLabel": "Cover Image",
+        "dropzone": "Drag & drop or click to upload cover image",
+        "uploading": "Uploading...",
+        "submit": "Create Discipline",
+        "success": "Discipline created successfully",
+        "error": "Failed to create discipline"
+      },
+      "pendingApprovals": "Pending Approvals",
+      "disciplines": "Disciplines",
+      "addNew": "Add New",
+      "viewAll": "View All",
+      "viewAllDisciplines": "View All Disciplines",
+      "noPendingApprovals": "No pending approvals.",
+      "noDisciplinesFound": "No disciplines found.",
+      "coachesCount": "{count} Coaches",
+      "pendingReview": "Pending Review",
+      "table": {
+        "coach": "Coach",
+        "specialty": "Specialty",
+        "status": "Status",
+        "action": "Action"
+      },
+      "actions": {
+        "approve": "Approve",
+        "reject": "Reject",
+        "viewDetails": "View Details"
+      },
+      "rejectModal": {
+        "title": "Reject Coach Application",
+        "description": "Please provide a reason for rejecting this application. This will be sent to the coach.",
+        "placeholder": "Reason for rejection (min 5 characters)...",
+        "confirm": "Confirm Rejection"
+      },
+      "messages": {
+        "approveSuccess": "Coach approved successfully",
+        "rejectSuccess": "Coach rejected successfully",
+        "loadStatsError": "Failed to load statistics",
+        "loadCoachesError": "Failed to load pending coaches",
+        "loadDashboardError": "Failed to load dashboard data",
+        "approveError": "Failed to approve coach",
+        "rejectError": "Failed to reject coach",
+        "provideReason": "Please provide a reason for rejection",
+        "reasonTooShort": "Reason must be at least 5 characters",
+        "errorOccurred": "An error occurred"
       }
     },
     "coaches": {

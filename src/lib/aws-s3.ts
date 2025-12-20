@@ -121,6 +121,45 @@ export async function generateAvatarPresignedUrl(
 }
 
 /**
+ * Generate a presigned URL for discipline cover images.
+ * Accessible only by administrators.
+ * @param fileName - Original file name
+ * @param mimeType - MIME type of the file
+ * @param fileSize - File size in bytes
+ * @returns Object containing presigned URL, key, and expiration
+ */
+export async function generateDisciplinePresignedUrl(
+    fileName: string,
+    mimeType: string,
+    fileSize: number
+): Promise<PresignedUrlResponse> {
+    if (!AVATAR_ALLOWED_TYPES.has(mimeType)) {
+        throw new Error(`MIME type ${mimeType} not allowed`);
+    }
+
+    if (fileSize > MAX_AVATAR_FILE_SIZE) {
+        throw new Error(`File size exceeds limit of ${MAX_AVATAR_FILE_SIZE / 1024 / 1024}MB`);
+    }
+
+    if (!BUCKET_NAME) {
+        throw new Error('R2_BUCKET_NAME not configured');
+    }
+
+    const timestamp = Date.now();
+    const sanitizedFileName = fileName.replace(/[^a-zA-Z0-9.-]/g, '_');
+    const key = `disciplines/${timestamp}-${sanitizedFileName}`;
+
+    const command = new PutObjectCommand({
+        Bucket: BUCKET_NAME,
+        Key: key,
+        ContentType: mimeType,
+    });
+
+    const url = await getSignedUrl(s3Client, command, { expiresIn: 3600 });
+    return { url, key, expiresIn: 3600 };
+}
+
+/**
  * Get the public URL for a media file stored in R2.
  * Uses R2 public bucket domain (e.g., https://<bucket>.r2.dev or custom domain).
  * @param key - R2 object key

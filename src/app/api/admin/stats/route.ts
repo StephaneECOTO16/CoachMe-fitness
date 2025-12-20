@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { requireAuth } from '@/lib/auth';
+import { getPublicUrl } from '@/lib/aws-s3';
 
 /**
  * GET /api/admin/stats
@@ -41,9 +42,33 @@ export async function GET(req: Request) {
             rejectedCoaches,
             totalChats,
             totalMessages,
+
         };
 
-        return NextResponse.json({ success: true, stats });
+        // Get discipline stats
+        const disciplines = await prisma.discipline.findMany({
+            select: {
+                id: true,
+                name: true,
+                imageUrl: true,
+                _count: {
+                    select: { coaches: { where: { status: 'APPROVED' } } }
+                }
+            },
+            orderBy: {
+                createdAt: 'desc'
+            },
+            take: 5
+        });
+
+        const disciplineStats = disciplines.map(d => ({
+            id: d.id,
+            name: d.name,
+            imageUrl: d.imageUrl ? getPublicUrl(d.imageUrl) : null,
+            coachCount: d._count.coaches
+        }));
+
+        return NextResponse.json({ success: true, stats, disciplines: disciplineStats });
     } catch (err: unknown) {
         console.error('[GET /api/admin/stats]', err);
         return NextResponse.json({

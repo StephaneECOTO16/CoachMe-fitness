@@ -48,6 +48,13 @@ export default function Header() {
                 : "/dashboard",
           label: t("dashboard"),
         },
+        ...(user?.role === "ADMIN"
+          ? [
+            { href: "/admin/disciplines", label: t("disciplines") },
+            { href: "/admin/users", label: t("users") },
+            { href: "/admin/coaches", label: t("pendingCoaches") },
+          ]
+          : []),
         { href: "/messages", label: t("messages") },
         { href: "/contact", label: t("contact") },
       ];
