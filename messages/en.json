@@ -303,6 +303,55 @@
     "location": "Location",
     "address": "Address",
     "socialMedia": "Social Media",
+    "notFound": {
+      "title": "Profile Not Found",
+      "message": "Unable to load your profile data."
+    },
+    "labels": {
+      "accountInfo": "Account Information",
+      "editProfile": "Edit Profile",
+      "name": "Name",
+      "email": "Email",
+      "role": "Role",
+      "memberSince": "Member Since",
+      "coachProfile": "Coach Profile",
+      "fitnessProfile": "Fitness Profile",
+      "status": "Status",
+      "bio": "Bio",
+      "portfolio": "Portfolio",
+      "ageRange": "Age Range",
+      "height": "Height",
+      "weight": "Weight",
+      "fitnessGoals": "Fitness Goals",
+      "basicInfo": "Basic Information",
+      "discipline": "Discipline",
+      "avatar": "Avatar"
+    },
+    "placeholders": {
+      "bio": "Tell clients about yourself...",
+      "portfolio": "https://your-portfolio.com",
+      "goals": "What are your fitness goals?",
+      "name": "Your name",
+      "selectDiscipline": "Select discipline",
+      "selectAgeRange": "Select age range",
+      "loadingDisciplines": "Loading disciplines..."
+    },
+    "buttons": {
+      "saveCoachProfile": "Save Coach Profile",
+      "saveFitnessProfile": "Save Fitness Profile",
+      "saveBasicInfo": "Save Basic Info",
+      "saving": "Saving...",
+      "changeAvatar": "Change Avatar",
+      "uploading": "Uploading...",
+      "remove": "Remove"
+    },
+    "validation": {
+      "nameMinLength": "Name must be at least 2 characters",
+      "disciplineRequired": "Discipline is required",
+      "invalidUrl": "Must be a valid URL",
+      "ratePositive": "Rate must be positive",
+      "experienceNonNegative": "Experience years must be 0 or more"
+    },
     "tabs": {
       "profile": "Profile",
       "media": "Media",

@@ -303,6 +303,55 @@
     "location": "Localisation",
     "address": "Adresse",
     "socialMedia": "Réseaux sociaux",
+    "notFound": {
+      "title": "Profil Non Trouvé",
+      "message": "Impossible de charger les données de votre profil."
+    },
+    "labels": {
+      "accountInfo": "Informations du Compte",
+      "editProfile": "Modifier le Profil",
+      "name": "Nom",
+      "email": "Email",
+      "role": "Rôle",
+      "memberSince": "Membre Depuis",
+      "coachProfile": "Profil Coach",
+      "fitnessProfile": "Profil Fitness",
+      "status": "Statut",
+      "bio": "Biographie",
+      "portfolio": "Portfolio",
+      "ageRange": "Tranche d'âge",
+      "height": "Taille",
+      "weight": "Poids",
+      "fitnessGoals": "Objectifs Fitness",
+      "basicInfo": "Informations de Base",
+      "discipline": "Discipline",
+      "avatar": "Avatar"
+    },
+    "placeholders": {
+      "bio": "Parlez-nous de vous et de votre philosophie...",
+      "portfolio": "https://votre-portfolio.com",
+      "goals": "Quels sont vos objectifs de fitness?",
+      "name": "Votre nom",
+      "selectDiscipline": "Sélectionnez une discipline",
+      "selectAgeRange": "Sélectionnez une tranche d'âge",
+      "loadingDisciplines": "Chargement des disciplines..."
+    },
+    "buttons": {
+      "saveCoachProfile": "Enregistrer Profil Coach",
+      "saveFitnessProfile": "Enregistrer Profil Fitness",
+      "saveBasicInfo": "Enregistrer Info de Base",
+      "saving": "Enregistrement...",
+      "changeAvatar": "Changer Avatar",
+      "uploading": "Téléchargement...",
+      "remove": "Supprimer"
+    },
+    "validation": {
+      "nameMinLength": "Le nom doit comporter au moins 2 caractères",
+      "disciplineRequired": "La discipline est requise",
+      "invalidUrl": "Doit être une URL valide",
+      "ratePositive": "Le tarif doit être positif",
+      "experienceNonNegative": "L'expérience doit être de 0 an ou plus"
+    },
     "tabs": {
       "profile": "Profil",
       "media": "Médias",

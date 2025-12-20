@@ -23,31 +23,29 @@ interface Discipline {
   imageUrl?: string;
 }
 
-// Schema for editing user profile
-const EditProfileSchema = z.object({
-  name: z.string().min(2, 'Name must be at least 2 characters'),
+// Schema factories for localized validation
+const createEditProfileSchema = (t: any) => z.object({
+  name: z.string().min(2, t('validation.nameMinLength')),
 });
 
-// Schema for editing coach-specific fields
-const EditCoachSchema = z.object({
-  discipline: z.string().min(1, 'Discipline is required'),
+const createEditCoachSchema = (t: any) => z.object({
+  discipline: z.string().min(1, t('validation.disciplineRequired')),
   bio: z.string().optional(),
-  portfolio: z.string().url('Must be a valid URL').or(z.literal('')).optional(),
+  portfolio: z.string().url(t('validation.invalidUrl')).or(z.literal('')).optional(),
   rateType: z.enum(['HOUR', 'WEEK', 'MONTH']).optional(),
-  rateAmount: z.number().positive('Rate must be positive').optional().or(z.nan()),
+  rateAmount: z.number().positive(t('validation.ratePositive')).optional().or(z.nan()),
   address: z.string().optional(),
   city: z.string().optional(),
   country: z.string().optional(),
-  experienceYears: z.number().int().min(0, 'Experience years must be 0 or more').optional().or(z.nan()),
-  instagram: z.string().url('Must be a valid URL').or(z.literal('')).optional(),
-  facebook: z.string().url('Must be a valid URL').or(z.literal('')).optional(),
-  tiktok: z.string().url('Must be a valid URL').or(z.literal('')).optional(),
-  twitter: z.string().url('Must be a valid URL').or(z.literal('')).optional(),
-  youtube: z.string().url('Must be a valid URL').or(z.literal('')).optional(),
+  experienceYears: z.number().int().min(0, t('validation.experienceNonNegative')).optional().or(z.nan()),
+  instagram: z.string().url(t('validation.invalidUrl')).or(z.literal('')).optional(),
+  facebook: z.string().url(t('validation.invalidUrl')).or(z.literal('')).optional(),
+  tiktok: z.string().url(t('validation.invalidUrl')).or(z.literal('')).optional(),
+  twitter: z.string().url(t('validation.invalidUrl')).or(z.literal('')).optional(),
+  youtube: z.string().url(t('validation.invalidUrl')).or(z.literal('')).optional(),
 });
 
-// Schema for editing client-specific fields
-const EditClientSchema = z.object({
+const createEditClientSchema = (t: any) => z.object({
   ageRange: z.string().optional(),
   heightCm: z.number().positive().optional().or(z.nan()),
   weightKg: z.number().positive().optional().or(z.nan()),
@@ -126,7 +124,7 @@ export default function ProfilePage() {
     formState: { errors: errorsUser },
     reset: resetUser,
   } = useForm({
-    resolver: zodResolver(EditProfileSchema),
+    resolver: zodResolver(createEditProfileSchema(t)),
   });
 
   const {
@@ -135,7 +133,7 @@ export default function ProfilePage() {
     formState: { errors: errorsCoach },
     reset: resetCoach,
   } = useForm({
-    resolver: zodResolver(EditCoachSchema),
+    resolver: zodResolver(createEditCoachSchema(t)),
   });
 
   const {
@@ -144,7 +142,7 @@ export default function ProfilePage() {
     formState: { errors: errorsClient },
     reset: resetClient,
   } = useForm({
-    resolver: zodResolver(EditClientSchema),
+    resolver: zodResolver(createEditClientSchema(t)),
   });
 
   // Check if modal should be opened from query parameter
@@ -458,8 +456,8 @@ export default function ProfilePage() {
       <ProtectedRoute>
         <div className={styles.container}>
           <div className={styles.error}>
-            <h2>Profile Not Found</h2>
-            <p>Unable to load your profile data.</p>
+            <h2>{t('notFound.title')}</h2>
+            <p>{t('notFound.message')}</p>
           </div>
         </div>
       </ProtectedRoute>
@@ -493,28 +491,28 @@ export default function ProfilePage() {
           {/* User Information Card */}
           <section className={styles.section}>
             <div className={styles.sectionHeader}>
-              <h2 className={styles.sectionTitle}>Account Information</h2>
+              <h2 className={styles.sectionTitle}>{t('labels.accountInfo')}</h2>
               <Button variant="primary" size="sm" onClick={() => setIsEditModalOpen(true)}>
-                Edit Profile
+                {t('labels.editProfile')}
               </Button>
             </div>
 
             <div className={styles.infoCard}>
               <div className={styles.infoGrid}>
                 <div className={styles.infoItem}>
-                  <span className={styles.infoLabel}>Name:</span>
+                  <span className={styles.infoLabel}>{t('labels.name')}:</span>
                   <span className={styles.infoValue}>{profileData.user.name || 'Not set'}</span>
                 </div>
                 <div className={styles.infoItem}>
-                  <span className={styles.infoLabel}>Email:</span>
+                  <span className={styles.infoLabel}>{t('labels.email')}:</span>
                   <span className={styles.infoValue}>{profileData.user.email}</span>
                 </div>
                 <div className={styles.infoItem}>
-                  <span className={styles.infoLabel}>Role:</span>
+                  <span className={styles.infoLabel}>{t('labels.role')}:</span>
                   <span className={styles.infoValue}>{profileData.user.role}</span>
                 </div>
                 <div className={styles.infoItem}>
-                  <span className={styles.infoLabel}>Member Since:</span>
+                  <span className={styles.infoLabel}>{t('labels.memberSince')}:</span>
                   <span className={styles.infoValue}>
                     {new Date(profileData.user.createdAt).toLocaleDateString()}
                   </span>
@@ -526,15 +524,15 @@ export default function ProfilePage() {
           {/* Role-Specific Profile Information */}
           {profileData.user.role === 'COACH' && profileData.profile && (
             <section className={styles.section}>
-              <h2 className={styles.sectionTitle}>Coach Profile</h2>
+              <h2 className={styles.sectionTitle}>{t('labels.coachProfile')}</h2>
               <div className={styles.infoCard}>
                 <div className={styles.infoGrid}>
                   <div className={styles.infoItem}>
-                    <span className={styles.infoLabel}>Discipline:</span>
+                    <span className={styles.infoLabel}>{t('labels.discipline')}:</span>
                     <span className={styles.infoValue}>{getDisciplineName(profileData.profile.discipline) || 'Not set'}</span>
                   </div>
                   <div className={styles.infoItem}>
-                    <span className={styles.infoLabel}>Status:</span>
+                    <span className={styles.infoLabel}>{t('labels.status')}:</span>
                     <span className={styles.infoValue}>{profileData.profile.status}</span>
                   </div>
                   {profileData.profile.rateAmount && (
@@ -569,13 +567,13 @@ export default function ProfilePage() {
                 </div>
                 {profileData.profile.bio && (
                   <div className={styles.bioSection}>
-                    <h3 className={styles.bioTitle}>Bio</h3>
+                    <h3 className={styles.bioTitle}>{t('labels.bio')}</h3>
                     <p className={styles.bioText}>{profileData.profile.bio}</p>
                   </div>
                 )}
                 {profileData.profile.portfolio && (
                   <div className={styles.portfolioSection}>
-                    <h3 className={styles.bioTitle}>Portfolio</h3>
+                    <h3 className={styles.bioTitle}>{t('labels.portfolio')}</h3>
                     <a
                       href={profileData.profile.portfolio}
                       target="_blank"
@@ -588,68 +586,68 @@ export default function ProfilePage() {
                 )}
                 {(profileData.profile.instagram || profileData.profile.facebook || profileData.profile.tiktok ||
                   profileData.profile.twitter || profileData.profile.youtube) && (
-                  <div className={styles.bioSection}>
-                    <h3 className={styles.bioTitle}>{t('socialMedia')}</h3>
-                    <div className={styles.socialLinks}>
-                      {profileData.profile.instagram && (
-                        <a href={profileData.profile.instagram} target="_blank" rel="noopener noreferrer" className={styles.socialLink}>
-                          Instagram
-                        </a>
-                      )}
-                      {profileData.profile.facebook && (
-                        <a href={profileData.profile.facebook} target="_blank" rel="noopener noreferrer" className={styles.socialLink}>
-                          Facebook
-                        </a>
-                      )}
-                      {profileData.profile.tiktok && (
-                        <a href={profileData.profile.tiktok} target="_blank" rel="noopener noreferrer" className={styles.socialLink}>
-                          TikTok
-                        </a>
-                      )}
-                      {profileData.profile.twitter && (
-                        <a href={profileData.profile.twitter} target="_blank" rel="noopener noreferrer" className={styles.socialLink}>
-                          X (Twitter)
-                        </a>
-                      )}
-                      {profileData.profile.youtube && (
-                        <a href={profileData.profile.youtube} target="_blank" rel="noopener noreferrer" className={styles.socialLink}>
-                          YouTube
-                        </a>
-                      )}
+                    <div className={styles.bioSection}>
+                      <h3 className={styles.bioTitle}>{t('socialMedia')}</h3>
+                      <div className={styles.socialLinks}>
+                        {profileData.profile.instagram && (
+                          <a href={profileData.profile.instagram} target="_blank" rel="noopener noreferrer" className={styles.socialLink}>
+                            Instagram
+                          </a>
+                        )}
+                        {profileData.profile.facebook && (
+                          <a href={profileData.profile.facebook} target="_blank" rel="noopener noreferrer" className={styles.socialLink}>
+                            Facebook
+                          </a>
+                        )}
+                        {profileData.profile.tiktok && (
+                          <a href={profileData.profile.tiktok} target="_blank" rel="noopener noreferrer" className={styles.socialLink}>
+                            TikTok
+                          </a>
+                        )}
+                        {profileData.profile.twitter && (
+                          <a href={profileData.profile.twitter} target="_blank" rel="noopener noreferrer" className={styles.socialLink}>
+                            X (Twitter)
+                          </a>
+                        )}
+                        {profileData.profile.youtube && (
+                          <a href={profileData.profile.youtube} target="_blank" rel="noopener noreferrer" className={styles.socialLink}>
+                            YouTube
+                          </a>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
               </div>
             </section>
           )}
 
           {profileData.user.role === 'PROSPECT' && profileData.profile && (
             <section className={styles.section}>
-              <h2 className={styles.sectionTitle}>Fitness Profile</h2>
+              <h2 className={styles.sectionTitle}>{t('labels.fitnessProfile')}</h2>
               <div className={styles.infoCard}>
                 <div className={styles.infoGrid}>
                   {profileData.profile.ageRange && (
                     <div className={styles.infoItem}>
-                      <span className={styles.infoLabel}>Age Range:</span>
+                      <span className={styles.infoLabel}>{t('labels.ageRange')}:</span>
                       <span className={styles.infoValue}>{profileData.profile.ageRange}</span>
                     </div>
                   )}
                   {profileData.profile.heightCm && (
                     <div className={styles.infoItem}>
-                      <span className={styles.infoLabel}>Height:</span>
+                      <span className={styles.infoLabel}>{t('labels.height')}:</span>
                       <span className={styles.infoValue}>{profileData.profile.heightCm} cm</span>
                     </div>
                   )}
                   {profileData.profile.weightKg && (
                     <div className={styles.infoItem}>
-                      <span className={styles.infoLabel}>Weight:</span>
+                      <span className={styles.infoLabel}>{t('labels.weight')}:</span>
                       <span className={styles.infoValue}>{profileData.profile.weightKg} kg</span>
                     </div>
                   )}
                 </div>
                 {profileData.profile.goals && (
                   <div className={styles.bioSection}>
-                    <h3 className={styles.bioTitle}>Fitness Goals</h3>
+                    <h3 className={styles.bioTitle}>{t('labels.fitnessGoals')}</h3>
                     <p className={styles.bioText}>{profileData.profile.goals}</p>
                   </div>
                 )}
@@ -662,7 +660,7 @@ export default function ProfilePage() {
         <Modal
           isOpen={isEditModalOpen}
           onClose={() => setIsEditModalOpen(false)}
-          title="Edit Profile"
+          title={t('labels.editProfile')}
           size="lg"
         >
           {/* Tab Navigation */}
@@ -683,15 +681,14 @@ export default function ProfilePage() {
                 {/* Coach-specific Form */}
                 {profileData.user.role === 'COACH' && (
                   <form onSubmit={handleSubmitCoach(onSubmitCoach)} className={styles.form}>
-                    <h3 className={styles.formTitle}>Coach Profile</h3>
-
+                    <h3 className={styles.formTitle}>{t('labels.coachProfile')}</h3>
                     <div className={styles.formGroup}>
                       <label htmlFor="discipline" className={styles.label}>
-                        Discipline
+                        {t('labels.discipline')}
                       </label>
                       <select {...registerCoach('discipline')} id="discipline" className={styles.select} disabled={loadingDisciplines}>
                         <option value="">
-                          {loadingDisciplines ? "Loading disciplines..." : "Select discipline"}
+                          {loadingDisciplines ? t('placeholders.loadingDisciplines') : t('placeholders.selectDiscipline')}
                         </option>
                         {disciplines.map((disc) => (
                           <option key={disc.id} value={disc.name}>
@@ -706,14 +703,14 @@ export default function ProfilePage() {
 
                     <div className={styles.formGroup}>
                       <label htmlFor="bio" className={styles.label}>
-                        Bio
+                        {t('labels.bio')}
                       </label>
                       <textarea
                         {...registerCoach('bio')}
                         id="bio"
                         className={styles.textarea}
                         rows={4}
-                        placeholder="Tell clients about yourself..."
+                        placeholder={t('placeholders.bio')}
                       />
                       {errorsCoach.bio && (
                         <span className={styles.error}>{errorsCoach.bio.message as string}</span>
@@ -722,14 +719,14 @@ export default function ProfilePage() {
 
                     <div className={styles.formGroup}>
                       <label htmlFor="portfolio" className={styles.label}>
-                        Portfolio URL
+                        {t('labels.portfolio')}
                       </label>
                       <input
                         {...registerCoach('portfolio')}
                         type="url"
                         id="portfolio"
                         className={styles.input}
-                        placeholder="https://your-portfolio.com"
+                        placeholder={t('placeholders.portfolio')}
                       />
                       {errorsCoach.portfolio && (
                         <span className={styles.error}>{errorsCoach.portfolio.message as string}</span>
@@ -928,7 +925,7 @@ export default function ProfilePage() {
                       disabled={isEditingProfile}
                       className={styles.submitButton}
                     >
-                      {isEditingProfile ? 'Saving...' : 'Save Coach Profile'}
+                      {isEditingProfile ? t('buttons.saving') : t('buttons.saveCoachProfile')}
                     </Button>
                   </form>
                 )}
@@ -936,14 +933,14 @@ export default function ProfilePage() {
                 {/* Client-specific Form */}
                 {profileData.user.role === 'PROSPECT' && (
                   <form onSubmit={handleSubmitClient(onSubmitClient)} className={styles.form}>
-                    <h3 className={styles.formTitle}>Fitness Profile</h3>
+                    <h3 className={styles.formTitle}>{t('labels.fitnessProfile')}</h3>
 
                     <div className={styles.formGroup}>
                       <label htmlFor="ageRange" className={styles.label}>
-                        Age Range
+                        {t('labels.ageRange')}
                       </label>
                       <select {...registerClient('ageRange')} id="ageRange" className={styles.select}>
-                        <option value="">Select age range</option>
+                        <option value="">{t('placeholders.selectAgeRange')}</option>
                         <option value="18-24">18-24</option>
                         <option value="25-34">25-34</option>
                         <option value="35-44">35-44</option>
@@ -955,7 +952,7 @@ export default function ProfilePage() {
                     <div className={styles.formRow}>
                       <div className={styles.formGroup}>
                         <label htmlFor="heightCm" className={styles.label}>
-                          Height (cm)
+                          {t('labels.height')} (cm)
                         </label>
                         <input
                           {...registerClient('heightCm', { valueAsNumber: true })}
@@ -968,7 +965,7 @@ export default function ProfilePage() {
 
                       <div className={styles.formGroup}>
                         <label htmlFor="weightKg" className={styles.label}>
-                          Weight (kg)
+                          {t('labels.weight')} (kg)
                         </label>
                         <input
                           {...registerClient('weightKg', { valueAsNumber: true })}
@@ -982,14 +979,14 @@ export default function ProfilePage() {
 
                     <div className={styles.formGroup}>
                       <label htmlFor="goals" className={styles.label}>
-                        Fitness Goals
+                        {t('labels.fitnessGoals')}
                       </label>
                       <textarea
                         {...registerClient('goals')}
                         id="goals"
                         className={styles.textarea}
                         rows={4}
-                        placeholder="What are your fitness goals?"
+                        placeholder={t('placeholders.goals')}
                       />
                     </div>
 
@@ -999,7 +996,7 @@ export default function ProfilePage() {
                       disabled={isEditingProfile}
                       className={styles.submitButton}
                     >
-                      {isEditingProfile ? 'Saving...' : 'Save Fitness Profile'}
+                      {isEditingProfile ? t('buttons.saving') : t('buttons.saveFitnessProfile')}
                     </Button>
                   </form>
                 )}
@@ -1014,7 +1011,7 @@ export default function ProfilePage() {
             {/* Account Tab */}
             {activeTab === 'account' && (
               <form onSubmit={handleSubmitUser(onSubmitUser)} className={styles.form}>
-                <h3 className={styles.formTitle}>Basic Information</h3>
+                <h3 className={styles.formTitle}>{t('labels.basicInfo')}</h3>
 
                 <input
                   ref={fileInputRef}
@@ -1047,7 +1044,7 @@ export default function ProfilePage() {
                       disabled={isUploadingAvatar}
                       onClick={() => fileInputRef.current?.click()}
                     >
-                      {isUploadingAvatar ? 'Uploading...' : 'Change Avatar'}
+                      {isUploadingAvatar ? t('buttons.uploading') : t('buttons.changeAvatar')}
                     </Button>
 
                     {profileData.user.avatar && (
@@ -1058,7 +1055,7 @@ export default function ProfilePage() {
                         disabled={isUploadingAvatar}
                         onClick={handleRemoveAvatar}
                       >
-                        Remove
+                        {t('buttons.remove')}
                       </Button>
                     )}
                   </div>
@@ -1066,14 +1063,14 @@ export default function ProfilePage() {
 
                 <div className={styles.formGroup}>
                   <label htmlFor="name" className={styles.label}>
-                    Name
+                    {t('labels.name')}
                   </label>
                   <input
                     {...registerUser('name')}
                     type="text"
                     id="name"
                     className={styles.input}
-                    placeholder="Your name"
+                    placeholder={t('placeholders.name')}
                   />
                   {errorsUser.name && (
                     <span className={styles.error}>{errorsUser.name.message as string}</span>
@@ -1086,7 +1083,7 @@ export default function ProfilePage() {
                   disabled={isEditingProfile}
                   className={styles.submitButton}
                 >
-                  {isEditingProfile ? 'Saving...' : 'Save Basic Info'}
+                  {isEditingProfile ? t('buttons.saving') : t('buttons.saveBasicInfo')}
                 </Button>
               </form>
             )}
