@@ -334,7 +334,10 @@
       "name": "Votre nom",
       "selectDiscipline": "Sélectionnez une discipline",
       "selectAgeRange": "Sélectionnez une tranche d'âge",
-      "loadingDisciplines": "Chargement des disciplines..."
+      "loadingDisciplines": "Chargement des disciplines...",
+      "avatarHint": "Téléchargez une photo de profil (max 5 Mo)",
+      "avatarDropzone": "Glissez-déposez ou cliquez pour télécharger",
+      "avatarMaxSize": "Max 5 Mo • JPEG, PNG, WebP"
     },
     "buttons": {
       "saveCoachProfile": "Enregistrer Profil Coach",
@@ -713,6 +716,10 @@
     "appliedOn": "Candidaté le",
     "portfolio": "Portfolio",
     "items": "éléments",
-    "certifications": "Certifications"
+    "certifications": "Certifications",
+    "perHour": "/ h",
+    "perWeek": "/ sem.",
+    "perMonth": "/ mois",
+    "yearsExperienceSuffix": "ans d'exp."
   }
 }

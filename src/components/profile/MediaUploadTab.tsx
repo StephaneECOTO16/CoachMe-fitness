@@ -248,7 +248,7 @@ export default function MediaUploadTab() {
   if (loading) {
     return (
       <div className={styles.loading}>
-        <LoadingIndicator variant="icon" label={tCommon('loading')} unstyledLabel />
+        <LoadingIndicator size="md" label={tCommon('loading')} unstyledLabel />
       </div>
     );
   }
@@ -279,7 +279,7 @@ export default function MediaUploadTab() {
           <span className={styles.dropzoneHint}>{tMedia('maxFileSize', { size: '10' })} • PDF, JPG, PNG</span>
         </div>
 
-        <FileList files={certificates} onDelete={handleDelete} />
+        <FileList files={certificates} onDelete={handleDelete} tMedia={tMedia} />
       </div>
 
       {/* Images Section */}
@@ -302,7 +302,7 @@ export default function MediaUploadTab() {
           <span className={styles.dropzoneHint}>{tMedia('maxFileSize', { size: '10' })} • Multiple files supported</span>
         </div>
 
-        <FileList files={images} onDelete={handleDelete} showPreview />
+        <FileList files={images} onDelete={handleDelete} showPreview tMedia={tMedia} />
       </div>
 
       {/* Videos Section */}
@@ -325,7 +325,7 @@ export default function MediaUploadTab() {
           <span className={styles.dropzoneHint}>{tMedia('maxFileSize', { size: '50' })} • MP4, WebM, MOV</span>
         </div>
 
-        <FileList files={videos} onDelete={handleDelete} />
+        <FileList files={videos} onDelete={handleDelete} showPreview tMedia={tMedia} />
       </div>
 
       {/* Uploading Files */}
@@ -355,10 +355,12 @@ function FileList({
   files,
   onDelete,
   showPreview = false,
+  tMedia,
 }: {
   files: MediaFile[];
   onDelete: (id: number, name: string) => void;
   showPreview?: boolean;
+  tMedia: any;
 }) {
   if (files.length === 0) {
     return (
@@ -375,6 +377,13 @@ function FileList({
           {showPreview && file.type === 'IMAGE' && (
             <div className={styles.previewImage}>
               <img src={file.url} alt={file.description || 'Image'} />
+            </div>
+          )}
+          {showPreview && file.type === 'VIDEO' && (
+            <div className={styles.previewVideo}>
+              <video src={file.url} controls preload="metadata">
+                Your browser does not support the video tag.
+              </video>
             </div>
           )}
           <div className={styles.fileInfo}>

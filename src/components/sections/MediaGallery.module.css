@@ -1,30 +1,20 @@
 /* Masonry layout using CSS columns */
 .gallery {
-  column-gap: 1rem;
+  column-width: 280px;
+  column-gap: 0.75rem;
   width: 100%;
+  padding-bottom: 2rem;
 }
 
-/* Column variants */
-.columns2 {
-  column-count: 2;
-}
-
-.columns3 {
-  column-count: 3;
-}
-
-.columns4 {
-  column-count: 4;
-}
-
+/* Base card styling */
 .mediaCard {
   cursor: pointer;
   overflow: hidden;
   border-radius: 12px;
-  background: #f3f4f6;
+  background: var(--gray-50);
   transition: all 0.3s ease;
   break-inside: avoid;
-  margin-bottom: 1rem;
+  margin-bottom: 0.75rem;
   display: inline-block;
   width: 100%;
 }
@@ -44,7 +34,6 @@
   width: 100%;
   height: auto;
   display: block;
-  object-fit: cover;
   transition: transform 0.3s ease;
 }
 
@@ -104,6 +93,7 @@
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
@@ -197,6 +187,7 @@
 }
 
 @media (max-width: 768px) {
+
   .columns3,
   .columns4 {
     column-count: 2;
@@ -242,6 +233,7 @@
 }
 
 @media (max-width: 480px) {
+
   .columns2,
   .columns3,
   .columns4 {
