@@ -28,7 +28,10 @@
     "settings": "Paramètres",
     "logout": "Déconnexion",
     "login": "Connexion",
-    "signUp": "S'inscrire"
+    "signUp": "S'inscrire",
+    "disciplines": "Disciplines",
+    "users": "Utilisateurs",
+    "pendingCoaches": "Coachs en Attente"
   },
   "auth": {
     "back": "Retour",
@@ -418,6 +421,55 @@
       "viewReports": {
         "title": "Voir les Rapports",
         "description": "Accéder aux analyses détaillées de la plateforme"
+      },
+      "createDiscipline": {
+        "title": "Ajouter une Discipline",
+        "nameLabel": "Nom de la Discipline",
+        "namePlaceholder": "ex. Yoga, HIIT",
+        "imageLabel": "Image de Couverture",
+        "dropzone": "Glisser-déposer ou cliquer pour télécharger l'image",
+        "uploading": "Téléchargement...",
+        "submit": "Créer la Discipline",
+        "success": "Discipline créée avec succès",
+        "error": "Échec de la création de la discipline"
+      },
+      "pendingApprovals": "Approbations en Attente",
+      "disciplines": "Disciplines",
+      "addNew": "Ajouter Nouveau",
+      "viewAll": "Voir Tout",
+      "viewAllDisciplines": "Voir Toutes les Disciplines",
+      "noPendingApprovals": "Aucune approbation en attente.",
+      "noDisciplinesFound": "Aucune discipline trouvée.",
+      "coachesCount": "{count} Coachs",
+      "pendingReview": "Examen en Attente",
+      "table": {
+        "coach": "Coach",
+        "specialty": "Spécialité",
+        "status": "Statut",
+        "action": "Action"
+      },
+      "actions": {
+        "approve": "Approuver",
+        "reject": "Rejeter",
+        "viewDetails": "Voir Détails"
+      },
+      "rejectModal": {
+        "title": "Rejeter la Candidature du Coach",
+        "description": "Veuillez fournir une raison pour le rejet de cette candidature. Elle sera envoyée au coach.",
+        "placeholder": "Raison du rejet (min 5 caractères)...",
+        "confirm": "Confirmer le Rejet"
+      },
+      "messages": {
+        "approveSuccess": "Coach approuvé avec succès",
+        "rejectSuccess": "Coach rejeté avec succès",
+        "loadStatsError": "Échec du chargement des statistiques",
+        "loadCoachesError": "Échec du chargement des coachs en attente",
+        "loadDashboardError": "Échec du chargement des données du tableau de bord",
+        "approveError": "Échec de l'approbation du coach",
+        "rejectError": "Échec du rejet du coach",
+        "provideReason": "Veuillez fournir une raison pour le rejet",
+        "reasonTooShort": "La raison doit comporter au moins 5 caractères",
+        "errorOccurred": "Une erreur s'est produite"
       }
     },
     "coaches": {

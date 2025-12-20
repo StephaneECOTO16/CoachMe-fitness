@@ -20,7 +20,8 @@ export async function GET(req: Request) {
     try {
         const url = new URL(req.url);
         const status = url.searchParams.get('status');
-
+        const limit = url.searchParams.get('limit');
+        const take = limit ? parseInt(limit) : undefined;
         const where = status ? { status: status as 'PENDING' | 'APPROVED' | 'REJECTED' } : {};
 
         const coaches = await prisma.coachProfile.findMany({
@@ -40,8 +41,10 @@ export async function GET(req: Request) {
                         chatsAsCoach: true,
                         media: true,
                     }
-                }
+                },
+                discipline: true,
             },
+            take,
             orderBy: { createdAt: 'desc' },
         });
 
@@ -51,6 +54,7 @@ export async function GET(req: Request) {
                 ...coach.user,
                 avatar: coach.user.avatar ? getPublicUrl(coach.user.avatar) : null,
             },
+            discipline: coach.discipline.name,
         }));
 
         return NextResponse.json({ success: true, coaches: coachesWithUrls });

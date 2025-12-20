@@ -37,7 +37,12 @@ export { default as ProtectedRoute } from './auth/ProtectedRoute';
 export { default as PublicRoute } from './auth/PublicRoute';
 
 // Profile Components
+// Profile Components
 export { default as MediaUploadTab } from './profile/MediaUploadTab';
+
+// Admin Components
+export { default as PendingApprovalsList } from './admin/PendingApprovalsList/PendingApprovalsList';
+export { default as DisciplinesList } from './admin/DisciplinesList/DisciplinesList';
 
 // Type exports
 export type { CoachData, CoachCardProps } from './coach/CoachCard/CoachCard';
