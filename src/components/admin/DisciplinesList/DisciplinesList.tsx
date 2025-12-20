@@ -39,7 +39,7 @@ const DisciplinesList: React.FC<DisciplinesListProps> = ({
                 {disciplines.map((discipline) => (
                     <Link
                         key={discipline.id}
-                        href={`/admin/disciplines/${discipline.id}`}
+                        href={`/admin/disciplines?highlight=${discipline.id}`}
                         className={styles.item}
                     >
                         <div className={styles.itemLeft}>
