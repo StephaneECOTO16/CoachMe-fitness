@@ -9,7 +9,7 @@
   /* border: 1px solid rgba(255, 255, 255, 0.2); */
   border: 1px solid var(--secondary);
   border-radius: var(--radius-full);
-  padding: 0 var(--space-1);
+  padding: var(--space-2) var(--space-2);
   cursor: pointer;
   transition: all var(--transition-base);
   animation: slideIn var(--transition-smooth) ease-out;
@@ -50,11 +50,9 @@
   left: var(--space-1);
   bottom: var(--space-1);
   width: calc(50% - var(--space-1));
-  background: linear-gradient(
-    135deg,
-    var(--primary) 0%,
-    var(--primary-dark) 100%
-  );
+  background: linear-gradient(135deg,
+      var(--primary) 0%,
+      var(--primary-dark) 100%);
   border-radius: var(--radius-full);
   box-shadow: var(--shadow-primary);
   transition: transform var(--transition-smooth);
@@ -83,6 +81,7 @@
     opacity: 0;
     transform: scale(0.9);
   }
+
   to {
     opacity: 1;
     transform: scale(1);
