@@ -7,6 +7,17 @@
     width: 100%;
 }
 
+/* DataTable Dashboard Adjustments */
+.container :global(.DataTable_tableContainer__2v6L1) {
+    border: none;
+    box-shadow: none;
+    padding: 0;
+}
+
+.container :global(.DataTable_tableWrapper__3yZ24) {
+    overflow: visible;
+}
+
 .header {
     display: flex;
     justify-content: space-between;
@@ -103,31 +114,23 @@
 }
 
 .iconBtn {
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 0.25rem;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 50%;
-    transition: background-color 0.2s;
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--gray-200);
+    background: var(--white);
+    color: var(--gray-600);
+    transition: all var(--transition-base);
+    cursor: pointer;
 }
 
 .iconBtn:hover {
-    background-color: var(--gray-100);
-}
-
-.approveIcon {
-    color: var(--success);
-}
-
-.rejectIcon {
-    color: var(--error);
-}
-
-.viewIcon {
-    color: var(--text-secondary);
+    background: var(--gray-50);
+    color: var(--primary);
+    border-color: var(--primary);
 }
 
 /* Status Badge Override */

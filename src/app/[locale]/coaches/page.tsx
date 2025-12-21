@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
 import { Link } from "@/i18n/routing";
-import { LoadingIndicator, CoachCard, type CoachData } from "@/components";
+import { LoadingIndicator, CoachCard, Pagination, type CoachData } from "@/components";
 import Button from "@/components/ui/Button";
 import styles from "./page.module.css";
 
@@ -48,6 +48,8 @@ export default function CoachesPage() {
   const t = useTranslations("coach.browse");
   const [coaches, setCoaches] = useState<Coach[]>([]);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
 
   // Applied filters (used for fetching)
   const [selectedDiscipline, setSelectedDiscipline] = useState<string>("");
@@ -145,6 +147,8 @@ export default function CoachesPage() {
     setTimeout(() => {
       fetchCoaches();
     }, 0);
+    // Reset to page 1 when filters change
+    setCurrentPage(1);
   };
 
   const getRateLabel = (rateType: Coach["rateType"]) => {
@@ -176,6 +180,13 @@ export default function CoachesPage() {
     portfolio: coach.media.filter(m => m.type === 'IMAGE').map(m => ({ type: 'image', url: m.url })),
     certifications: coach.media.filter(m => m.type === 'CERTIFICATE').map(() => 'Certified'), // simplified
   });
+
+  // Pagination logic
+  const totalPages = Math.ceil(coaches.length / itemsPerPage);
+  const paginatedCoaches = coaches.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
 
   return (
     <div className={styles.container}>
@@ -322,7 +333,7 @@ export default function CoachesPage() {
                 {t("coachesFound", { count: coaches.length })}
               </div>
               <div className={styles.coachList}>
-                {coaches.map((coach) => (
+                {paginatedCoaches.map((coach) => (
                   <CoachCard
                     key={coach.id}
                     coach={transformCoachData(coach)}
@@ -332,6 +343,15 @@ export default function CoachesPage() {
                   />
                 ))}
               </div>
+
+              {/* Pagination */}
+              {coaches.length > itemsPerPage && (
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  onPageChange={setCurrentPage}
+                />
+              )}
             </>
           ) : (
             <div className={styles.emptyState}>

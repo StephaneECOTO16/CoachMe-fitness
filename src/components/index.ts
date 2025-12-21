@@ -10,6 +10,10 @@ export { AnimatedName } from './ui/animated-name';
 export { default as LanguageToggle } from './ui/LanguageToggle';
 export { default as QuickActionsSection } from './quick-actions/QuickActionsSection';
 export { default as LoadingIndicator } from './loading/LoadingIndicator';
+export { default as Pagination } from './ui/Pagination/Pagination';
+export { default as DataTable } from './ui/DataTable/DataTable';
+export { default as Dropdown } from './ui/Dropdown/Dropdown';
+export { default as UserAvatar } from './ui/UserAvatar/UserAvatar';
 
 // Card Components
 export { default as CoachCard } from './coach/CoachCard/CoachCard';
@@ -58,3 +62,5 @@ export type { TabNavigationProps, Tab } from './ui/TabNavigation';
 export type { EmptyStateProps, EmptyStateAction } from './ui/EmptyState';
 export type { QuickActionItem } from './quick-actions/QuickActionsSection';
 export type { LoadingIndicatorProps, LoadingIndicatorVariant } from './loading/LoadingIndicator';
+export type { PaginationProps } from './ui/Pagination/Pagination';
+export type { DataTableProps, ColumnConfig } from './ui/DataTable/DataTable';

@@ -6,13 +6,15 @@ import { Link } from '@/i18n/routing';
 import { useAuth } from '@/contexts/AuthContext';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import Button from '@/components/ui/Button';
-import { HeroSection, StatsGrid, LoadingIndicator, PendingApprovalsList, DisciplinesList, Modal } from '@/components';
+import { HeroSection, StatsGrid, LoadingIndicator, PendingApprovalsList, DisciplinesList, Modal, UserAvatar, StatusBadge, ChatCard } from '@/components';
 import { Users, UserCheck, MessageSquare, Upload, X, Image as ImageIcon } from 'lucide-react';
 import toast from '@/lib/toast';
 import styles from './page.module.css';
 import type { DisciplineStat } from '@/components/admin/DisciplinesList/DisciplinesList';
 import { useDropzone } from 'react-dropzone';
 import imageCompression from 'browser-image-compression';
+import { useRouter } from 'next/navigation';
+import { ChatCardData } from '@/components/cards/ChatCard';
 
 interface Stats {
   totalUsers: number;
@@ -47,12 +49,16 @@ export default function AdminDashboard() {
   const t = useTranslations('admin.dashboard');
   const tCommon = useTranslations('common');
   const { user } = useAuth();
+  const router = useRouter();
   const [stats, setStats] = useState<Stats | null>(null);
   const [pendingCoaches, setPendingCoaches] = useState<PendingCoach[]>([]);
+  const [recentChats, setRecentChats] = useState<ChatCardData[]>([]);
   const [disciplineStats, setDisciplineStats] = useState<DisciplineStat[]>([]);
   const [loading, setLoading] = useState(true);
   const [rejectModalOpen, setRejectModalOpen] = useState(false);
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [selectedCoachId, setSelectedCoachId] = useState<number | null>(null);
+  const [selectedCoach, setSelectedCoach] = useState<PendingCoach | null>(null);
   const [rejectionReason, setRejectionReason] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
 
@@ -92,6 +98,26 @@ export default function AdminDashboard() {
       } else {
         toast.error(t('messages.loadCoachesError'));
       }
+
+      // Fetch recent chats
+      const chatsRes = await fetch('/api/chat?limit=5', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+      const chatsData = await chatsRes.json();
+      if (chatsData.success) {
+        setRecentChats(chatsData.chats.map((chat: any) => ({
+          id: chat.id,
+          participant: chat.coach.user, // Primary: Coach
+          secondaryParticipant: chat.client.user, // Secondary: Client
+          lastMessage: chat.lastMessage,
+          lastUpdate: chat.updatedAt,
+          isOnline: false, // You might want to hook this up to a real presence system later
+        })));
+      } else {
+        console.error('Failed to load recent chats');
+      }
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
       toast.error(t('messages.loadDashboardError'));
@@ -103,6 +129,10 @@ export default function AdminDashboard() {
   useEffect(() => {
     fetchDashboardData();
   }, []);
+
+  const handleChatClick = (chatId: string) => {
+    router.push(`/admin/messages?chatId=${chatId}`);
+  };
 
   const handleApprove = async (coachId: number) => {
     try {
@@ -130,8 +160,15 @@ export default function AdminDashboard() {
 
   const openRejectModal = (coachId: number) => {
     setSelectedCoachId(coachId);
+    const coach = pendingCoaches.find(c => c.id === coachId);
+    if (coach) setSelectedCoach(coach);
     setRejectionReason('');
     setRejectModalOpen(true);
+  };
+
+  const handleOpenView = (coach: PendingCoach) => {
+    setSelectedCoach(coach);
+    setIsViewModalOpen(true);
   };
 
   const handleReject = async () => {
@@ -329,6 +366,7 @@ export default function AdminDashboard() {
                   coaches={pendingCoaches}
                   onApprove={handleApprove}
                   onReject={openRejectModal}
+                  onView={handleOpenView}
                 />
 
                 {/* Disciplines */}
@@ -336,6 +374,33 @@ export default function AdminDashboard() {
                   disciplines={disciplineStats}
                   onAddNew={() => setCreateDisciplineModalOpen(true)}
                 />
+
+                {/* Recent Chats */}
+                <div className={styles.card}>
+                  <div className={styles.cardHeader}>
+                    <h2 className={styles.cardTitle}>{t('activeChats')}</h2>
+                    <Link href="/admin/messages" className={styles.viewAllLink}>
+                      {t('viewAllCoaches').replace('Coaches', 'Chats')} {/* Hacky fallback if key missing, ideally add 'viewAllChats' key */}
+                    </Link>
+                  </div>
+                  <div className={styles.chatList}>
+                    {recentChats.length > 0 ? (
+                      recentChats.map((chat) => (
+                        <ChatCard
+                          key={chat.id}
+                          chat={chat}
+                          onClick={() => handleChatClick(chat.id)}
+                          locale={user?.language || 'en'}
+                        />
+                      ))
+                    ) : (
+                      <div className={styles.emptyState}>
+                        <MessageSquare size={48} className="text-gray-300 mb-4" />
+                        <p>{tCommon('noData')}</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
 
               {/* Create Discipline Modal */}
@@ -410,6 +475,73 @@ export default function AdminDashboard() {
                     </Button>
                   </div>
                 </div>
+              </Modal>
+
+              {/* View Coach Modal */}
+              <Modal
+                isOpen={isViewModalOpen}
+                onClose={() => setIsViewModalOpen(false)}
+                title={t('users.detailsTitle', { role: 'COACH' })}
+                size="md"
+              >
+                {selectedCoach && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                      <UserAvatar user={selectedCoach.user} size="xl" />
+                      <div>
+                        <h2 style={{ margin: 0 }}>{selectedCoach.user.name}</h2>
+                        <p style={{ color: '#6b7280', margin: 0 }}>{selectedCoach.user.email}</p>
+                        <div className="mt-2">
+                          <span style={{
+                            background: '#eff6ff',
+                            color: '#1e40af',
+                            padding: '4px 12px',
+                            borderRadius: '20px',
+                            fontSize: '0.75rem',
+                            fontWeight: 700
+                          }}>
+                            COACH
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+                      <div>
+                        <h4 style={{ margin: '0 0 8px 0', color: '#6b7280', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{t('users.joinedDate')}</h4>
+                        <p style={{ margin: 0, fontWeight: 500 }}>{new Date(selectedCoach.createdAt).toLocaleDateString()}</p>
+                      </div>
+
+                      <div>
+                        <h4 style={{ margin: '0 0 8px 0', color: '#6b7280', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{t('users.specialty')}</h4>
+                        <p style={{ margin: 0, fontWeight: 500 }}>{selectedCoach.discipline || t('users.notSpecified')}</p>
+                      </div>
+                      <div>
+                        <h4 style={{ margin: '0 0 8px 0', color: '#6b7280', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{t('users.status')}</h4>
+                        <StatusBadge status={selectedCoach.status || 'PENDING'} />
+                      </div>
+                      <div>
+                        <h4 style={{ margin: '0 0 8px 0', color: '#6b7280', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{t('users.portfolio')}</h4>
+                        <p style={{ margin: 0, fontWeight: 500 }}>
+                          {selectedCoach.portfolio ? (
+                            <a href={selectedCoach.portfolio} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--primary)', textDecoration: 'underline' }}>
+                              View Portfolio
+                            </a>
+                          ) : t('users.notSpecified')}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div style={{ padding: '16px', background: '#f9fafb', borderRadius: '12px' }}>
+                      <h4 style={{ margin: '0 0 8px 0', color: '#6b7280', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{t('users.bio')}</h4>
+                      <p style={{ margin: 0, lineHeight: 1.6 }}>{selectedCoach.bio || 'No bio provided.'}</p>
+                    </div>
+
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '8px' }}>
+                      <Button variant="outline" onClick={() => setIsViewModalOpen(false)}>{tCommon('close')}</Button>
+                    </div>
+                  </div>
+                )}
               </Modal>
 
               {/* Reject Modal */}

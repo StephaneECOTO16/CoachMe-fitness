@@ -1,0 +1,11 @@
+.container {
+    /* padding: var(--space-8); */
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.title {
+    margin-bottom: var(--space-8);
+    font-size: var(--text-3xl);
+}

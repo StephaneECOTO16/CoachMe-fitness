@@ -197,6 +197,10 @@ export async function GET(req: Request) {
 
         } else if (payload.role === 'ADMIN') {
             // Admin can see all chats
+            const url = new URL(req.url);
+            const limit = url.searchParams.get('limit');
+            const take = limit ? parseInt(limit, 10) : undefined;
+
             chats = await prisma.chat.findMany({
                 include: {
                     client: {
@@ -227,6 +231,7 @@ export async function GET(req: Request) {
                     _count: { select: { messages: true } }
                 },
                 orderBy: { updatedAt: 'desc' },
+                take,
             });
             chats = chats.map((chat) => ({
                 ...chat,
