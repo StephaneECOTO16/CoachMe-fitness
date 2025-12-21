@@ -10,7 +10,7 @@ import Image from 'next/image';
 
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import Button from '@/components/ui/Button';
-import { Modal, LoadingIndicator } from '@/components';
+import { Modal, LoadingIndicator, Pagination } from '@/components';
 import toast from '@/lib/toast';
 import styles from './page.module.css';
 
@@ -32,6 +32,8 @@ export default function AdminDisciplinesPage() {
     const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState('');
     const [highlightedId, setHighlightedId] = useState<number | null>(null);
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 10;
 
     // Modal States
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -98,6 +100,19 @@ export default function AdminDisciplinesPage() {
             d.name.toLowerCase().includes(searchQuery.toLowerCase())
         );
     }, [disciplines, searchQuery]);
+
+    // Pagination logic
+    const totalPages = Math.ceil(filteredDisciplines.length / itemsPerPage);
+    const paginatedDisciplines = useMemo(() => {
+        const startIndex = (currentPage - 1) * itemsPerPage;
+        const endIndex = startIndex + itemsPerPage;
+        return filteredDisciplines.slice(startIndex, endIndex);
+    }, [filteredDisciplines, currentPage]);
+
+    // Reset to page 1 when search query changes
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchQuery]);
 
     const handleOpenModal = (discipline?: Discipline) => {
         if (discipline) {
@@ -283,81 +298,76 @@ export default function AdminDisciplinesPage() {
                         <LoadingIndicator label={tCommon('loading')} />
                     </div>
                 ) : (
-                    <div className={styles.grid}>
-                        {filteredDisciplines.length > 0 ? (
-                            filteredDisciplines.map((discipline) => (
-                                <div
-                                    key={discipline.id}
-                                    ref={(el) => disciplineRefs.current[discipline.id] = el}
-                                    className={`${styles.disciplineCard} ${highlightedId === discipline.id ? styles.highlighted : ''}`}
-                                >
-                                    <div className={styles.imageWrapper}>
-                                        {discipline.imageUrl ? (
-                                            <Image
-                                                src={discipline.imageUrl}
-                                                alt={discipline.name}
-                                                fill
-                                                style={{ objectFit: 'cover' }}
-                                                sizes="(max-width: 768px) 100vw, 300px"
-                                            />
-                                        ) : (
-                                            <div className={styles.placeholderImage}>
-                                                <ImageIcon size={48} />
-                                            </div>
-                                        )}
-                                    </div>
-                                    <div className={styles.cardContent}>
-                                        <div className={styles.cardHeader}>
-                                            <h3 className={styles.cardTitle}>{discipline.name}</h3>
+                    <>
+                        <div className={styles.grid}>
+                            {paginatedDisciplines.length > 0 ? (
+                                paginatedDisciplines.map((discipline) => (
+                                    <div
+                                        key={discipline.id}
+                                        ref={(el) => disciplineRefs.current[discipline.id] = el}
+                                        className={`${styles.disciplineCard} ${highlightedId === discipline.id ? styles.highlighted : ''}`}
+                                    >
+                                        <div className={styles.imageWrapper}>
+                                            {discipline.imageUrl ? (
+                                                <Image
+                                                    src={discipline.imageUrl}
+                                                    alt={discipline.name}
+                                                    fill
+                                                    style={{ objectFit: 'cover' }}
+                                                    sizes="(max-width: 768px) 100vw, 300px"
+                                                />
+                                            ) : (
+                                                <div className={styles.placeholderImage}>
+                                                    <ImageIcon size={48} />
+                                                </div>
+                                            )}
                                         </div>
-                                        <div className={styles.statsRow}>
-                                            <div className={styles.statItem}>
-                                                <Users size={16} />
-                                                <span>{discipline.coachCount} {t('coaches')}</span>
+                                        <div className={styles.cardContent}>
+                                            <div className={styles.cardHeader}>
+                                                <h3 className={styles.cardTitle}>{discipline.name}</h3>
                                             </div>
-                                            <div className={styles.statItem}>
-                                                <button
-                                                    className={`${styles.actionBtn} ${styles.editBtn}`}
-                                                    onClick={() => handleOpenModal(discipline)}
-                                                    title={t('actions.edit')}
-                                                >
-                                                    <Pencil size={18} />
-                                                </button>
-                                                <button
-                                                    className={`${styles.actionBtn} ${styles.deleteBtn}`}
-                                                    onClick={() => confirmDelete(discipline)}
-                                                    title={t('actions.delete')}
-                                                >
-                                                    <Trash2 size={18} />
-                                                </button>
+                                            <div className={styles.statsRow}>
+                                                <div className={styles.statItem}>
+                                                    <Users size={16} />
+                                                    <span>{discipline.coachCount} {t('coaches')}</span>
+                                                </div>
+                                                <div className={styles.statItem}>
+                                                    <button
+                                                        className={`${styles.actionBtn} ${styles.editBtn}`}
+                                                        onClick={() => handleOpenModal(discipline)}
+                                                        title={t('actions.edit')}
+                                                    >
+                                                        <Pencil size={18} />
+                                                    </button>
+                                                    <button
+                                                        className={`${styles.actionBtn} ${styles.deleteBtn}`}
+                                                        onClick={() => confirmDelete(discipline)}
+                                                        title={t('actions.delete')}
+                                                    >
+                                                        <Trash2 size={18} />
+                                                    </button>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                    {/* <div className={styles.cardFooter}>
-                                        <button
-                                            className={`${styles.actionBtn} ${styles.editBtn}`}
-                                            onClick={() => handleOpenModal(discipline)}
-                                            title={t('actions.edit')}
-                                        >
-                                            <Pencil size={18} />
-                                        </button>
-                                        <button
-                                            className={`${styles.actionBtn} ${styles.deleteBtn}`}
-                                            onClick={() => confirmDelete(discipline)}
-                                            title={t('actions.delete')}
-                                        >
-                                            <Trash2 size={18} />
-                                        </button>
-                                    </div> */}
+                                ))
+                            ) : (
+                                <div className={styles.noResults}>
+                                    <ImageIcon size={48} style={{ marginBottom: '1rem', opacity: 0.5 }} />
+                                    <p>{t('noDisciplines')}</p>
                                 </div>
-                            ))
-                        ) : (
-                            <div className={styles.noResults}>
-                                <ImageIcon size={48} style={{ marginBottom: '1rem', opacity: 0.5 }} />
-                                <p>{t('noDisciplines')}</p>
-                            </div>
+                            )}
+                        </div>
+
+                        {/* Pagination */}
+                        {filteredDisciplines.length > itemsPerPage && (
+                            <Pagination
+                                currentPage={currentPage}
+                                totalPages={totalPages}
+                                onPageChange={setCurrentPage}
+                            />
                         )}
-                    </div>
+                    </>
                 )}
 
                 {/* Create/Edit Modal */}

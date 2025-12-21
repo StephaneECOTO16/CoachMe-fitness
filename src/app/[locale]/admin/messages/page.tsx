@@ -1,8 +1,10 @@
 'use client';
 
+import { Link } from '@/i18n/routing';
+import { useSearchParams } from 'next/navigation';
 import { useState, useEffect, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
-import { Search, RefreshCw } from 'lucide-react';
+import { Search, RefreshCw, ArrowLeft } from 'lucide-react';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import { LoadingIndicator } from '@/components';
 import ConversationList from '@/components/chat/ConversationList/ConversationList';
@@ -14,22 +16,11 @@ import { useAuth } from '@/contexts/AuthContext';
 import UserAvatar from '@/components/ui/UserAvatar/UserAvatar';
 import styles from './page.module.css';
 
-interface Message {
-    id: number;
-    content: string;
-    createdAt: string;
-    senderId: number;
-    sender: {
-        id: number;
-        name: string | null;
-        avatar: string | null;
-    };
-}
-
 export default function AdminMessagesPage() {
     const t = useTranslations('admin.messages');
     const tCommon = useTranslations('common');
     const { token, user } = useAuth();
+    const searchParams = useSearchParams();
 
     const [chats, setChats] = useState<Chat[]>([]);
     const [selectedChatId, setSelectedChatId] = useState<string | null>(null);
@@ -37,6 +28,14 @@ export default function AdminMessagesPage() {
     const [searchQuery, setSearchQuery] = useState('');
     const [isLoadingChats, setIsLoadingChats] = useState(true);
     const [isLoadingMessages, setIsLoadingMessages] = useState(false);
+
+    // Initialize selectedChatId from URL param
+    useEffect(() => {
+        const chatIdParam = searchParams.get('chatId');
+        if (chatIdParam) {
+            setSelectedChatId(chatIdParam);
+        }
+    }, [searchParams]);
 
     // Fetch all conversations
     const fetchChats = async () => {
@@ -147,14 +146,17 @@ export default function AdminMessagesPage() {
                 <div className={styles.sidebar}>
                     <div className={styles.sidebarHeader}>
                         <div className={styles.headerTop}>
-                            <h1 className={styles.title}>{t('title')}</h1>
-                            <button
-                                className={styles.refreshBtn}
-                                onClick={fetchChats}
-                                title="Refresh"
-                            >
-                                <RefreshCw size={18} />
-                            </button>
+
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+                                <h1 className={styles.title}>{t('title')}</h1>
+                                <button
+                                    className={styles.refreshBtn}
+                                    onClick={fetchChats}
+                                    title="Refresh"
+                                >
+                                    <RefreshCw size={18} />
+                                </button>
+                            </div>
                         </div>
 
                     </div>
@@ -207,6 +209,26 @@ export default function AdminMessagesPage() {
                                     </p>
                                 </div>
                             </div>
+                            <Link
+                                href="/admin/dashboard"
+                                style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '6px',
+                                    color: '#6b7280',
+                                    textDecoration: 'none',
+                                    fontSize: '0.875rem',
+                                    fontWeight: 500,
+                                    padding: '8px 12px',
+                                    borderRadius: '6px',
+                                    transition: 'background-color 0.2s',
+                                    marginLeft: 'auto'
+                                }}
+                                className="hover:bg-gray-100" // simpler hover effect if tailwind is available, else I might need inline hover or class
+                            >
+                                <ArrowLeft size={16} />
+                                <span>{t('backToDashboard')}</span>
+                            </Link>
                         </div>
                     )}
 

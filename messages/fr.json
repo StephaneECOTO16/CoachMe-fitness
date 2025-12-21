@@ -16,7 +16,8 @@
     "filter": "Filtrer",
     "viewMore": "Voir Plus",
     "learnMore": "En Savoir Plus",
-    "actionIrreversible": "Cette action est irréversible."
+    "actionIrreversible": "Cette action est irréversible.",
+    "close": "Fermer"
   },
   "nav": {
     "home": "Accueil",
@@ -402,7 +403,7 @@
       "totalClients": "Clients",
       "totalCoaches": "Coachs Totaux",
       "approvedCoaches": "Coachs Approuvés",
-      "pendingReviews": "Examens en Attente",
+      "pendingReviews": "Approbation en Attente",
       "activeChats": "Conversations Actives",
       "viewAllCoaches": "Voir Tous les Coachs",
       "allCaughtUp": "Tout est à Jour!",
@@ -483,6 +484,37 @@
         "title": "Mettre à jour la Discipline",
         "success": "Discipline mise à jour avec succès",
         "error": "Échec de la mise à jour de la discipline"
+      },
+      "users": {
+        "title": "Gestion des Utilisateurs",
+        "searchPlaceholder": "Rechercher un nom ou un email...",
+        "tableName": "Nom d'utilisateur",
+        "tableRole": "Rôle",
+        "tableContext": "Contexte (Spécialité/Objectifs)",
+        "tableJoinedAt": "Rejoint le",
+        "tableStatus": "Statut",
+        "tableActions": "Actions",
+        "noGoals": "Aucun objectif défini",
+        "noSpecialty": "Aucune spécialité",
+        "noGoalsDetailed": "Aucun objectif spécifique décrit pour le moment.",
+        "notSpecified": "Non spécifié",
+        "visibilityTitle": "Mettre à jour la visibilité du coach",
+        "visibilitySubtitle": "Approuvez ce coach pour le rendre visible sur la plateforme.",
+        "approveCoach": "Approuver le Coach",
+        "rejectCoach": "Rejeter le Coach",
+        "viewDetails": "Voir les Détails",
+        "moreActions": "Plus d'Actions",
+        "detailsTitle": "Détails du {role}",
+        "joinedDate": "Date d'inscription",
+        "specialty": "Spécialité",
+        "status": "Statut",
+        "portfolio": "Portfolio",
+        "experience": "Expérience",
+        "years": "ans",
+        "fitnessGoals": "Objectifs Fitness",
+        "loadError": "Échec du chargement des utilisateurs",
+        "bio": "Biographie",
+        "internalError": "Erreur interne du serveur"
       }
     },
     "coaches": {
@@ -530,6 +562,7 @@
     },
     "messages": {
       "title": "Conversations",
+      "backToDashboard": "Retour au Tableau de Bord",
       "searchPlaceholder": "Rechercher par nom ou email",
       "activeConversations": "{count} actives · {flagged} signalées",
       "readOnlyMode": "Vous consultez cette conversation en mode lecture seule. Les réponses administrateur ne sont pas visibles aux participants.",

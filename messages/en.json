@@ -16,7 +16,8 @@
     "filter": "Filter",
     "viewMore": "View More",
     "learnMore": "Learn More",
-    "actionIrreversible": "This action is irreversible."
+    "actionIrreversible": "This action is irreversible.",
+    "close": "Close"
   },
   "nav": {
     "home": "Home",
@@ -483,6 +484,37 @@
         "title": "Update Discipline",
         "success": "Discipline updated successfully",
         "error": "Failed to update discipline"
+      },
+      "users": {
+        "title": "User Management",
+        "searchPlaceholder": "Search user name or email...",
+        "tableName": "User Name",
+        "tableRole": "Role",
+        "tableContext": "Context (Specialty/Goals)",
+        "tableJoinedAt": "Joined At",
+        "tableStatus": "Status",
+        "tableActions": "Actions",
+        "noGoals": "No goals set",
+        "noSpecialty": "No specialty",
+        "noGoalsDetailed": "No specific goals described yet.",
+        "notSpecified": "Not specified",
+        "visibilityTitle": "Update Coach Visibility",
+        "visibilitySubtitle": "Approve this coach to make them searchable on the platform.",
+        "approveCoach": "Approve Coach",
+        "rejectCoach": "Reject Coach",
+        "viewDetails": "View Details",
+        "moreActions": "More Actions",
+        "detailsTitle": "{role} Details",
+        "joinedDate": "Joined Date",
+        "specialty": "Specialty",
+        "status": "Status",
+        "portfolio": "Portfolio",
+        "experience": "Experience",
+        "years": "years",
+        "fitnessGoals": "Fitness Goals",
+        "loadError": "Failed to load users",
+        "bio": "Bio",
+        "internalError": "Internal server error"
       }
     },
     "coaches": {
@@ -530,6 +562,7 @@
     },
     "messages": {
       "title": "Conversations",
+      "backToDashboard": "Back to Dashboard",
       "searchPlaceholder": "Search by name or email",
       "activeConversations": "{count} active · {flagged} flagged",
       "readOnlyMode": "You are viewing this conversation in read-only mode. Admin replies are not visible to participants.",

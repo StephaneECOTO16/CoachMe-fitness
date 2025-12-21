@@ -45,7 +45,7 @@
 @media (min-width: 768px) {
     .cardList .avatarWrapper {
         width: 250px;
-        height: 100%;
+        height: auto;
     }
 }
 

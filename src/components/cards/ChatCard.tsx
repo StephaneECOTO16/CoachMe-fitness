@@ -118,14 +118,22 @@ const ChatCard: React.FC<ChatCardProps> = ({
 
       <div className={styles.content}>
         <div className={styles.header}>
-          <h4 className={styles.name}>{chat.participant.name}</h4>
+          <h4 className={styles.name}>
+            {chat.secondaryParticipant ? (
+              <>
+                {chat.participant.name} <span style={{ color: '#9ca3af', fontWeight: 400 }}>×</span> {chat.secondaryParticipant.name}
+              </>
+            ) : (
+              chat.participant.name
+            )}
+          </h4>
           <div className={styles.timeWrap}>
             <span className={styles.time}>{formatTime(chat.lastUpdate)}</span>
             {/* <span className={styles.date}>{formatDate(chat.lastUpdate)}</span> */}
           </div>
         </div>
 
-        {(chat.participant.role || chat.participant.discipline) && (
+        {(chat.participant.role || chat.participant.discipline) && !chat.secondaryParticipant && (
           <p className={styles.role}>
             {chat.participant.discipline || chat.participant.role}
           </p>

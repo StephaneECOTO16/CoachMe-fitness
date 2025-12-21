@@ -52,7 +52,6 @@ export default function Header() {
           ? [
             { href: "/admin/disciplines", label: t("disciplines") },
             { href: "/admin/users", label: t("users") },
-            { href: "/admin/coaches", label: t("pendingCoaches") },
           ]
           : []),
         {

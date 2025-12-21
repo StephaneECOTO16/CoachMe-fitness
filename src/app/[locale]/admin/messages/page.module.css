@@ -102,6 +102,9 @@
     padding: var(--space-4) var(--space-6);
     border-bottom: 1px solid var(--gray-200);
     background: var(--bg-primary);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 .chatHeaderContent {

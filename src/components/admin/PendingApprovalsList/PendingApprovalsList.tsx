@@ -3,9 +3,11 @@
 import React from 'react';
 import { Link } from '@/i18n/routing';
 import UserAvatar from '@/components/ui/UserAvatar/UserAvatar';
-import { Check, X, Eye } from 'lucide-react';
+import { Check, X, Eye, MoreVertical, CheckCircle, XCircle } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import styles from './PendingApprovalsList.module.css';
+import { DataTable, StatusBadge, Dropdown } from '@/components';
+import { ColumnConfig } from '@/components/ui/DataTable/DataTable';
 
 interface PendingCoach {
     id: number;
@@ -24,95 +26,105 @@ interface PendingApprovalsListProps {
     coaches: PendingCoach[];
     onApprove?: (id: number) => void;
     onReject?: (id: number) => void;
+    onView?: (coach: PendingCoach) => void;
 }
 
 const PendingApprovalsList: React.FC<PendingApprovalsListProps> = ({
     coaches,
     onApprove,
-    onReject
+    onReject,
+    onView
 }) => {
     const t = useTranslations('admin.dashboard');
+
+    const columns: ColumnConfig<PendingCoach>[] = [
+        {
+            header: t('table.coach'),
+            key: 'user',
+            render: (coach) => (
+                <div className={styles.coachCell}>
+                    <UserAvatar user={coach.user} size="md" />
+                    <div className={styles.coachInfo}>
+                        <span className={styles.coachName}>{coach.user.name || 'Unknown'}</span>
+                        <span className={styles.coachEmail}>{coach.user.email}</span>
+                    </div>
+                </div>
+            )
+        },
+        {
+            header: t('table.specialty'),
+            key: 'discipline',
+            render: (coach) => <span className={styles.specialty}>{coach.discipline}</span>
+        },
+        {
+            header: t('table.status'),
+            key: 'status',
+            render: () => (
+                <StatusBadge status="PENDING" size="sm" />
+            )
+        }
+    ];
+
+    const renderActions = (coach: PendingCoach) => {
+        const dropdownItems: any[] = [];
+
+        if (onApprove) {
+            dropdownItems.push({
+                label: t('actions.approve'),
+                icon: <CheckCircle size={16} />,
+                onClick: () => onApprove(coach.id)
+            });
+        }
+
+        if (onReject) {
+            dropdownItems.push({
+                label: t('actions.reject'),
+                icon: <XCircle size={16} />,
+                variant: 'danger',
+                onClick: () => onReject(coach.id)
+            });
+        }
+
+        return (
+            <div className={styles.actions}>
+                <button
+                    className={styles.iconBtn}
+                    onClick={() => onView ? onView(coach) : null}
+                    title={t('actions.viewDetails')}
+                >
+                    <Eye size={18} />
+                </button>
+                {dropdownItems.length > 0 && (
+                    <Dropdown
+                        trigger={
+                            <button className={styles.iconBtn} title={t('users.moreActions')}>
+                                <MoreVertical size={18} />
+                            </button>
+                        }
+                        items={dropdownItems}
+                    />
+                )}
+            </div>
+        );
+    };
 
     return (
         <div className={styles.container}>
             <div className={styles.header}>
                 <h2 className={styles.title}>{t('pendingApprovals')}</h2>
-                <Link href="/admin/coaches" className={styles.viewAll}>
+                <Link href="/admin/users" className={styles.viewAll}>
                     {t('viewAll')}
                 </Link>
             </div>
 
-            <div className={styles.tableContainer}>
-                <table className={styles.table}>
-                    <thead>
-                        <tr>
-                            <th className={styles.th}>{t('table.coach')}</th>
-                            <th className={styles.th}>{t('table.specialty')}</th>
-                            <th className={styles.th}>{t('table.status')}</th>
-                            <th className={styles.th}>{t('table.action')}</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {coaches.map((coach) => (
-                            <tr key={coach.id} className={styles.row}>
-                                <td className={styles.td}>
-                                    <div className={styles.coachCell}>
-                                        <UserAvatar user={coach.user} size="md" />
-                                        <div className={styles.coachInfo}>
-                                            <span className={styles.coachName}>{coach.user.name || 'Unknown'}</span>
-                                            <span className={styles.coachEmail}>{coach.user.email}</span>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td className={styles.td}>
-                                    <span className={styles.specialty}>{coach.discipline}</span>
-                                </td>
-                                <td className={styles.td}>
-                                    <span className={styles.pendingBadge}>
-                                        {t('pendingReview')}
-                                    </span>
-                                </td>
-                                <td className={styles.td}>
-                                    <div className={styles.actions}>
-                                        {onApprove && (
-                                            <button
-                                                className={`${styles.iconBtn} ${styles.approveIcon}`}
-                                                onClick={() => onApprove(coach.id)}
-                                                title={t('actions.approve')}
-                                            >
-                                                <Check size={18} />
-                                            </button>
-                                        )}
-                                        {onReject && (
-                                            <button
-                                                className={`${styles.iconBtn} ${styles.rejectIcon}`}
-                                                onClick={() => onReject(coach.id)}
-                                                title={t('actions.reject')}
-                                            >
-                                                <X size={18} />
-                                            </button>
-                                        )}
-                                        <Link
-                                            href={`/admin/coaches/${coach.id}`}
-                                            className={`${styles.iconBtn} ${styles.viewIcon}`}
-                                            title={t('actions.viewDetails')}
-                                        >
-                                            <Eye size={18} />
-                                        </Link>
-                                    </div>
-                                </td>
-                            </tr>
-                        ))}
-                        {coaches.length === 0 && (
-                            <tr>
-                                <td colSpan={4} style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-secondary)' }}>
-                                    {t('noPendingApprovals')}
-                                </td>
-                            </tr>
-                        )}
-                    </tbody>
-                </table>
-            </div>
+            <DataTable
+                data={coaches}
+                columns={columns}
+                renderRowActions={renderActions}
+                showHeader={false}
+                showFooter={false}
+                emptyMessage={t('noPendingApprovals')}
+            />
         </div>
     );
 };
