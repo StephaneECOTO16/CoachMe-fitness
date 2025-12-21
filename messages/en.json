@@ -99,10 +99,21 @@
   },
   "home": {
     "hero": {
-      "title": "Transform Your Fitness Journey",
-      "subtitle": "Connect with certified coaches who will guide you to achieve your fitness goals",
-      "ctaPrimary": "Find Your Coach",
-      "ctaSecondary": "Become a Coach"
+      "smallLabel": "Fitness Marketplace for Real Human Coaching",
+      "title": "We connect <highlight>coaches</highlight> & <highlight>clients</highlight> in one platform.",
+      "subtitle": "Connect with certified fitness professionals across Cameroon. Build your wellness journey with trusted coaches in your community.",
+      "ctafind": "Find a coach",
+      "ctaMember": "Become a member",
+      "noAlgorithms": "No algorithms, no guesswork—just transparent profiles, portfolios, and direct agreements.",
+      "tags": {
+        "verified": "Verified coaches only",
+        "messaging": "In-app messaging",
+        "global": "Global disciplines"
+      },
+      "stats": {
+        "rating": "Avg coach rating",
+        "agreements": "Active agreements"
+      }
     },
     "features": {
       "title": "Why Choose CoachMe",
@@ -134,9 +145,55 @@
         "description": "Connect with your coach and begin your transformation"
       }
     },
+    "about": {
+      "eyebrow": "REVOLUTIONIZING FITNESS",
+      "title": "More than just an app, <highlight>CoachMe</highlight> is a community.",
+      "description": "<highlight>CoachMe</highlight> was founded on the belief that everyone deserves access to world-class fitness expertise. Our platform connects you with dedicated professionals who tailor every workout to your unique journey, ensuring that your wellness goals are always within reach.",
+      "features": {
+        "access": {
+          "title": "Direct Access",
+          "description": "Chat and coordinate directly with your coach without intermediaries."
+        },
+        "expertise": {
+          "title": "Verified Expertise",
+          "description": "Every coach on <highlight>CoachMe</highlight> is thoroughly vetted for certifications and quality."
+        },
+        "growth": {
+          "title": "Growth Focused",
+          "description": "We provide the tools for both clients and coaches to track progress and succeed."
+        }
+      },
+      "stats": {
+        "trust": "500+ Active Clients",
+        "standard": "Premium Standard"
+      }
+    },
+    "whyChooseUs": {
+      "title": "Why Choose <highlight>CoachMe</highlight>",
+      "subtitle": "Discover the advantages of training with the best coaches in Cameroon.",
+      "features": {
+        "certified": {
+          "title": "Certified Professionals",
+          "description": "All coaches are thoroughly vetted and certified. Train with confidence knowing you're working with qualified professionals."
+        },
+        "community": {
+          "title": "Local Community",
+          "description": "Find coaches in your area across Cameroon. Build lasting relationships with professionals who understand your local context."
+        },
+        "flexible": {
+          "title": "Flexible Scheduling",
+          "description": "Book sessions that fit your busy schedule. Our coaches offer flexible timing to accommodate your professional lifestyle."
+        }
+      }
+    },
+    "disciplines": {
+      "title": "Explore Our <highlight>Disciplines</highlight>",
+      "subtitle": "Connecting you with the best fitness professionals across top domains.",
+      "coachCount": "{count, plural, =0 {No coaches} =1 {# Coach} other {# Coaches}}"
+    },
     "cta": {
-      "title": "Ready to Transform?",
-      "subtitle": "Join thousands of people achieving their fitness goals",
+      "title": "Ready to Start Your <highlight>Wellness Journey?</highlight>",
+      "description": "Join thousands of professionals who have transformed their health with our certified coaches.",
       "button": "Get Started Now"
     }
   },

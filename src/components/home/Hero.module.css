@@ -1,0 +1,331 @@
+.hero {
+    position: relative;
+    width: 100%;
+    /* min-height: 85vh;
+    background: linear-gradient(135deg, var(--gray-900) 0%, #2e005c 100%);
+    background: linear-gradient(135deg, var(--secondary-dark) 0%, #4c1d95 100%);
+    background: linear-gradient(120deg, #1a1a2e 0%, #3a0ca3 40%, var(--primary) 100%); */
+    background: linear-gradient(120deg, var(--primary) 0%, var(--secondary-dark) 40%, var(--primary) 100%);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    color: white;
+    /* padding-top: 80px; */
+}
+
+.container {
+    width: 100%;
+    max-width: var(--container-xl);
+    margin: 0 auto;
+    padding: var(--space-8) var(--space-4);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-8);
+    position: relative;
+    z-index: 10;
+}
+
+@media (min-width: 1024px) {
+    .container {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        padding: var(--space-10) var(--space-8);
+    }
+}
+
+/* Left Content Column */
+.contentLeft {
+    flex: 1;
+    max-width: 650px;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    z-index: 20;
+}
+
+.label {
+    font-size: var(--text-xs);
+    font-weight: var(--font-bold);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.title {
+    font-family: var(--font-sans);
+    font-size: var(--text-3xl);
+    font-weight: var(--font-bold);
+    line-height: 1.1;
+    color: white;
+}
+
+.highlight {
+    color: var(--primary);
+    /* color: #fbbf24; */
+    /* Amber/Yellow highlight from reference */
+}
+
+@media (min-width: 768px) {
+    .title {
+        font-size: var(--text-6xl);
+    }
+}
+
+.subtitle {
+    font-size: var(--text-lg);
+    line-height: 1.3;
+    color: rgba(255, 255, 255, 0.9);
+    max-width: 500px;
+}
+
+@media (min-width: 768px) {
+    .subtitle {
+        line-height: 1.6;
+    }
+}
+
+/* Tags Row */
+.tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    /* margin-top: var(--space-); */
+}
+
+.tag {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    background: rgba(255, 255, 255, 0.1);
+    padding: var(--space-2) var(--space-4);
+    border-radius: var(--radius-full);
+    font-size: var(--text-sm);
+    font-weight: var(--font-medium);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Icons for tags would ideally be SVGs */
+.tagIcon {
+    width: 16px;
+    height: 16px;
+}
+
+/* CTA Buttons */
+.actions {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    margin-top: var(--space-4);
+}
+
+@media (min-width: 640px) {
+    .tags {
+        gap: var(--space-4);
+    }
+
+    .actions {
+        flex-direction: row;
+        align-items: center;
+    }
+}
+
+.btnPrimary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    background: var(--primary);
+    color: white;
+    padding: var(--space-3) var(--space-6);
+    border-radius: var(--radius-md);
+    font-weight: var(--font-semibold);
+    transition: all var(--transition-base);
+    text-transform: none;
+    /* Override any global headers */
+    border: none;
+}
+
+.btnPrimary:hover {
+    transform: translateY(-3px);
+    color: var(--white);
+    box-shadow: 0 4px 12px rgba(46, 175, 161, 0.4);
+}
+
+.btnSecondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    padding: var(--space-3) var(--space-6);
+    border-radius: var(--radius-md);
+    font-weight: var(--font-semibold);
+    transition: all var(--transition-base);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.btnSecondary:hover {
+    /* background: rgba(255, 255, 255, 0.2); */
+    /* border-color: white; */
+    transform: translateY(-3px);
+    color: var(--white);
+    box-shadow: 0 4px 12px rgba(46, 175, 161, 0.4);
+}
+
+.footerText {
+    font-size: var(--text-xs);
+    color: rgba(255, 255, 255, 0.6);
+    margin-top: var(--space-4);
+}
+
+/* Right Image Column with Diagonal Clip */
+.contentRight {
+    flex: 1;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 400px;
+    display: none;
+}
+
+@media (min-width: 1024px) {
+    .contentRight {
+        display: block;
+    }
+}
+
+.imageWrapper {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    min-height: 500px;
+    border-radius: 40px;
+    /* Large rounded corners per reference */
+    border-top-right-radius: 100px;
+    /* Distinctive shape */
+    overflow: hidden;
+    /* The diagonal clip path effect on the container itself */
+    transform: perspective(1000px) rotateY(-5deg);
+    box-shadow: 20px 20px 60px rgba(0, 0, 0, 0.3);
+    background: #000;
+}
+
+@media (max-width: 1023px) {
+    .imageWrapper {
+        transform: none;
+        min-height: 300px;
+    }
+
+    .contentRight {
+        width: 100%;
+        min-height: auto;
+        margin-top: var(--space-8);
+    }
+}
+
+.heroImage {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.7s ease;
+}
+
+.heroImage:hover {
+    transform: scale(1.05);
+}
+
+/* Floating Stats Card */
+.statsCard {
+    position: absolute;
+    bottom: 40px;
+    left: -40px;
+    background: rgba(30, 41, 59, 0.95);
+    /* Dark blue/gray background */
+    backdrop-filter: blur(10px);
+    padding: var(--space-4) var(--space-6);
+    border-radius: var(--radius-xl);
+    display: flex;
+    align-items: center;
+    gap: var(--space-6);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: white;
+    z-index: 30;
+    min-width: 280px;
+}
+
+@media (max-width: 1023px) {
+    .statsCard {
+        bottom: -20px;
+        left: 20px;
+        right: 20px;
+        min-width: auto;
+    }
+}
+
+.statItem {
+    display: flex;
+    flex-direction: column;
+}
+
+.statValue {
+    font-size: var(--text-2xl);
+    font-weight: var(--font-bold);
+    line-height: 1;
+}
+
+.statLabel {
+    font-size: var(--text-xs);
+    color: var(--gray-400);
+    margin-top: 4px;
+}
+
+.statDivider {
+    width: 1px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.2);
+}
+
+/* Floating Action Buttons or Circles (the play/share buttons in reference) */
+.floatingActions {
+    position: absolute;
+    right: -20px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+}
+
+@media (max-width: 1023px) {
+    .floatingActions {
+        right: 10px;
+    }
+}
+
+.floatBtn {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: white;
+    color: var(--primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+}
+
+.floatBtn:hover {
+    transform: scale(1.1);
+    background: var(--primary);
+    color: white;
+}
