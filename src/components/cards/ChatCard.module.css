@@ -1,15 +1,13 @@
 .chatCard {
   display: flex;
   align-items: center;
-  /* Fixes the 'right side slightly upward' issue by vertically centering content relative to avatar */
   gap: 1rem;
-  padding: 1.25rem;
+  padding: 1rem;
   cursor: pointer;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  border-radius: 12px;
   position: relative;
   background: #ffffff;
-  border: 1px solid #e5e7eb;
+  border-bottom: 1px solid #e5e7eb;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
@@ -29,38 +27,40 @@
 .avatarWrapper {
   position: relative;
   flex-shrink: 0;
-  /* Ensure avatar doesn't get squashed */
-}
-
-.onlineIndicator {
-  position: absolute;
-  bottom: 0px;
-  right: 0px;
-  width: 14px;
-  height: 14px;
-  background: #10b981;
-  border: 2px solid #ffffff;
-  border-radius: 50%;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-}
-
-.unreadBadge {
-  position: absolute;
-  top: -6px;
-  right: -6px;
-  background: #ef4444;
-  color: white;
-  font-size: 0.75rem;
-  font-weight: 600;
-  min-width: 20px;
-  height: 20px;
-  border-radius: 10px;
+  width: 48px;
+  height: 48px;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0 6px;
+}
+
+.avatarGroup {
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+.avatarItem {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.avatarItem:first-child {
+  margin-right: -14px;
+  z-index: 2;
+}
+
+.avatarItem:last-child {
+  z-index: 1;
+}
+
+.avatarItem :global(.avatarContainer) {
   border: 2px solid #ffffff;
-  box-shadow: 0 1px 2px rgba(239, 68, 68, 0.3);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.avatarItem :global(.avatarIndicator) {
+  display: none !important;
 }
 
 .content {
@@ -69,14 +69,11 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  /* Ensures content stays centered vertically */
-  gap: 0.25rem;
 }
 
 .header {
   display: flex;
   align-items: baseline;
-  /* Aligns text baselines for a cleaner reading line */
   justify-content: space-between;
   gap: 0.75rem;
 }
@@ -91,7 +88,6 @@
   text-overflow: ellipsis;
   letter-spacing: -0.01em;
   text-transform: uppercase;
-  /* Matching the 'JANE CLIENT TEST' style from reference if implied */
 }
 
 .timeWrap {
@@ -105,12 +101,6 @@
   font-size: 0.75rem;
   font-weight: 500;
   color: #6b7280;
-}
-
-.date {
-  font-size: 0.7rem;
-  color: #9ca3af;
-  margin-top: 2px;
 }
 
 .role {
@@ -135,7 +125,6 @@
 
 .chatCard.active .lastMessage {
   color: #059669;
-  /* Greenish tint for active state */
   font-weight: 500;
 }
 

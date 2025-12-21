@@ -527,6 +527,17 @@
         "edit": "Edit discipline",
         "delete": "Delete discipline"
       }
+    },
+    "messages": {
+      "title": "Conversations",
+      "searchPlaceholder": "Search by name or email",
+      "activeConversations": "{count} active · {flagged} flagged",
+      "readOnlyMode": "You are viewing this conversation in read-only mode. Admin replies are not visible to participants.",
+      "noConversations": "No conversations found",
+      "selectConversation": "Select a conversation to view messages",
+      "loadingMessages": "Loading messages...",
+      "today": "Today",
+      "yesterday": "Yesterday"
     }
   },
   "media": {

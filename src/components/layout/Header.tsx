@@ -55,7 +55,10 @@ export default function Header() {
             { href: "/admin/coaches", label: t("pendingCoaches") },
           ]
           : []),
-        { href: "/messages", label: t("messages") },
+        {
+          href: user?.role === "ADMIN" ? "/admin/messages" : "/messages",
+          label: t("messages"),
+        },
         { href: "/contact", label: t("contact") },
       ];
     } else {

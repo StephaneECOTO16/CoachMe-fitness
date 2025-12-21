@@ -195,8 +195,58 @@ export async function GET(req: Request) {
                 },
             }));
 
+        } else if (payload.role === 'ADMIN') {
+            // Admin can see all chats
+            chats = await prisma.chat.findMany({
+                include: {
+                    client: {
+                        include: {
+                            user: {
+                                select: { id: true, name: true, email: true, avatar: true }
+                            }
+                        }
+                    },
+                    coach: {
+                        include: {
+                            user: {
+                                select: { id: true, name: true, email: true, avatar: true }
+                            },
+                            discipline: {
+                                select: { id: true, name: true }
+                            }
+                        }
+                    },
+                    messages: {
+                        orderBy: { createdAt: 'desc' },
+                        take: 1,
+                        select: {
+                            content: true,
+                            createdAt: true,
+                        }
+                    },
+                    _count: { select: { messages: true } }
+                },
+                orderBy: { updatedAt: 'desc' },
+            });
+            chats = chats.map((chat) => ({
+                ...chat,
+                lastMessage: chat.messages[0]?.content || null,
+                client: {
+                    ...chat.client,
+                    user: {
+                        ...chat.client.user,
+                        avatar: chat.client.user.avatar ? getPublicUrl(chat.client.user.avatar) : null,
+                    },
+                },
+                coach: {
+                    ...chat.coach,
+                    user: {
+                        ...chat.coach.user,
+                        avatar: chat.coach.user.avatar ? getPublicUrl(chat.coach.user.avatar) : null,
+                    },
+                },
+            }));
         } else {
-            // Admin cannot see chats (for now)
             chats = [];
         }
 
