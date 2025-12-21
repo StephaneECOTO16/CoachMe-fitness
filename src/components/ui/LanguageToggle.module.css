@@ -64,10 +64,10 @@
 }
 
 @media (min-width: 640px) {
-  .languageToggle {
-    /* gap: var(--space-1); */
-    /* padding: var(--space-2); */
-  }
+  /* .languageToggle {
+    gap: var(--space-1);
+    padding: var(--space-2);
+  } */
 
   .option {
     padding: var(--space-2) var(--space-3);

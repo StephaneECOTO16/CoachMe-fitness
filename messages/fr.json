@@ -99,10 +99,21 @@
   },
   "home": {
     "hero": {
-      "title": "Transformez Votre Parcours Fitness",
-      "subtitle": "Connectez-vous avec des coachs certifiés qui vous guideront vers vos objectifs fitness",
-      "ctaPrimary": "Trouvez Votre Coach",
-      "ctaSecondary": "Devenez Coach"
+      "smallLabel": "Marketplace Fitness pour un Coaching Humain",
+      "title": "Nous connectons <highlight>coachs</highlight> & <highlight>clients</highlight> sur une seule plateforme.",
+      "subtitle": "Connectez-vous avec des professionnels du fitness certifiés à travers le Cameroun. Construisez votre parcours bien-être avec des coachs de confiance dans votre communauté.",
+      "ctafind": "Trouver un coach",
+      "ctaMember": "Devenir membre",
+      "noAlgorithms": "Pas d'algorithmes, pas de devinettes—juste des profils transparents, des portfolios et des accords directs.",
+      "tags": {
+        "verified": "Coachs vérifiés uniquement",
+        "messaging": "Messagerie intégrée",
+        "global": "Disciplines mondiales"
+      },
+      "stats": {
+        "rating": "Note moy. des coachs",
+        "agreements": "Accords actifs"
+      }
     },
     "features": {
       "title": "Pourquoi Choisir CoachMe",
@@ -134,10 +145,56 @@
         "description": "Connectez-vous avec votre coach et commencez votre transformation"
       }
     },
+    "about": {
+      "eyebrow": "RÉVOLUTIONNER LE FITNESS",
+      "title": "Plus qu'une simple application, <highlight>CoachMe</highlight> est une communauté.",
+      "description": "<highlight>CoachMe</highlight> a été fondé sur la conviction que tout le monde mérite l'accès à une expertise fitness de classe mondiale. Notre plateforme vous connecte avec des professionnels dévoués qui adaptent chaque entraînement à votre parcours unique.",
+      "features": {
+        "access": {
+          "title": "Accès Direct",
+          "description": "Discutez et coordonnez directement avec votre coach sans intermédiaires."
+        },
+        "expertise": {
+          "title": "Expertise Vérifiée",
+          "description": "Chaque coach sur <highlight>CoachMe</highlight> est rigoureusement vérifié pour ses certifications."
+        },
+        "growth": {
+          "title": "Axé sur la Croissance",
+          "description": "Nous fournissons les outils nécessaires aux clients et aux coachs pour progresser."
+        }
+      },
+      "stats": {
+        "trust": "500+ Clients Actifs",
+        "standard": "Standard Premium"
+      }
+    },
+    "whyChooseUs": {
+      "title": "Pourquoi Choisir <highlight>CoachMe</highlight>",
+      "subtitle": "Découvrez les avantages de s'entraîner avec les meilleurs coachs au Cameroun.",
+      "features": {
+        "certified": {
+          "title": "Professionnels Certifiés",
+          "description": "Tous les coachs sont rigoureusement vérifiés et certifiés. Entraînez-vous en toute confiance."
+        },
+        "community": {
+          "title": "Communauté Locale",
+          "description": "Trouvez des coachs dans votre région au Cameroun. Établissez des relations durables localement."
+        },
+        "flexible": {
+          "title": "Horaires Flexibles",
+          "description": "Réservez des séances qui s'adaptent à votre emploi du temps chargé. Nos coachs offrent une grande flexibilité."
+        }
+      }
+    },
+    "disciplines": {
+      "title": "Explorez Nos <highlight>Disciplines</highlight>",
+      "subtitle": "Nous vous connectons avec les meilleurs professionnels du fitness dans les domaines clés.",
+      "coachCount": "{count, plural, =0 {Aucun coach} =1 {# Coach} other {# Coachs}}"
+    },
     "cta": {
-      "title": "Prêt à Vous Transformer?",
-      "subtitle": "Rejoignez des milliers de personnes atteignant leurs objectifs fitness",
-      "button": "Commencez Maintenant"
+      "title": "Prêt à commencer votre <highlight>parcours bien-être ?</highlight>",
+      "description": "Rejoignez des milliers de professionnels qui ont transformé leur santé avec nos coachs certifiés.",
+      "button": "Commencer maintenant"
     }
   },
   "coach": {
