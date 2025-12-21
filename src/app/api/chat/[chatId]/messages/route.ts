@@ -104,8 +104,9 @@ export async function GET(req: Request, { params }: { params: Promise<{ chatId: 
 
         const isCoach = chat.coach.userId === payload.userId;
         const isClient = chat.client.userId === payload.userId;
+        const isAdmin = payload.role === 'ADMIN';
 
-        if (!isCoach && !isClient) {
+        if (!isCoach && !isClient && !isAdmin) {
             return NextResponse.json({ success: false, error: { code: 'FORBIDDEN' } }, { status: 403 });
         }
 

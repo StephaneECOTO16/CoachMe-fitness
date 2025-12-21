@@ -17,6 +17,7 @@ export interface ChatParticipant {
 export interface ChatCardData {
   id: string;
   participant: ChatParticipant;
+  secondaryParticipant?: ChatParticipant; // For dual avatars in Admin view
   lastMessage?: string;
   lastUpdate: string;
   unreadCount?: number;
@@ -95,13 +96,24 @@ const ChatCard: React.FC<ChatCardProps> = ({
       onClick={handleClick}
     >
       <div className={styles.avatarWrapper}>
-        <UserAvatar user={chat.participant} size="lg" />
+        {chat.secondaryParticipant ? (
+          <div className={styles.avatarGroup}>
+            <div className={styles.avatarItem}>
+              <UserAvatar user={chat.participant} size="md" />
+            </div>
+            <div className={styles.avatarItem}>
+              <UserAvatar user={chat.secondaryParticipant} size="md" />
+            </div>
+          </div>
+        ) : (
+          <UserAvatar user={chat.participant} size="lg" />
+        )}
         {chat.isOnline && <span className={styles.onlineIndicator} />}
-        {chat.unreadCount && chat.unreadCount > 0 && (
+        {/* {chat.unreadCount && chat.unreadCount > 0 && (
           <span className={styles.unreadBadge}>
             {chat.unreadCount > 9 ? '9+' : chat.unreadCount}
           </span>
-        )}
+        )} */}
       </div>
 
       <div className={styles.content}>
@@ -109,7 +121,7 @@ const ChatCard: React.FC<ChatCardProps> = ({
           <h4 className={styles.name}>{chat.participant.name}</h4>
           <div className={styles.timeWrap}>
             <span className={styles.time}>{formatTime(chat.lastUpdate)}</span>
-            <span className={styles.date}>{formatDate(chat.lastUpdate)}</span>
+            {/* <span className={styles.date}>{formatDate(chat.lastUpdate)}</span> */}
           </div>
         </div>
 

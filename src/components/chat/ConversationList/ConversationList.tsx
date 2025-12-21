@@ -5,6 +5,7 @@ import ChatCard from '@/components/cards/ChatCard';
 import EmptyState, { EmptyStateAction } from '@/components/ui/EmptyState';
 import LoadingIndicator, { LoadingIndicatorSize } from '@/components/loading/LoadingIndicator';
 import { Chat } from '../types';
+import { ChatParticipant } from '@/components/cards/ChatCard';
 import styles from './ConversationList.module.css';
 
 interface ConversationListProps {
@@ -52,8 +53,8 @@ const ConversationList: React.FC<ConversationListProps> = ({
                     <EmptyState
                         icon={emptyState.icon || '💬'}
                         title={emptyState.title}
-                        message={emptyState.message}
-                        action={emptyState.action}
+                        description={emptyState.message}
+                        action={undefined}
                     />
                 </div>
             );
@@ -77,6 +78,16 @@ const ConversationList: React.FC<ConversationListProps> = ({
                 role: 'Client',
                 discipline: 'Client', // Or just use role logic
             };
+        } else if (userRole === 'ADMIN') {
+            // If we are ADMIN, we show Coach as primary and Client as secondary (handled in map)
+            return {
+                id: String(chat.id),
+                name: `${chat.coach.user.name} · ${chat.client.user.name}`,
+                email: `${chat.coach.user.email} / ${chat.client.user.email}`,
+                avatar: chat.coach.user.avatar || undefined,
+                role: chat.coach.discipline.name,
+                discipline: chat.coach.discipline.name,
+            };
         } else {
             // If we are CLIENT (or PROSPECT), we want to see Coach
             return {
@@ -94,16 +105,21 @@ const ConversationList: React.FC<ConversationListProps> = ({
         <div className={`${styles.list} ${className}`}>
             {displayChats.map((chat) => {
                 const participant = getOtherParticipant(chat);
+                const secondaryParticipant = userRole === 'ADMIN' ? {
+                    id: String(chat.client.id),
+                    name: chat.client.user.name || 'Client',
+                    email: chat.client.user.email,
+                    avatar: chat.client.user.avatar || undefined,
+                } : undefined;
 
                 const chatCardData = {
                     id: String(chat.id),
                     participant: {
-                        id: participant.id,
-                        name: participant.name,
-                        avatar: participant.avatar,
-                        role: participant.role,
-                        discipline: participant.discipline,
-                    },
+                        ...participant,
+                    } as ChatParticipant,
+                    secondaryParticipant: secondaryParticipant ? {
+                        ...secondaryParticipant,
+                    } as ChatParticipant : undefined,
                     lastMessage: chat.lastMessage,
                     lastUpdate: chat.updatedAt,
                     unreadCount: chat._count?.messages,

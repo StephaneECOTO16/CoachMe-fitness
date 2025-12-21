@@ -527,6 +527,17 @@
         "edit": "Modifier la discipline",
         "delete": "Supprimer la discipline"
       }
+    },
+    "messages": {
+      "title": "Conversations",
+      "searchPlaceholder": "Rechercher par nom ou email",
+      "activeConversations": "{count} actives · {flagged} signalées",
+      "readOnlyMode": "Vous consultez cette conversation en mode lecture seule. Les réponses administrateur ne sont pas visibles aux participants.",
+      "noConversations": "Aucune conversation trouvée",
+      "selectConversation": "Sélectionnez une conversation pour voir les messages",
+      "loadingMessages": "Chargement des messages...",
+      "today": "Aujourd'hui",
+      "yesterday": "Hier"
     }
   },
   "coachDashboard": {
