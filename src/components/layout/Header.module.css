@@ -1,31 +1,31 @@
 .header {
-  /* position: fixed; */
-  /* top: 0; */
-  /* left: 0; */
-  /* right: 0; */
-  height: 120px;
+  position: sticky;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 90px;
+  /* Fixed height for mobile */
   z-index: 1000;
   background: rgba(255, 255, 255, 0.8);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border-bottom: 1px solid rgba(209, 213, 219, 0.5);
   transition: all var(--transition-base);
+  display: flex;
+  align-items: center;
+}
+
+@media (min-width: 768px) {
+  .header {
+    height: 110px;
+    /* Fixed height for desktop */
+  }
 }
 
 .header.scrolled {
   background: rgba(255, 255, 255, 0.95);
   box-shadow: var(--shadow-lg);
   border-bottom-color: rgba(156, 163, 175, 0.3);
-}
-
-.header.scrolled .nav {
-  padding: var(--space-2) 0;
-}
-
-@media (min-width: 768px) {
-  .header.scrolled .nav {
-    padding: var(--space-2) 0;
-  }
 }
 
 .container {
@@ -51,21 +51,11 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: var(--space-3) 0;
-  transition: padding var(--transition-base);
-}
-
-@media (min-width: 768px) {
-  .nav {
-    padding: 0 var(--space-2);
-  }
+  width: 100%;
+  transition: all var(--transition-base);
 }
 
 .logo {
-  /* display: flex;
-  justify-content: flex-start;
-  align-items: center; */
-  /* gap: var(--space-3); */
   transition: transform var(--transition-base);
 }
 
@@ -74,15 +64,20 @@
 }
 
 .logoImage {
-  height: 40px;
+  height: 110px;
   width: auto;
+  transition: height var(--transition-base);
 }
 
 @media (min-width: 768px) {
   .logoImage {
-    height: 150px;
+    height: 120px;
+    width: auto;
+    object-fit: contain;
   }
 }
+
+/* Logo height is now consistent via .logoImage rules above */
 
 .logoText {
   display: none;
@@ -154,6 +149,8 @@
 .menuButton {
   display: flex;
   flex-direction: column;
+  justify-content: center;
+  align-items: center;
   gap: 4px;
   width: 28px;
   height: 28px;
