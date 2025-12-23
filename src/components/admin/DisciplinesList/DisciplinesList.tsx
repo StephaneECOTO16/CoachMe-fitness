@@ -44,21 +44,14 @@ const DisciplinesList: React.FC<DisciplinesListProps> = ({
                     >
                         <div className={styles.itemLeft}>
                             <div style={{ position: 'relative', width: 48, height: 36, background: '#f3f4f6', borderRadius: '4px' }}>
-                                {discipline.imageUrl ? (
-                                    <Image
-                                        src={discipline.imageUrl}
-                                        alt={discipline.name}
-                                        fill
-                                        style={{ objectFit: 'cover', borderRadius: '4px' }}
-                                        sizes="48px"
-                                        unoptimized={discipline.imageUrl.startsWith('http')}
-                                    />
-                                ) : (
-                                    <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#9ca3af', fontSize: '10px' }}>
-                                        {/* Fallback text could be translated or just left empty/icon */}
-                                        ---
-                                    </div>
-                                )}
+                                <Image
+                                    src={discipline.imageUrl || "/descipline.jpg"}
+                                    alt={discipline.name}
+                                    fill
+                                    style={{ objectFit: 'cover', borderRadius: '4px' }}
+                                    sizes="48px"
+                                    unoptimized={discipline.imageUrl?.startsWith('http')}
+                                />
                             </div>
 
                             <div className={styles.itemInfo}>

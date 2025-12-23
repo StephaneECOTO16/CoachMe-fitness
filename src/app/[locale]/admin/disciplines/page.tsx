@@ -308,19 +308,13 @@ export default function AdminDisciplinesPage() {
                                         className={`${styles.disciplineCard} ${highlightedId === discipline.id ? styles.highlighted : ''}`}
                                     >
                                         <div className={styles.imageWrapper}>
-                                            {discipline.imageUrl ? (
-                                                <Image
-                                                    src={discipline.imageUrl}
-                                                    alt={discipline.name}
-                                                    fill
-                                                    style={{ objectFit: 'cover' }}
-                                                    sizes="(max-width: 768px) 100vw, 300px"
-                                                />
-                                            ) : (
-                                                <div className={styles.placeholderImage}>
-                                                    <ImageIcon size={48} />
-                                                </div>
-                                            )}
+                                            <Image
+                                                src={discipline.imageUrl || "/descipline.jpg"}
+                                                alt={discipline.name}
+                                                fill
+                                                style={{ objectFit: 'cover' }}
+                                                sizes="(max-width: 768px) 100vw, 300px"
+                                            />
                                         </div>
                                         <div className={styles.cardContent}>
                                             <div className={styles.cardHeader}>
