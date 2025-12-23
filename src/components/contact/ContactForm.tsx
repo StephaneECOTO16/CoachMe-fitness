@@ -5,16 +5,15 @@ import { useState } from "react";
 import { Send, Loader2 } from "lucide-react";
 import styles from "./ContactForm.module.css";
 import React from 'react';
+import toast from "@/lib/toast";
 
 export default function ContactForm() {
     const t = useTranslations("contactPage.form");
     const [loading, setLoading] = useState(false);
-    const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setLoading(true);
-        setStatus("idle");
 
         const formData = new FormData(e.currentTarget);
         const data = Object.fromEntries(formData.entries());
@@ -30,11 +29,11 @@ export default function ContactForm() {
 
             if (!response.ok) throw new Error("Failed to send message");
 
-            setStatus("success");
+            toast.success(t("success"));
             (e.target as HTMLFormElement).reset();
         } catch (error) {
             console.error(error);
-            setStatus("error");
+            toast.error(t("error"));
         } finally {
             setLoading(false);
         }
@@ -108,18 +107,6 @@ export default function ContactForm() {
                         </>
                     )}
                 </button>
-
-                {status === "success" && (
-                    <div className={`${styles.message} ${styles.success}`}>
-                        {t("success")}
-                    </div>
-                )}
-
-                {status === "error" && (
-                    <div className={`${styles.message} ${styles.error}`}>
-                        {t("error")}
-                    </div>
-                )}
             </form>
         </div>
     );

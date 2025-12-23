@@ -2,7 +2,7 @@
 
 import { Link } from '@/i18n/routing';
 import { useSearchParams } from 'next/navigation';
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import { Search, RefreshCw, ArrowLeft } from 'lucide-react';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
@@ -13,6 +13,7 @@ import { Chat } from '@/components/chat/types';
 import { ChatMessage } from '@/components/chat/ChatBubble';
 import toast from '@/lib/toast';
 import { useAuth } from '@/contexts/AuthContext';
+import { usePusher } from '@/contexts/PusherContext';
 import UserAvatar from '@/components/ui/UserAvatar/UserAvatar';
 import styles from './page.module.css';
 
@@ -20,6 +21,7 @@ export default function AdminMessagesPage() {
     const t = useTranslations('admin.messages');
     const tCommon = useTranslations('common');
     const { token, user } = useAuth();
+    const { subscribeToChat, isConnected } = usePusher();
     const searchParams = useSearchParams();
 
     const [chats, setChats] = useState<Chat[]>([]);
@@ -106,6 +108,14 @@ export default function AdminMessagesPage() {
         }
     }, [token]);
 
+    const handleChatClick = (chatId: string) => {
+        setSelectedChatId(chatId);
+    };
+
+    const selectedChat = useMemo(() =>
+        chats.find((chat) => String(chat.id) === selectedChatId),
+        [chats, selectedChatId]);
+
     useEffect(() => {
         if (selectedChatId && token) {
             fetchMessages(selectedChatId);
@@ -113,6 +123,57 @@ export default function AdminMessagesPage() {
             setMessages([]);
         }
     }, [selectedChatId, token]);
+
+    // Handle incoming real-time messages
+    const handleIncomingMessage = useCallback((newMessage: any) => {
+        setMessages((prev) => {
+            // Prevent duplicate messages
+            if (prev.some((m) => String(m.id) === String(newMessage.id))) {
+                return prev;
+            }
+
+            const formatted: ChatMessage = {
+                id: String(newMessage.id),
+                content: newMessage.content,
+                timestamp: newMessage.createdAt,
+                sender: {
+                    id: newMessage.senderId,
+                    name: newMessage.sender.name || 'User',
+                    avatar: newMessage.sender.avatar || undefined,
+                },
+                status: 'read',
+            };
+
+            return [...prev, formatted];
+        });
+
+        // Also update the chat list to show the latest message
+        setChats(prev => prev.map(c => {
+            if (String(c.id) === String(newMessage.chatId)) {
+                return {
+                    ...c,
+                    lastMessage: newMessage.content,
+                    updatedAt: newMessage.createdAt
+                };
+            }
+            return c;
+        }));
+    }, []);
+
+    // Subscribe to Pusher channel when a chat is selected
+    useEffect(() => {
+        if (!selectedChat || !isConnected) return;
+
+        const unsubscribe = subscribeToChat(
+            selectedChat.coachId,
+            selectedChat.clientId,
+            handleIncomingMessage
+        );
+
+        return () => {
+            unsubscribe();
+        };
+    }, [selectedChat?.id, isConnected, subscribeToChat, handleIncomingMessage]);
 
     const filteredChats = useMemo(() => {
         if (!searchQuery.trim()) return chats;
@@ -133,11 +194,6 @@ export default function AdminMessagesPage() {
         });
     }, [chats, searchQuery]);
 
-    const handleChatClick = (chatId: string) => {
-        setSelectedChatId(chatId);
-    };
-
-    const selectedChat = chats.find((chat) => String(chat.id) === selectedChatId);
 
     return (
         <ProtectedRoute allowedRoles={['ADMIN']}>

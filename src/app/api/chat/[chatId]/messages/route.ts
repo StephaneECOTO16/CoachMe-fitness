@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma';
 import { requireAuth } from '@/lib/auth';
 import { broadcastMessage } from '@/lib/pusher';
 import { getPublicUrl } from '@/lib/aws-s3';
+import { sendMail, getNewMessageTemplate } from '@/lib/mail';
 
 /**
  * POST /api/chat/[chatId]/messages
@@ -67,6 +68,16 @@ export async function POST(req: Request, { params }: { params: Promise<{ chatId:
             // Log but don't fail the request if Pusher broadcast fails
             // The message is already saved, recipient can still see it on refresh
             console.error('[POST /api/chat/:chatId/messages] Pusher broadcast error:', pusherError);
+        }
+
+        // Send Email Notification (Non-blocking)
+        const recipient = isCoach ? chat.client.user : chat.coach.user;
+        if (recipient.email) {
+            sendMail({
+                to: recipient.email,
+                subject: `New message from ${message.sender.name || 'CoachMe User'}`,
+                html: getNewMessageTemplate(message.sender.name || 'CoachMe User', content.trim()),
+            });
         }
 
         return NextResponse.json({ success: true, message: messageWithAvatar });

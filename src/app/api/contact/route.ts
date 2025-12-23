@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { sendMail, getContactInquiryTemplate } from "@/lib/mail";
 
 export async function POST(request: Request) {
     try {
@@ -13,25 +14,15 @@ export async function POST(request: Request) {
             );
         }
 
-        // TODO: Integrate SendGrid or other email provider here
-        // Example:
-        // await sendgrid.send({
-        //   to: 'hello@coachme.cm',
-        //   from: 'noreply@coachme.cm',
-        //   subject: `New Contact Form Submission: ${subject}`,
-        //   html: `
-        //     <h1>New Message from ${name}</h1>
-        //     <p><strong>Email:</strong> ${email}</p>
-        //     <p><strong>Subject:</strong> ${subject}</p>
-        //     <p><strong>Message:</strong></p>
-        //     <p>${message}</p>
-        //   `
-        // });
+        // Send email to admin
+        // Note: In a production serverless environment, you might want to await this
+        // or offload it to a background queue to ensure it completes.
+        await sendMail({
+            to: "admin@coachme.cm",
+            subject: `New Contact Inquiry: ${subject}`,
+            html: getContactInquiryTemplate(name, email, subject, message),
+        });
 
-        // Simulate delay for development feel
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-
-        // For now, just log and return success
         console.log('Contact Form Submission:', { name, email, subject, message });
 
         return NextResponse.json(
