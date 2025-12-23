@@ -1,0 +1,126 @@
+.section {
+    padding: var(--space-20) 0;
+    background-color: var(--white);
+}
+
+.container {
+    max-width: var(--container-lg);
+    margin: 0 auto;
+    padding: 0 var(--space-6);
+}
+
+.header {
+    text-align: center;
+    max-width: 700px;
+    margin: 0 auto var(--space-16);
+}
+
+.title {
+    font-size: var(--text-3xl);
+    font-weight: var(--font-bold);
+    margin-bottom: var(--space-6);
+}
+
+.highlight {
+    color: var(--primary);
+}
+
+.intro {
+    font-size: var(--text-lg);
+    color: var(--gray-600);
+    line-height: 1.6;
+}
+
+.timeline {
+    position: relative;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.timeline::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 20px;
+    width: 2px;
+    background-color: var(--primary-light);
+}
+
+@media (min-width: 768px) {
+    .timeline::before {
+        left: 50%;
+        margin-left: -1px;
+    }
+}
+
+.milestone {
+    position: relative;
+    margin-bottom: var(--space-12);
+}
+
+.milestone:last-child {
+    margin-bottom: 0;
+}
+
+.dot {
+    position: absolute;
+    left: 20px;
+    top: 0;
+    width: 16px;
+    height: 16px;
+    background-color: var(--primary);
+    border: 4px solid var(--white);
+    border-radius: var(--radius-full);
+    margin-left: -8px;
+    z-index: 2;
+    box-shadow: var(--shadow-sm);
+}
+
+@media (min-width: 768px) {
+    .dot {
+        left: 50%;
+    }
+}
+
+.milestoneContent {
+    padding-left: 60px;
+}
+
+@media (min-width: 768px) {
+    .milestoneContent {
+        width: 50%;
+        padding-left: 0;
+    }
+
+    .milestone:nth-child(even) .milestoneContent {
+        margin-left: 50%;
+        padding-left: var(--space-12);
+    }
+
+    .milestone:nth-child(odd) .milestoneContent {
+        text-align: right;
+        padding-right: var(--space-12);
+    }
+}
+
+.year {
+    font-size: var(--text-2xl);
+    font-weight: var(--font-bold);
+    color: var(--primary);
+    margin-bottom: var(--space-2);
+    display: block;
+}
+
+.milestoneTitle {
+    font-size: var(--text-xl);
+    font-weight: var(--font-bold);
+    margin-bottom: var(--space-4);
+    color: var(--secondary-dark);
+}
+
+.milestoneDescription {
+    font-size: var(--text-base);
+    color: var(--gray-600);
+    line-height: 1.6;
+}

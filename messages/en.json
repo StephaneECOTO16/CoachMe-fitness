@@ -197,6 +197,103 @@
       "button": "Get Started Now"
     }
   },
+  "aboutPage": {
+    "hero": {
+      "title": "Empowering Your <highlight>Fitness Journey</highlight>",
+      "subtitle": "CoachMe is more than a platform; we are a movement dedicated to making professional coaching accessible to everyone in Cameroon."
+    },
+    "mission": {
+      "title": "Our <highlight>Mission</highlight>",
+      "content": "To bridge the gap between world-class fitness expertise and individuals seeking transformation. We empower coaches to shine and clients to achieve their healthiest selves."
+    },
+    "vision": {
+      "title": "Our <highlight>Vision</highlight>",
+      "content": "To become the leading digital ecosystem for health and wellness in Africa, starting with a vibrant, professional community in Cameroon."
+    },
+    "story": {
+      "title": "Our <highlight>Story</highlight>",
+      "intro": "CoachMe was born from a simple observation: the incredible talent of fitness professionals in Cameroon wasn't reaching the people who needed it most.",
+      "timeline": {
+        "2023": {
+          "title": "The Spark",
+          "description": "Inspired by the local fitness scene, we began conceptualizing a platform that removes barriers and builds trust."
+        },
+        "2024": {
+          "title": "Building the Bridge",
+          "description": "Our team of developers and fitness experts joined forces to create a seamless experience for both coaches and clients."
+        },
+        "today": {
+          "title": "Launch & Growth",
+          "description": "Official launch in Cameroon, connecting hundreds of certified professionals with a growing community."
+        }
+      }
+    },
+    "values": {
+      "title": "Our Core <highlight>Values</highlight>",
+      "excellence": {
+        "title": "Excellence",
+        "description": "We only partner with the best, ensuring every coach is certified and vetted."
+      },
+      "accessibility": {
+        "title": "Accessibility",
+        "description": "Professional coaching shouldn't be a luxury. We make it reachable for everyone."
+      },
+      "community": {
+        "title": "Community",
+        "description": "Success is better when shared. We foster a supportive ecosystem for growth."
+      },
+      "transparency": {
+        "title": "Transparency",
+        "description": "Direct communication and fair, clear processes are at our heart."
+      }
+    }
+  },
+  "contactPage": {
+    "hero": {
+      "title": "Get in <highlight>Touch</highlight>",
+      "subtitle": "We'd love to hear from you. Whether you have a question about features, pricing, or need a demo, our team is ready to answer all your questions."
+    },
+    "form": {
+      "title": "Send us a Message",
+      "name": "Full Name",
+      "email": "Email Address",
+      "subject": "Subject",
+      "message": "Message",
+      "submit": "Send Message",
+      "sending": "Sending...",
+      "success": "Message sent successfully!",
+      "error": "Something went wrong. Please try again.",
+      "placeholders": {
+        "name": "John Doe",
+        "email": "john@example.com",
+        "subject": "How can we help?",
+        "message": "Tell us more about your inquiry..."
+      }
+    },
+    "info": {
+      "title": "Contact Information",
+      "email": "Email Us",
+      "phone": "Call Us",
+      "location": "Visit Us"
+    },
+    "faq": {
+      "title": "Frequently Asked <highlight>Questions</highlight>",
+      "items": {
+        "q1": {
+          "question": "How do I book a coach?",
+          "answer": "You can browse our list of certified coaches, view their profiles, and book a session directly through their calendar."
+        },
+        "q2": {
+          "question": "Is there a free trial?",
+          "answer": "Yes, many of our coaches offer a free initial consultation to discuss your goals."
+        },
+        "q3": {
+          "question": "How do I become a coach?",
+          "answer": "Visit our 'Become a Coach' page to apply. We vet all applicants to ensure high quality."
+        }
+      }
+    }
+  },
   "coach": {
     "browse": {
       "title": "Find Your Perfect Coach",
@@ -205,31 +302,6 @@
       "filterByDiscipline": "Filter by Discipline",
       "filterCoaches": "Filter Coaches",
       "reset": "Reset",
-      "discipline": "Discipline",
-      "allDisciplines": "All Disciplines",
-      "minimumRating": "Minimum Rating",
-      "any": "Any",
-      "maxHourlyRate": "Max Hourly Rate",
-      "rateType": "Rate Type",
-      "rateTypeAll": "All",
-      "rateTypeHour": "Per Hour",
-      "rateTypeWeek": "Per Week",
-      "rateTypeMonth": "Per Month",
-      "maxRate": "Max Rate",
-      "applyFilters": "Apply Filters",
-      "loadingCoaches": "Loading coaches...",
-      "coachesFound": "{count} {count, plural, one {coach} other {coaches}} found",
-      "badgeCertified": "✓ Certified",
-      "badgePortfolio": "📸 Portfolio",
-      "viewProfile": "View Profile",
-      "clearFilters": "Clear Filters",
-      "tryAdjustFilters": "Try adjusting your filters or check back later for new coaches.",
-      "perHour": "per hour",
-      "perWeek": "per week",
-      "perMonth": "per month",
-      "yearsExperience": "years experience"
-    },
-    "profile": {
       "about": "About",
       "discipline": "Discipline",
       "experience": "Experience",

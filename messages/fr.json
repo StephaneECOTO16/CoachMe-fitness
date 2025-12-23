@@ -197,6 +197,103 @@
       "button": "Commencer maintenant"
     }
   },
+  "aboutPage": {
+    "hero": {
+      "title": "Boostez Votre <highlight>Parcours Fitness</highlight>",
+      "subtitle": "CoachMe est plus qu'une plateforme ; nous sommes un mouvement dédié à rendre le coaching professionnel accessible à tous au Cameroun."
+    },
+    "mission": {
+      "title": "Notre <highlight>Mission</highlight>",
+      "content": "Combler le fossé entre l'expertise fitness de classe mondiale et les individus en quête de transformation. Nous donnons aux coachs les moyens de briller et aux clients ceux d'atteindre leur meilleur état de santé."
+    },
+    "vision": {
+      "title": "Notre <highlight>Vision</highlight>",
+      "content": "Devenir l'écosystème numérique leader pour la santé et le bien-être en Afrique, en commençant par une communauté professionnelle dynamique au Cameroun."
+    },
+    "story": {
+      "title": "Notre <highlight>Histoire</highlight>",
+      "intro": "CoachMe est né d'un constat simple : l'incroyable talent des professionnels du fitness au Cameroun ne parvenait pas aux personnes qui en avaient le plus besoin.",
+      "timeline": {
+        "2023": {
+          "title": "L'Étincelle",
+          "description": "Inspirés par la scène fitness locale, nous avons commencé à conceptualiser une plateforme qui élimine les barrières et instaure la confiance."
+        },
+        "2024": {
+          "title": "Bâtir le Pont",
+          "description": "Notre équipe de développeurs et d'experts fitness a joint ses forces pour créer une expérience fluide pour les coachs et les clients."
+        },
+        "today": {
+          "title": "Lancement & Croissance",
+          "description": "Lancement officiel au Cameroun, connectant des centaines de professionnels certifiés à une communauté en pleine croissance."
+        }
+      }
+    },
+    "values": {
+      "title": "Nos <highlight>Valeurs</highlight> Fondamentales",
+      "excellence": {
+        "title": "Excellence",
+        "description": "Nous ne nous associons qu'aux meilleurs, garantissant que chaque coach est certifié et vérifié."
+      },
+      "accessibility": {
+        "title": "Accessibilité",
+        "description": "Le coaching professionnel ne devrait pas être un luxe. Nous le rendons accessible à tous."
+      },
+      "community": {
+        "title": "Communauté",
+        "description": "Le succès est meilleur lorsqu'il est partagé. Nous favorisons un écosystème de croissance solidaire."
+      },
+      "transparency": {
+        "title": "Transparence",
+        "description": "Une communication directe et des processus clairs et équitables sont au cœur de notre action."
+      }
+    }
+  },
+  "contactPage": {
+    "hero": {
+      "title": "Restons en <highlight>Contact</highlight>",
+      "subtitle": "Nous serions ravis de vous entendre. Que vous ayez une question sur les fonctionnalités, les tarifs ou besoin d'une démo, notre équipe est prête à répondre à toutes vos questions."
+    },
+    "form": {
+      "title": "Envoyez-nous un message",
+      "name": "Nom Complet",
+      "email": "Adresse Email",
+      "subject": "Sujet",
+      "message": "Message",
+      "submit": "Envoyer le message",
+      "sending": "Envoi en cours...",
+      "success": "Message envoyé avec succès !",
+      "error": "Une erreur s'est produite. Veuillez réessayer.",
+      "placeholders": {
+        "name": "Jean Dupont",
+        "email": "jean@exemple.com",
+        "subject": "Comment pouvons-nous aider ?",
+        "message": "Dites-nous en plus sur votre demande..."
+      }
+    },
+    "info": {
+      "title": "Informations de Contact",
+      "email": "Envoyez-nous un email",
+      "phone": "Appelez-nous",
+      "location": "Rendez-nous visite"
+    },
+    "faq": {
+      "title": "Questions Fréquemment <highlight>Posées</highlight>",
+      "items": {
+        "q1": {
+          "question": "Comment réserver un coach ?",
+          "answer": "Vous pouvez consulter notre liste de coachs certifiés, voir leurs profils et réserver une séance directement via leur calendrier."
+        },
+        "q2": {
+          "question": "Y a-t-il un essai gratuit ?",
+          "answer": "Oui, beaucoup de nos coachs offrent une consultation initiale gratuite pour discuter de vos objectifs."
+        },
+        "q3": {
+          "question": "Comment devenir coach ?",
+          "answer": "Visitez notre page 'Devenir Coach' pour postuler. Nous vérifions tous les candidats pour garantir une haute qualité."
+        }
+      }
+    }
+  },
   "coach": {
     "browse": {
       "title": "Trouvez Votre Coach Parfait",
