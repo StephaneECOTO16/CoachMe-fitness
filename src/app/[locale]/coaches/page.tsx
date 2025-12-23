@@ -193,13 +193,22 @@ export default function CoachesPage() {
       {/* Hero Section */}
       <section className={styles.hero}>
         <div className={styles.heroBackground}>
-          <Image
-            src="https://images.unsplash.com/photo-1517836357463-d25dfeac3438?q=80&w=1740&auto=format&fit=crop"
-            alt="Find Your Coach"
-            fill
-            className={styles.heroImage}
-            priority
-          />
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            className={styles.heroVideo}
+          >
+            <source src="/videos/find-coach.mp4" type="video/mp4" />
+            <Image
+              src="https://images.unsplash.com/photo-1517836357463-d25dfeac3438?q=80&w=1740&auto=format&fit=crop"
+              alt="Find Your Coach"
+              fill
+              className={styles.heroImage}
+              priority
+            />
+          </video>
           <div className={styles.heroOverlay} />
         </div>
         <div className={styles.heroContent}>
