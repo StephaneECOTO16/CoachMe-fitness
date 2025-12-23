@@ -142,7 +142,7 @@ export default function DisciplinesSection() {
                         <div key={discipline.id} className={styles.cardWrapper}>
                             <div className={styles.card}>
                                 <Image
-                                    src={discipline.imageUrl || "/descipline.PNG"}
+                                    src={discipline.imageUrl || "/descipline.jpg"}
                                     alt={discipline.name}
                                     fill
                                     className={styles.image}

@@ -10,7 +10,7 @@ import { generatePresignedUrl, getPublicUrl } from '@/lib/aws-s3';
  * Only authenticated COACH users can request presigned URLs.
  */
 export async function POST(req: Request) {
-    const payload = await requireAuth(req, ['COACH']);
+    const payload = await requireAuth(req, ['COACH'], { checkCoachStatus: false });
     if (!payload) return NextResponse.json({ success: false, error: { code: 'UNAUTHORIZED' } }, { status: 401 });
 
     try {

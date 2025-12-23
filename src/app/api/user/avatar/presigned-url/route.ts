@@ -3,7 +3,7 @@ import { requireAuth } from '@/lib/auth';
 import { generateAvatarPresignedUrl } from '@/lib/aws-s3';
 
 export async function POST(req: Request) {
-  const payload = await requireAuth(req);
+  const payload = await requireAuth(req, undefined, { checkCoachStatus: false });
   if (!payload) {
     return NextResponse.json(
       { success: false, error: { code: 'UNAUTHORIZED' } },

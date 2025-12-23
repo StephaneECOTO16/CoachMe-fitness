@@ -40,7 +40,7 @@
 
 @media (min-width: 768px) {
   .content {
-    grid-template-columns: 2fr 1fr 1fr 1fr;
+    grid-template-columns: 2fr 1fr 1fr;
     gap: var(--space-16);
   }
 }
@@ -55,21 +55,26 @@
   display: flex;
   justify-content: flex-start;
   align-items: center;
-  gap: var(--space-3);
-  font-size: var(--text-2xl);
-  font-weight: var(--font-bold);
-  color: var(--white);
   text-decoration: none;
   transition: transform var(--transition-base);
+  margin-top: -3rem;
 }
 
 .logo:hover {
-  transform: scale(1.05);
+  transform: scale(1.02);
+}
+
+.logoImage {
+  height: auto;
+  max-width: 180px;
+  margin-left: -12px;
+  object-fit: contain;
 }
 
 .logoText {
   color: var(--white);
   font-weight: var(--font-bold);
+  font-size: var(--text-2xl);
 }
 
 .description {
@@ -77,6 +82,7 @@
   line-height: 1.625;
   color: var(--gray-400);
   max-width: 320px;
+  margin-top: -2rem;
 }
 
 .social {
@@ -84,6 +90,7 @@
   justify-content: flex-start;
   align-items: center;
   gap: var(--space-4);
+  margin-top: -1rem;
 }
 
 .socialLink {
@@ -200,6 +207,7 @@
     opacity: 0;
     transform: translateY(30px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);

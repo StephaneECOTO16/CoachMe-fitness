@@ -16,8 +16,8 @@ export default function ContactInfo() {
                 </div>
                 <div className={styles.details}>
                     <span className={styles.label}>{t("email")}</span>
-                    <a href="mailto:hello@coachme.cm" className={styles.value + " " + styles.link}>
-                        hello@coachme.cm
+                    <a href="mailto:info@ecotofitness.com" className={styles.value + " " + styles.link}>
+                        info@ecotofitness.com
                     </a>
                 </div>
             </div>
@@ -28,8 +28,8 @@ export default function ContactInfo() {
                 </div>
                 <div className={styles.details}>
                     <span className={styles.label}>{t("phone")}</span>
-                    <a href="tel:+237600000000" className={styles.value + " " + styles.link}>
-                        +237 600 000 000
+                    <a href="tel:+237659037423" className={styles.value + " " + styles.link}>
+                        (+237) 659 037 423
                     </a>
                 </div>
             </div>
@@ -41,7 +41,8 @@ export default function ContactInfo() {
                 <div className={styles.details}>
                     <span className={styles.label}>{t("location")}</span>
                     <span className={styles.value}>
-                        Bonamoussadi KM, Douala
+                        DOUALA-BONAMOUSSADI.
+                        CARREFOUR KM.
                     </span>
                 </div>
             </div>

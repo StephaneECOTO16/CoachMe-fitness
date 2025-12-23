@@ -24,6 +24,7 @@
     "coaches": "Find Coaches",
     "about": "About",
     "contact": "Contact",
+    "support": "Support",
     "dashboard": "Dashboard",
     "messages": "Messages",
     "profile": "Profile",
@@ -320,7 +321,19 @@
       "videos": "Videos",
       "readyToStart": "Ready to Start Your Fitness Journey?",
       "contactDescription": "Contact {name} today to discuss your goals and get started.",
-      "imageAlt": "Coach demonstrating fitness techniques"
+      "imageAlt": "Coach demonstrating fitness techniques",
+      "rateType": "Rate Type",
+      "rateTypeAll": "All Types",
+      "rateTypeHour": "Hourly",
+      "rateTypeWeek": "Weekly",
+      "rateTypeMonth": "Monthly",
+      "minimumRating": "Minimum Rating",
+      "any": "Any",
+      "maxRate": "Max Rate",
+      "allDisciplines": "All Disciplines",
+      "applyFilters": "Apply Filters",
+      "loadingCoaches": "Loading coaches...",
+      "coachesFound": "{count} {count, plural, one {coach} other {coaches}} found"
     },
     "onboarding": {
       "title": "Become a Coach",
@@ -343,6 +356,14 @@
       "pendingStatus": "Your application is pending review",
       "approvedStatus": "Congratulations! You're now an approved coach",
       "rejectedStatus": "Your application was not approved"
+    },
+    "approvalModal": {
+      "title": "Account Pending Approval",
+      "description": "Your coach account is currently pending review by our administrator. You will be able to access all features once your account has been approved.",
+      "rejectedTitle": "Account Application Rejected",
+      "rejectedDescription": "Unfortunately, your coach application was not approved. Please check your email for more details or contact support if you have questions.",
+      "backToHome": "Back to Home",
+      "visitProfile": "Visit Profile"
     }
   },
   "coachDetail": {
@@ -1071,6 +1092,95 @@
       "incorrectPassword": "The password you entered is incorrect",
       "emailInUse": "This email is already in use",
       "deleteFailed": "Failed to delete account. Please try again."
+    }
+  },
+  "legal": {
+    "lastUpdated": "Last updated:",
+    "privacy": {
+      "title": "Privacy Policy",
+      "date": "December 23, 2025",
+      "sections": [
+        {
+          "title": "Introduction",
+          "content": "At CoachMe, we respect your privacy and are committed to protecting your personal data. This privacy policy will inform you about how we look after your personal data when you visit our website and tell you about your privacy rights and how the law protects you."
+        },
+        {
+          "title": "The Data We Collect",
+          "content": "We may collect, use, store and transfer different kinds of personal data about you which we have grouped together as follows:",
+          "items": [
+            "Identity Data: name, username or similar identifier.",
+            "Contact Data: email address and telephone numbers.",
+            "Technical Data: IP address, login data, browser type and version.",
+            "Profile Data: your interests, preferences, and fitness goals."
+          ]
+        },
+        {
+          "title": "How We Use Your Data",
+          "content": "We will only use your personal data when the law allows us to. Most commonly, we will use your personal data in the following circumstances:",
+          "items": [
+            "To register you as a new customer.",
+            "To facilitate connections between coaches and clients.",
+            "To manage our relationship with you.",
+            "To improve our website, services, and user experience."
+          ]
+        },
+        {
+          "title": "Data Security",
+          "content": "We have put in place appropriate security measures to prevent your personal data from being accidentally lost, used or accessed in an unauthorized way, altered or disclosed."
+        }
+      ]
+    },
+    "terms": {
+      "title": "Terms of Use",
+      "date": "December 23, 2025",
+      "sections": [
+        {
+          "title": "Agreement to Terms",
+          "content": "By accessing or using our services, you agree to be bound by these Terms of Use. If you disagree with any part of the terms, then you may not access the service."
+        },
+        {
+          "title": "User Accounts",
+          "content": "When you create an account with us, you must provide information that is accurate, complete, and current at all times. Failure to do so constitutes a breach of the Terms, which may result in immediate termination of your account."
+        },
+        {
+          "title": "Prohibited Activities",
+          "content": "You agree not to engage in any of the following prohibited activities:",
+          "items": [
+            "Copying, distributing, or disclosing any part of the service in any medium.",
+            "Using any automated system, including robots or spiders.",
+            "Attempting to interfere with the system integrity or security.",
+            "Impersonating another person or misrepresenting your affiliation."
+          ]
+        },
+        {
+          "title": "Coaching Disclaimer",
+          "content": "CoachMe is a platform that connects coaches and clients. We do not provide medical advice. Always consult with a healthcare professional before starting any new fitness program."
+        }
+      ]
+    },
+    "cookies": {
+      "title": "Cookies Policy",
+      "date": "December 23, 2025",
+      "sections": [
+        {
+          "title": "What are Cookies?",
+          "content": "Cookies are small text files that are stored on your computer or mobile device when you visit a website. They are widely used to make websites work, or work more efficiently, as well as to provide information to the owners of the site."
+        },
+        {
+          "title": "How We Use Cookies",
+          "content": "We use cookies for the following purposes:",
+          "items": [
+            "Authentication: To recognize you when you visit our services.",
+            "Security: To protect your data and our services.",
+            "Preferences: To remember your settings and preferences.",
+            "Analytics: To understand how you use our platform."
+          ]
+        },
+        {
+          "title": "Managing Cookies",
+          "content": "Most browsers allow you to control cookies through their settings preferences. However, if you limit the ability of websites to set cookies, you may worsen your overall user experience."
+        }
+      ]
     }
   }
 }

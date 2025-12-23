@@ -24,6 +24,7 @@
     "coaches": "Trouver un Coach",
     "about": "À Propos",
     "contact": "Contact",
+    "support": "Support",
     "dashboard": "Tableau de Bord",
     "messages": "Messages",
     "profile": "Profil",
@@ -303,17 +304,17 @@
       "filterCoaches": "Filtrer les Coachs",
       "reset": "Réinitialiser",
       "discipline": "Discipline",
-      "allDisciplines": "Toutes les Disciplines",
-      "minimumRating": "Note Minimale",
-      "any": "Toutes",
+      "allDisciplines": "Toutes les disciplines",
+      "minimumRating": "Note minimale",
+      "any": "Tout",
       "maxHourlyRate": "Tarif Horaire Max",
-      "rateType": "Type de Tarif",
-      "rateTypeAll": "Tous",
-      "rateTypeHour": "Par heure",
-      "rateTypeWeek": "Par semaine",
-      "rateTypeMonth": "Par mois",
-      "maxRate": "Tarif Max",
-      "applyFilters": "Appliquer les Filtres",
+      "rateType": "Type de tarif",
+      "rateTypeAll": "Tous les types",
+      "rateTypeHour": "Horaire",
+      "rateTypeWeek": "Hebdomadaire",
+      "rateTypeMonth": "Mensuel",
+      "maxRate": "Tarif max",
+      "applyFilters": "Appliquer les filtres",
       "loadingCoaches": "Chargement des coachs...",
       "coachesFound": "{count} {count, plural, one {coach} other {coachs}} trouvé(s)",
       "badgeCertified": "✓ Certifié",
@@ -368,6 +369,14 @@
       "pendingStatus": "Votre candidature est en cours d'examen",
       "approvedStatus": "Félicitations! Vous êtes maintenant un coach approuvé",
       "rejectedStatus": "Votre candidature n'a pas été approuvée"
+    },
+    "approvalModal": {
+      "title": "Compte en Attente d'Approbation",
+      "description": "Votre compte coach est actuellement en cours d'examen par notre administrateur. Vous pourrez accéder à toutes les fonctionnalités une fois que votre compte aura été approuvé.",
+      "rejectedTitle": "Demande de Compte Rejetée",
+      "rejectedDescription": "Malheureusement, votre demande de coach n'a pas été approuvée. Veuillez consulter votre e-mail pour plus de détails ou contacter l'assistance si vous avez des questions.",
+      "backToHome": "Retour à l'Accueil",
+      "visitProfile": "Visiter le Profil"
     }
   },
   "coachDetail": {
@@ -1046,6 +1055,95 @@
       "incorrectPassword": "Le mot de passe que vous avez entré est incorrect",
       "emailInUse": "Cet e-mail est déjà utilisé",
       "deleteFailed": "Échec de la suppression du compte. Veuillez réessayer."
+    }
+  },
+  "legal": {
+    "lastUpdated": "Dernière mise à jour :",
+    "privacy": {
+      "title": "Politique de Confidentialité",
+      "date": "23 décembre 2025",
+      "sections": [
+        {
+          "title": "Introduction",
+          "content": "Chez CoachMe, nous respectons votre vie privée et nous nous engageons à protéger vos données personnelles. Cette politique de confidentialité vous informera sur la manière dont nous prenons soin de vos données personnelles lorsque vous visitez notre site web et vous informera sur vos droits en matière de confidentialité et sur la manière dont la loi vous protège."
+        },
+        {
+          "title": "Les données que nous collectons",
+          "content": "Nous pouvons collecter, utiliser, stocker et transférer différents types de données personnelles vous concernant, que nous avons regroupées comme suit :",
+          "items": [
+            "Données d'identité : nom, nom d'utilisateur ou identifiant similaire.",
+            "Données de contact : adresse e-mail et numéros de téléphone.",
+            "Données techniques : adresse IP, données de connexion, type et version du navigateur.",
+            "Données de profil : vos intérêts, préférences et objectifs de fitness."
+          ]
+        },
+        {
+          "title": "Comment nous utilisons vos données",
+          "content": "Nous n'utiliserons vos données personnelles que lorsque la loi nous le permet. Le plus souvent, nous utiliserons vos données personnelles dans les circonstances suivantes :",
+          "items": [
+            "Pour vous enregistrer en tant que nouveau client.",
+            "Pour faciliter les connexions entre les coachs et les clients.",
+            "Pour gérer notre relation avec vous.",
+            "Pour améliorer notre site web, nos services et l'expérience utilisateur."
+          ]
+        },
+        {
+          "title": "Sécurité des données",
+          "content": "Nous avons mis en place des mesures de sécurité appropriées pour empêcher que vos données personnelles ne soient accidentellement perdues, utilisées ou consultées de manière non autorisée, modifiées ou divulguées."
+        }
+      ]
+    },
+    "terms": {
+      "title": "Conditions d'Utilisation",
+      "date": "23 décembre 2025",
+      "sections": [
+        {
+          "title": "Acceptation des conditions",
+          "content": "En accédant ou en utilisant nos services, vous acceptez d'être lié par ces conditions d'utilisation. Si vous n'êtes pas d'accord avec une partie des conditions, vous ne pouvez pas accéder au service."
+        },
+        {
+          "title": "Comptes utilisateur",
+          "content": "Lorsque vous créez un compte chez nous, vous devez fournir des informations précises, complètes et à jour à tout moment. Le défaut de le faire constitue une violation des conditions, ce qui peut entraîner la résiliation immédiate de votre compte."
+        },
+        {
+          "title": "Activités interdites",
+          "content": "Vous acceptez de ne pas vous engager dans l'une des activités interdites suivantes :",
+          "items": [
+            "Copier, distribuer ou divulguer toute partie du service sur n'importe quel support.",
+            "Utiliser tout système automatisé, y compris des robots ou des araignées.",
+            "Tenter d'interférer avec l'intégrité ou la sécurité du système.",
+            "Usurper l'identité d'une autre personne ou présenter faussement votre affiliation."
+          ]
+        },
+        {
+          "title": "Avis de non-responsabilité en matière de coaching",
+          "content": "CoachMe est une plateforme qui met en relation des coachs et des clients. Nous ne fournissons pas de conseils médicaux. Consultez toujours un professionnel de la santé avant de commencer tout nouveau programme de fitness."
+        }
+      ]
+    },
+    "cookies": {
+      "title": "Politique relative aux Cookies",
+      "date": "23 décembre 2025",
+      "sections": [
+        {
+          "title": "Que sont les cookies ?",
+          "content": "Les cookies sont de petits fichiers texte qui sont stockés sur votre ordinateur ou appareil mobile lorsque vous visitez un site web. Ils sont largement utilisés pour faire fonctionner les sites web, ou pour les faire fonctionner plus efficacement, ainsi que pour fournir des informations aux propriétaires du site."
+        },
+        {
+          "title": "Comment nous utilisons les cookies",
+          "content": "Nous utilisons des cookies aux fins suivantes :",
+          "items": [
+            "Authentification : Pour vous reconnaître lorsque vous visitez nos services.",
+            "Sécurité : Pour protéger vos données et nos services.",
+            "Préférences : Pour mémoriser vos paramètres et préférences.",
+            "Analytique : Pour comprendre comment vous utilisez notre plateforme."
+          ]
+        },
+        {
+          "title": "Gérer les cookies",
+          "content": "La plupart des navigateurs vous permettent de contrôler les cookies via leurs paramètres de préférences. Cependant, si vous limitez la capacité des sites web à définir des cookies, vous pourriez dégrader votre expérience utilisateur globale."
+        }
+      ]
     }
   }
 }

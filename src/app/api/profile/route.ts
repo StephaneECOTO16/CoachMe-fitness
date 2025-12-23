@@ -9,7 +9,7 @@ import { getPublicUrl } from '@/lib/aws-s3';
  * Returns prospect or coach profile based on user role.
  */
 export async function GET(req: Request) {
-    const payload = await requireAuth(req);
+    const payload = await requireAuth(req, undefined, { checkCoachStatus: false });
     if (!payload) return NextResponse.json({ success: false, error: { code: 'UNAUTHORIZED' } }, { status: 401 });
 
     try {
@@ -55,7 +55,7 @@ export async function GET(req: Request) {
  * Updates user name and role-specific profile fields.
  */
 async function updateProfile(req: Request) {
-    const payload = await requireAuth(req);
+    const payload = await requireAuth(req, undefined, { checkCoachStatus: false });
     if (!payload) {
         return NextResponse.json({
             success: false,
@@ -140,9 +140,9 @@ async function updateProfile(req: Request) {
         // Update user base fields
         const avatarValue =
             avatar === undefined ? undefined :
-            avatar === null ? null :
-            avatar.trim().length === 0 ? null :
-            avatar;
+                avatar === null ? null :
+                    avatar.trim().length === 0 ? null :
+                        avatar;
 
         const user = await prisma.user.update({
             where: { id: payload.userId },
