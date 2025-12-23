@@ -23,7 +23,7 @@
   justify-content: center;
   align-items: center;
   padding: var(--space-4) var(--space-5);
-  padding-top: var(--space-12);
+  /* padding-top: var(--space-12); */
   background: var(--white);
   overflow-y: auto;
   z-index: 1;
@@ -76,11 +76,9 @@
 .imageOverlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(
-    to bottom,
-    rgba(0, 166, 80, 0.1) 0%,
-    rgba(0, 166, 80, 0.3) 100%
-  );
+  background: linear-gradient(to bottom,
+      rgba(0, 166, 80, 0.1) 0%,
+      rgba(0, 166, 80, 0.3) 100%);
 }
 
 /* Back Button */
@@ -136,11 +134,11 @@
 }
 
 .logo {
-  margin-bottom: var(--space-3);
+  margin-bottom: var(--space-2);
 }
 
 .logo img {
-  height: 140px;
+  height: 160px;
   width: auto;
 }
 
@@ -355,10 +353,12 @@
 }
 
 @keyframes float {
+
   0%,
   100% {
     transform: translateY(0) rotate(0deg);
   }
+
   50% {
     transform: translateY(-30px) rotate(180deg);
   }
@@ -369,6 +369,7 @@
     opacity: 0;
     transform: translateY(30px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -380,6 +381,7 @@
     opacity: 0;
     transform: translateY(-10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -414,7 +416,7 @@
   cursor: pointer;
 }
 
-.radioOption input[type="radio"]:checked + span {
+.radioOption input[type="radio"]:checked+span {
   font-weight: var(--font-semibold);
   color: var(--primary);
 }

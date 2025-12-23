@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma';
 import { requireAuth } from '@/lib/auth';
 import { z } from 'zod';
 import { parseRequestBody } from '@/lib/schemas';
+import { sendMail, getCoachRejectedTemplate } from "@/lib/mail";
 
 // Define inline schema for rejection request
 const RejectCoachBodySchema = z.object({
@@ -48,7 +49,10 @@ export async function POST(req: Request, { params }: { params: Promise<{ coachId
     const { reason } = data;
 
     try {
-        const coach = await prisma.coachProfile.findUnique({ where: { id: coachId } });
+        const coach = await prisma.coachProfile.findUnique({
+            where: { id: coachId },
+            include: { user: true } // Include user for email
+        });
         if (!coach) return NextResponse.json({ success: false, error: { code: 'NOT_FOUND' } }, { status: 404 });
 
         // Update coach status to REJECTED and store the reason
@@ -66,6 +70,15 @@ export async function POST(req: Request, { params }: { params: Promise<{ coachId
                 comment: reason,
             },
         });
+
+        // Send Rejection Email
+        if (coach.user.email) {
+            await sendMail({
+                to: coach.user.email,
+                subject: "Update on your Coach Application",
+                html: getCoachRejectedTemplate(coach.user.name || "Coach"),
+            });
+        }
 
         return NextResponse.json({ success: true, coach: updated });
     } catch (err) {

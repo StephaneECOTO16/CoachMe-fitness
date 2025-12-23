@@ -11,6 +11,7 @@ import { z } from "zod";
 import { parseRequestBody } from "@/lib/schemas";
 import { randomBytes } from "crypto";
 import { checkRateLimit } from "@/lib/rate-limit";
+import { sendMail, getForgotPasswordTemplate } from "@/lib/mail";
 
 const ForgotPasswordSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -85,14 +86,13 @@ export async function POST(req: Request) {
       },
     });
 
-    // TODO: Send email with reset link
-    // In production, integrate with an email service (e.g., SendGrid, AWS SES)
-    // const resetUrl = `${process.env.NEXT_PUBLIC_APP_URL}/reset-password?token=${token}`;
-    // await sendEmail({
-    //   to: user.email,
-    //   subject: "Reset Your Password - CoachMe",
-    //   html: `Click <a href="${resetUrl}">here</a> to reset your password. This link expires in 1 hour.`,
-    // });
+    // Send email with reset link
+    const resetUrl = `${process.env.NEXT_PUBLIC_APP_URL}/reset-password?token=${token}`;
+    await sendMail({
+      to: normalizedEmail,
+      subject: "Reset Your Password - CoachMe",
+      html: getForgotPasswordTemplate(resetUrl),
+    });
 
     return NextResponse.json({
       success: true,

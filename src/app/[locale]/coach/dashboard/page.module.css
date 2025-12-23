@@ -428,6 +428,7 @@
   margin: 0 0 var(--space-6) 0;
   line-height: 1.6;
   opacity: 0.95;
+  color: var(--gray-200);
 }
 
 @media (max-width: 768px) {

@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { hashPassword } from '@/lib/auth';
 import { parseRequestBody, RegisterRequestSchema } from '@/lib/schemas';
 import { checkRateLimit } from '@/lib/rate-limit';
+import { sendMail, getProspectWelcomeTemplate, getCoachWelcomeTemplate, getAdminNewCoachAlertTemplate } from "@/lib/mail";
 
 export async function POST(req: Request) {
     // Rate limiting: 3 registration attempts per 5 minutes per IP
@@ -67,6 +68,13 @@ export async function POST(req: Request) {
                 return newUser;
             });
 
+            // Send Welcome Email (Non-blocking)
+            sendMail({
+                to: email,
+                subject: "Welcome to CoachMe!",
+                html: getProspectWelcomeTemplate(name),
+            });
+
             return NextResponse.json({ success: true, userId: user.id }, { status: 201 });
 
         } else if (accountType === 'COACH') {
@@ -103,6 +111,20 @@ export async function POST(req: Request) {
                 });
 
                 return newUser;
+            });
+
+            // Send Welcome Email (Non-blocking)
+            sendMail({
+                to: email,
+                subject: "Welcome to CoachMe!",
+                html: getCoachWelcomeTemplate(name),
+            });
+
+            // Send Admin Alert (Non-blocking)
+            sendMail({
+                to: "admin@coachme.cm",
+                subject: "New Coach Application Pending",
+                html: getAdminNewCoachAlertTemplate(name, email),
             });
 
             return NextResponse.json({

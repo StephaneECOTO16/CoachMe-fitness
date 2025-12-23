@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma';
 import { requireAuth } from '@/lib/auth';
 import { parseRequestBody, InitiateChatRequestSchema } from '@/lib/schemas';
 import { getPublicUrl } from '@/lib/aws-s3';
+import { sendMail, getAdminNewChatAlertTemplate } from '@/lib/mail';
 
 /**
  * POST /api/chat
@@ -69,6 +70,10 @@ export async function POST(req: Request) {
                 coachId,
                 clientId: clientProfile.id,
             },
+            include: {
+                coach: { include: { user: true } },
+                client: { include: { user: true } },
+            }
         });
 
         if (!chat) {
@@ -77,6 +82,17 @@ export async function POST(req: Request) {
                     coachId,
                     clientId: clientProfile.id,
                 },
+                include: {
+                    coach: { include: { user: true } },
+                    client: { include: { user: true } },
+                }
+            });
+
+            // Notify Admin (Non-blocking)
+            sendMail({
+                to: "admin@coachme.cm",
+                subject: "New Chat Session Started",
+                html: getAdminNewChatAlertTemplate(chat.client.user.name || "Client", chat.coach.user.name || "Coach"),
             });
         }
 
