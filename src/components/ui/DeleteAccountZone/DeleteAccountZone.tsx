@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { deleteAccountSchema, DeleteAccountInput } from '@/lib/schemas';
+import { useAuth } from '@/contexts/AuthContext';
 import Button from '@/components/ui/Button';
 import { toast } from 'sonner';
 import { ShieldAlert, Trash2, X } from 'lucide-react';
@@ -15,6 +16,7 @@ const DeleteAccountZone: React.FC = () => {
     const t = useTranslations('settings.deleteAccount');
     const tErr = useTranslations('settings.errors');
     const router = useRouter();
+    const { logout } = useAuth();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
 
@@ -40,8 +42,10 @@ const DeleteAccountZone: React.FC = () => {
 
             if (result.success) {
                 toast.success(t('success'));
-                // Clear state and redirect to home
-                window.location.href = '/';
+                // Clear client-side auth state
+                logout();
+                // Redirect to home (logout already handles this, but being explicit)
+                router.push('/');
             } else {
                 if (result.error?.code === 'INCORRECT_PASSWORD') {
                     toast.error(tErr('incorrectPassword'));

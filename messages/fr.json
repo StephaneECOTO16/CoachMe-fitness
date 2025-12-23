@@ -196,6 +196,37 @@
       "title": "Prêt à commencer votre <highlight>parcours bien-être ?</highlight>",
       "description": "Rejoignez des milliers de professionnels qui ont transformé leur santé avec nos coachs certifiés.",
       "button": "Commencer maintenant"
+    },
+    "testimonials": {
+      "title": "Ce que dit notre <highlight>communauté</highlight>",
+      "subtitle": "Découvrez comment <highlight>CoachMe</highlight> a aidé les gens à atteindre leurs objectifs de fitness grâce à un accompagnement professionnel.",
+      "items": [
+        {
+          "content": "CoachMe a transformé mon parcours fitness. L'attention personnalisée et les conseils d'expert de mon coach m'ont aidé à obtenir des résultats que je n'aurais jamais cru possibles.",
+          "author": "Sarah Johnson",
+          "role": "Passionnée de Yoga"
+        },
+        {
+          "content": "Trouver le bon coach était si facile. La plateforme est intuitive et la qualité des entraîneurs est exceptionnelle. Je recommande vivement !",
+          "author": "Mark Thompson",
+          "role": "Pro de Musculation"
+        },
+        {
+          "content": "J'adore la flexibilité et la variété des disciplines. J'ai essayé plusieurs coachs et chacun a été incroyablement professionnel et encourageant.",
+          "author": "Elena Rodriguez",
+          "role": "Marathonienne"
+        },
+        {
+          "content": "En tant que professionnel occupé, j'avais besoin d'un coaching flexible qui s'adapte à mon emploi du temps. CoachMe a livré exactement cela. Mon coach comprend mes objectifs et me garde motivé.",
+          "author": "David Chen",
+          "role": "Athlète CrossFit"
+        },
+        {
+          "content": "L'aspect communautaire est incroyable. Mon coach ne se contente pas de m'entraîner, il me met aussi en contact avec d'autres clients. C'est plus qu'une remise en forme—c'est un changement de vie.",
+          "author": "Amina Kamara",
+          "role": "Ambassadrice du Bien-être"
+        }
+      ]
     }
   },
   "aboutPage": {

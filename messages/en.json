@@ -196,6 +196,37 @@
       "title": "Ready to Start Your <highlight>Wellness Journey?</highlight>",
       "description": "Join thousands of professionals who have transformed their health with our certified coaches.",
       "button": "Get Started Now"
+    },
+    "testimonials": {
+      "title": "What Our <highlight>Community</highlight> Says",
+      "subtitle": "Discover how <highlight>CoachMe</highlight> has helped people achieve their fitness goals through professional guidance.",
+      "items": [
+        {
+          "content": "CoachMe transformed my fitness journey. The personalized attention and expert guidance from my coach helped me achieve results I never thought possible.",
+          "author": "Sarah Johnson",
+          "role": "Yoga Enthusiast"
+        },
+        {
+          "content": "Finding the right coach was so easy. The platform is intuitive and the quality of trainers is top-notch. Highly recommend!",
+          "author": "Mark Thompson",
+          "role": "Weightlifting Pro"
+        },
+        {
+          "content": "I love the flexibility and the range of disciplines. I've tried multiple coaches and each one has been incredibly professional and supportive.",
+          "author": "Elena Rodriguez",
+          "role": "Marathon Runner"
+        },
+        {
+          "content": "As a busy professional, I needed flexible coaching that fit my schedule. CoachMe delivered exactly that. My coach understands my goals and keeps me motivated.",
+          "author": "David Chen",
+          "role": "CrossFit Athlete"
+        },
+        {
+          "content": "The community aspect is amazing. My coach not only trains me but also connects me with other clients. It's more than fitness—it's a lifestyle change.",
+          "author": "Amina Kamara",
+          "role": "Wellness Advocate"
+        }
+      ]
     }
   },
   "aboutPage": {
