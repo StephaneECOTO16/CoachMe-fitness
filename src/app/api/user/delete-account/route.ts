@@ -5,7 +5,7 @@ import { DeleteAccountRequestSchema, parseRequestBody } from '@/lib/schemas';
 import { cookies } from 'next/headers';
 
 export async function POST(req: NextRequest) {
-    const authPayload = await requireAuth(req);
+    const authPayload = await requireAuth(req, undefined, { checkCoachStatus: false });
     if (!authPayload) {
         return NextResponse.json({
             success: false,

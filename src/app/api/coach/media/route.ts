@@ -9,7 +9,7 @@ import { getPublicUrl } from "@/lib/aws-s3";
  * Coach calls this endpoint after uploading to presigned URL.
  */
 export async function POST(req: Request) {
-  const payload = await requireAuth(req, ["COACH"]);
+  const payload = await requireAuth(req, ["COACH"], { checkCoachStatus: false });
   if (!payload)
     return NextResponse.json(
       { success: false, error: { code: "UNAUTHORIZED" } },
@@ -101,7 +101,7 @@ export async function POST(req: Request) {
  * List media files for the authenticated coach.
  */
 export async function GET(req: Request) {
-  const payload = await requireAuth(req, ["COACH"]);
+  const payload = await requireAuth(req, ["COACH"], { checkCoachStatus: false });
   if (!payload)
     return NextResponse.json(
       { success: false, error: { code: "UNAUTHORIZED" } },

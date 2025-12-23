@@ -58,7 +58,7 @@ export default function Header() {
           href: user?.role === "ADMIN" ? "/admin/messages" : "/messages",
           label: t("messages"),
         },
-        { href: "/contact", label: t("contact") },
+        { href: "/contact", label: t("support") },
       ];
     } else {
       // When logged out: Home, Coaches, About, Contact

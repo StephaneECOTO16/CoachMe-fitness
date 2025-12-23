@@ -159,19 +159,13 @@ const CoachCard: React.FC<CoachCardProps> = ({
         return (
             <div className={`${styles.card} ${styles.cardList} ${className}`}>
                 <div className={styles.avatarWrapper}>
-                    {coach.avatar ? (
-                        <Image
-                            src={coach.avatar}
-                            alt={`${coach.firstName} ${coach.lastName}`}
-                            fill
-                            className={styles.avatarImage}
-                            unoptimized // Often needed if avatars are external without config
-                        />
-                    ) : (
-                        <div className={styles.avatarPlaceholder}>
-                            {coach.firstName[0]?.toUpperCase() || "C"}
-                        </div>
-                    )}
+                    <Image
+                        src={coach.avatar || "/descipline.jpg"}
+                        alt={`${coach.firstName} ${coach.lastName}`}
+                        fill
+                        className={styles.avatarImage}
+                        unoptimized
+                    />
                 </div>
 
                 <div className={styles.content}>
@@ -242,20 +236,14 @@ const CoachCard: React.FC<CoachCardProps> = ({
         return (
             <div className={`${styles.card} ${styles.cardGrid} ${className}`}>
                 <div className={styles.avatarWrapper}>
-                    {coach.avatar ? (
-                        <Image
-                            src={coach.avatar}
-                            alt={`${coach.firstName} ${coach.lastName}`}
-                            width={120}
-                            height={120}
-                            className={styles.avatarImage}
-                            unoptimized
-                        />
-                    ) : (
-                        <div className={styles.avatarPlaceholder}>
-                            {coach.firstName[0]?.toUpperCase() || "C"}
-                        </div>
-                    )}
+                    <Image
+                        src={coach.avatar || "/descipline.jpg"}
+                        alt={`${coach.firstName} ${coach.lastName}`}
+                        width={120}
+                        height={120}
+                        className={styles.avatarImage}
+                        unoptimized
+                    />
                 </div>
                 <h3 className={styles.name}>
                     {coach.firstName} {coach.lastName}
@@ -291,20 +279,14 @@ const CoachCard: React.FC<CoachCardProps> = ({
         return (
             <div className={`${styles.cardCompact} ${className}`}>
                 <div className={styles.avatarWrapper}>
-                    {coach.avatar ? (
-                        <Image
-                            src={coach.avatar}
-                            alt={`${coach.firstName} ${coach.lastName}`}
-                            width={40}
-                            height={40}
-                            className={styles.avatarImage}
-                            unoptimized
-                        />
-                    ) : (
-                        <div className={styles.avatarPlaceholder} style={{ fontSize: '1rem' }}>
-                            {coach.firstName[0]?.toUpperCase() || "C"}
-                        </div>
-                    )}
+                    <Image
+                        src={coach.avatar || "/descipline.jpg"}
+                        alt={`${coach.firstName} ${coach.lastName}`}
+                        width={40}
+                        height={40}
+                        className={styles.avatarImage}
+                        unoptimized
+                    />
                 </div>
                 <div className={styles.info}>
                     <h4 className={styles.name}>{coach.firstName} {coach.lastName}</h4>

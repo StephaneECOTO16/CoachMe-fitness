@@ -72,12 +72,33 @@ export async function comparePassword(plain: string, hashed: string) {
 
 /**
  * Helper to require authentication inside route handlers. Returns the token payload
- * or `null` if unauthenticated. Optionally check for allowed roles.
+ * or `null` if unauthenticated. Optionally check for allowed roles and coach approval status.
  */
-export async function requireAuth(req: Request | NextRequest, allowedRoles?: string[]) {
+export async function requireAuth(
+    req: Request | NextRequest,
+    allowedRoles?: string[],
+    options: { checkCoachStatus?: boolean } = { checkCoachStatus: true }
+) {
     const token = await getTokenFromHeader(req);
     const payload = verifyJwt(token || undefined);
+
     if (!payload) return null;
+
+    // Check role restrictions
     if (allowedRoles && !allowedRoles.includes(payload.role)) return null;
+
+    // Check Coach status if applicable
+    if (payload.role === 'COACH' && options.checkCoachStatus) {
+        const { prisma } = await import('./prisma');
+        const coach = await prisma.coachProfile.findUnique({
+            where: { userId: payload.userId },
+            select: { status: true }
+        });
+
+        if (!coach || coach.status !== 'APPROVED') {
+            return null; // Reject if not approved
+        }
+    }
+
     return payload;
 }
