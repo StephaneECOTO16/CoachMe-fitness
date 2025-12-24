@@ -5,8 +5,11 @@ import { z } from 'zod';
 import { parseRequestBody } from '@/lib/schemas';
 
 const CreateDisciplineSchema = z.object({
-    name: z.string().min(2, 'Name must be at least 2 characters'),
-    imageKey: z.string().min(1, 'Image key is required'),
+    name: z.string().min(2, 'Discipline name is required and must be at least 2 characters'),
+    imageKey: z.string({
+        required_error: "Image is required",
+        invalid_type_error: "Image is required",
+    }).min(1, 'Image is required'),
 });
 
 export async function POST(req: Request) {

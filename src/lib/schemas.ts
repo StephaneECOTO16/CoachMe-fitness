@@ -290,7 +290,7 @@ export async function parseRequestBody<T>(
       return {
         error: {
           code: 'VALIDATION_ERROR',
-          message: `${firstError.path.join('.')}: ${firstError.message}`,
+          message: firstError.message,
         },
       };
     }

@@ -66,9 +66,17 @@ export function PusherProvider({ children }: { children: React.ReactNode }) {
       return;
     }
 
+    const pusherKey = process.env.NEXT_PUBLIC_PUSHER_KEY;
+    const pusherCluster = process.env.NEXT_PUBLIC_PUSHER_CLUSTER || "mt1";
+
+    if (!pusherKey) {
+      console.error("[Pusher] NEXT_PUBLIC_PUSHER_KEY is missing. Real-time features will not work.");
+      return;
+    }
+
     // Create new Pusher instance with authentication
-    const pusherClient = new Pusher(process.env.NEXT_PUBLIC_PUSHER_KEY || "", {
-      cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER || "mt1",
+    const pusherClient = new Pusher(pusherKey, {
+      cluster: pusherCluster,
       authEndpoint: "/api/pusher/auth",
       auth: {
         headers: {
@@ -86,8 +94,20 @@ export function PusherProvider({ children }: { children: React.ReactNode }) {
       setIsConnected(false);
     });
 
-    pusherClient.connection.bind("error", (error: Error) => {
-      console.error("[Pusher] Connection error:", error);
+    pusherClient.connection.bind("error", (error: any) => {
+      console.error("[Pusher] Connection error details:", {
+        message: error?.message,
+        type: error?.type,
+        error: error?.error,
+        status: error?.status,
+        data: error?.data,
+      });
+
+      // Specific handling for Pusher-js internal error structure
+      if (error?.data?.code) {
+        console.error(`[Pusher] Error Code: ${error.data.code} - ${error.data.message}`);
+      }
+
       setIsConnected(false);
     });
 
@@ -111,7 +131,7 @@ export function PusherProvider({ children }: { children: React.ReactNode }) {
       onMessage: (message: Message) => void
     ): (() => void) => {
       if (!pusher) {
-        return () => {};
+        return () => { };
       }
 
       // Generate consistent channel name (same logic as server)
