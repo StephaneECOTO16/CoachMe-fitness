@@ -10,7 +10,7 @@ export async function POST(req: Request) {
     const clientIp = req.headers.get('x-forwarded-for')?.split(',')[0] || req.headers.get('x-real-ip') || 'unknown';
     const rateLimitKey = `register:${clientIp}`;
 
-    if (!checkRateLimit(rateLimitKey, 3, 300000)) {
+    if (!await checkRateLimit(rateLimitKey, 3, 300000)) {
         return NextResponse.json({
             success: false,
             error: { code: 'RATE_LIMIT_EXCEEDED', message: 'Too many registration attempts. Please try again later.' }

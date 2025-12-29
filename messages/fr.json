@@ -23,7 +23,7 @@
     "home": "Accueil",
     "coaches": "Trouver un Coach",
     "about": "À Propos",
-    "contact": "Contact",
+    "contact": "Contacte",
     "support": "Support",
     "dashboard": "Tableau de Bord",
     "messages": "Messages",
@@ -993,7 +993,7 @@
     "coachRejected": "Coach rejeté avec succès"
   },
   "footer": {
-    "description": "Transformez votre parcours sport avec des coachs certifiés qui vous guident à chaque étape.",
+    "description": "Transformez votre parcours sportif avec des coachs certifiés qui vous guident à chaque étape.",
     "sections": {
       "quickLinks": "Liens Rapides",
       "resources": "Ressources",

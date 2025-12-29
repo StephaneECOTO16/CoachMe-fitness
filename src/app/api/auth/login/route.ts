@@ -10,7 +10,7 @@ export async function POST(req: Request) {
     const clientIp = req.headers.get('x-forwarded-for')?.split(',')[0] || req.headers.get('x-real-ip') || 'unknown';
     const rateLimitKey = `login:${clientIp}`;
 
-    if (!checkRateLimit(rateLimitKey, 5, 60000)) {
+    if (!await checkRateLimit(rateLimitKey, 5, 60000)) {
         return NextResponse.json({
             success: false,
             error: { code: 'RATE_LIMIT_EXCEEDED', message: 'Too many login attempts. Please try again later.' }

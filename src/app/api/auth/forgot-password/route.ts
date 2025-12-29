@@ -38,7 +38,7 @@ export async function POST(req: Request) {
 
   // Apply rate limiting: 3 requests per email per 15 minutes
   const rateLimitKey = `forgot-password:${normalizedEmail}`;
-  const isAllowed = checkRateLimit(rateLimitKey, 3, 15 * 60 * 1000);
+  const isAllowed = await checkRateLimit(rateLimitKey, 3, 15 * 60 * 1000);
 
   if (!isAllowed) {
     // Still return success to prevent enumeration
