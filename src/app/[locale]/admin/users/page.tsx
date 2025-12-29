@@ -327,7 +327,7 @@ export default function AdminUsersPage() {
 
                             {selectedUser.role === 'PROSPECT' && (
                                 <div style={{ gridColumn: 'span 2' }}>
-                                    <h4 style={{ margin: '0 0 8px 0', color: '#6b7280', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{tUsers('fitnessGoals')}</h4>
+                                    <h4 style={{ margin: '0 0 8px 0', color: '#6b7280', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{tUsers('sportGoals')}</h4>
                                     <p style={{ margin: 0, padding: '16px', background: '#f9fafb', borderRadius: '12px', lineHeight: 1.6 }}>
                                         {selectedUser.goals || tUsers('noGoalsDetailed')}
                                     </p>

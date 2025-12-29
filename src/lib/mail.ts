@@ -1,35 +1,35 @@
 import nodemailer from 'nodemailer';
 
 const transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
-    port: parseInt(process.env.SMTP_PORT || "2525"),
-    auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS,
-    },
+  host: process.env.SMTP_HOST,
+  port: parseInt(process.env.SMTP_PORT || "2525"),
+  auth: {
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASS,
+  },
 });
 
 interface SendMailParams {
-    to: string;
-    subject: string;
-    html: string;
+  to: string;
+  subject: string;
+  html: string;
 }
 
 export async function sendMail({ to, subject, html }: SendMailParams) {
-    try {
-        const info = await transporter.sendMail({
-            from: '"CoachMe" <noreply@coachme.cm>',
-            to,
-            subject,
-            html,
-        });
+  try {
+    const info = await transporter.sendMail({
+      from: '"CoachMe" <noreply@coachme.cm>',
+      to,
+      subject,
+      html,
+    });
 
-        console.log("Message sent: %s", info.messageId);
-        return info;
-    } catch (error) {
-        console.error("Error sending email:", error);
-        return null;
-    }
+    console.log("Message sent: %s", info.messageId);
+    return info;
+  } catch (error) {
+    console.error("Error sending email:", error);
+    return null;
+  }
 }
 
 /**
@@ -118,7 +118,7 @@ const getStandardLayout = (title: string, content: string) => `
       ${content}
     </div>
     <div class="footer">
-      <p>&copy; ${new Date().getFullYear()} CoachMe by Ecotofitness. All rights reserved.</p>
+      <p>&copy; ${new Date().getFullYear()} CoachMe by Ecotosport. All rights reserved.</p>
       <p>
         <a href="${process.env.NEXT_PUBLIC_APP_URL}/">Home</a> | 
         <a href="${process.env.NEXT_PUBLIC_APP_URL}/contact">Support</a>
@@ -132,11 +132,11 @@ const getStandardLayout = (title: string, content: string) => `
 // Templates
 
 export const getProspectWelcomeTemplate = (name: string) => getStandardLayout(
-    "Welcome to CoachMe",
-    `
+  "Welcome to CoachMe",
+  `
     <h2>Welcome to CoachMe!</h2>
     <p>Hi <strong>${name}</strong>,</p>
-    <p>Thank you for joining CoachMe. We are excited to have you on board as part of our fitness community!</p>
+    <p>Thank you for joining CoachMe. We are excited to have you on board as part of our sport community!</p>
     <p>Whether you're looking for the perfect coach or ready to start your journey, we're here to help you every step of the way.</p>
     <p>Get started by exploring our featured coaches and finding the perfect match for your goals.</p>
     <a href="${process.env.NEXT_PUBLIC_APP_URL}/coaches" class="button">Explore Coaches</a>
@@ -145,8 +145,8 @@ export const getProspectWelcomeTemplate = (name: string) => getStandardLayout(
 );
 
 export const getCoachWelcomeTemplate = (name: string) => getStandardLayout(
-    "Welcome to the CoachMe Team",
-    `
+  "Welcome to the CoachMe Team",
+  `
     <h2>Welcome to CoachMe, Coach!</h2>
     <p>Hi <strong>${name}</strong>,</p>
     <p>We're thrilled to have you apply to join our community of professional coaches.</p>
@@ -158,8 +158,8 @@ export const getCoachWelcomeTemplate = (name: string) => getStandardLayout(
 );
 
 export const getAdminNewCoachAlertTemplate = (coachName: string, email: string) => getStandardLayout(
-    "New Coach Application",
-    `
+  "New Coach Application",
+  `
     <h2>New Coach Application</h2>
     <p>A new coach has registered and is awaiting approval.</p>
     <hr>
@@ -172,8 +172,8 @@ export const getAdminNewCoachAlertTemplate = (coachName: string, email: string) 
 );
 
 export const getCoachApprovedTemplate = (name: string) => getStandardLayout(
-    "Profile Approved",
-    `
+  "Profile Approved",
+  `
     <h2>Congratulations! Your profile is live.</h2>
     <p>Hi ${name},</p>
     <p>Great news! Your coach profile has been approved by our administrators.</p>
@@ -184,8 +184,8 @@ export const getCoachApprovedTemplate = (name: string) => getStandardLayout(
 );
 
 export const getCoachRejectedTemplate = (name: string) => getStandardLayout(
-    "Profile Update Required",
-    `
+  "Profile Update Required",
+  `
     <h2 style="color: #c0392b;">Action Required: Profile Update</h2>
     <p>Hi ${name},</p>
     <p>Thank you for your interest in joining CoachMe. We have reviewed your profile application.</p>
@@ -197,8 +197,8 @@ export const getCoachRejectedTemplate = (name: string) => getStandardLayout(
 );
 
 export const getNewMessageTemplate = (senderName: string, content: string) => getStandardLayout(
-    "New Message Received",
-    `
+  "New Message Received",
+  `
     <h2>You have a new message</h2>
     <p><strong>${senderName}</strong> sent you a message:</p>
     <div style="background: #f9f9f9; padding: 15px; border-left: 4px solid #00A650; font-style: italic; margin: 20px 0;">
@@ -210,8 +210,8 @@ export const getNewMessageTemplate = (senderName: string, content: string) => ge
 );
 
 export const getContactInquiryTemplate = (name: string, email: string, subject: string, message: string) => getStandardLayout(
-    "New Contact Inquiry",
-    `
+  "New Contact Inquiry",
+  `
     <h2>New Contact Inquiry</h2>
     <p>You received a new message from the contact form.</p>
     <hr>
@@ -225,8 +225,8 @@ export const getContactInquiryTemplate = (name: string, email: string, subject: 
 );
 
 export const getForgotPasswordTemplate = (resetUrl: string) => getStandardLayout(
-    "Reset Your Password",
-    `
+  "Reset Your Password",
+  `
     <h2>Reset Your Password</h2>
     <p>We received a request to reset the password for your CoachMe account.</p>
     <p>Click the button below to set a new password. This link will expire in 1 hour.</p>
@@ -239,8 +239,8 @@ export const getForgotPasswordTemplate = (resetUrl: string) => getStandardLayout
 );
 
 export const getAdminNewChatAlertTemplate = (clientName: string, coachName: string) => getStandardLayout(
-    "New Chat Started",
-    `
+  "New Chat Started",
+  `
     <h2>Real-time Chat Alert</h2>
     <p>A new conversation has been initiated between a client and a coach.</p>
     <hr>

@@ -81,7 +81,7 @@ export default function Header() {
           <Link href="/" className={styles.logo}>
             <Image
               src="/coachMe-logo.png"
-              alt="CoachMe by Ecotofitness"
+              alt="CoachMe by Ecotosport"
               width={200}
               height={100}
               priority

@@ -96,7 +96,7 @@ export default function LoginPage() {
               <div className={styles.logo}>
                 <Image
                   src="/coachMe-logo.png"
-                  alt="CoachMe by Ecotofitness"
+                  alt="CoachMe by Ecotosport"
                   width={400}
                   height={180}
                   priority
@@ -163,7 +163,7 @@ export default function LoginPage() {
         <div className={styles.imageSection}>
           <Image
             src="https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?q=80&w=1470&auto=format&fit=crop"
-            alt="Fitness Training"
+            alt="Sport Training"
             fill
             className={styles.heroImage}
             priority

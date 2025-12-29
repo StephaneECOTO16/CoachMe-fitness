@@ -41,7 +41,7 @@
     "loginTitle": "Bon Retour",
     "loginSubtitle": "Connectez-vous à votre compte",
     "registerTitle": "Rejoignez CoachMe",
-    "registerSubtitle": "Commencez votre parcours fitness aujourd'hui",
+    "registerSubtitle": "Commencez votre parcours sport aujourd'hui",
     "email": "Email",
     "password": "Mot de Passe",
     "confirmPassword": "Confirmer le Mot de Passe",
@@ -63,14 +63,14 @@
     "termsConditions": "Conditions Générales",
     "accountType": "Type de Compte",
     "lookingForCoach": "Je cherche un coach",
-    "imACoach": "Je suis un coach fitness",
+    "imACoach": "Je suis un coach sport",
     "additionalInfo": "Informations Supplémentaires (Optionnel)",
     "ageRange": "Tranche d'Âge",
     "selectAgeRange": "Sélectionnez une tranche d'âge",
     "heightCm": "Taille (cm)",
     "weightKg": "Poids (kg)",
-    "fitnessGoals": "Objectifs Fitness",
-    "fitnessGoalsPlaceholder": "ex: Perte de poids, gain musculaire, condition physique générale...",
+    "sportGoals": "Objectifs sport",
+    "sportGoalsPlaceholder": "ex: Perte de poids, gain musculaire, condition physique générale...",
     "coachInformation": "Informations Coach",
     "disciplineRequired": "Discipline *",
     "selectDiscipline": "Sélectionnez votre discipline",
@@ -100,9 +100,9 @@
   },
   "home": {
     "hero": {
-      "smallLabel": "Marketplace Fitness pour un Coaching Humain",
+      "smallLabel": "Marketplace sport pour un Coaching Humain",
       "title": "Nous connectons <highlight>coachs</highlight> & <highlight>clients</highlight> sur une seule plateforme.",
-      "subtitle": "Connectez-vous avec des professionnels du fitness certifiés à travers le Cameroun. Construisez votre parcours bien-être avec des coachs de confiance dans votre communauté.",
+      "subtitle": "Connectez-vous avec des professionnels du sport certifiés à travers le Cameroun. Construisez votre parcours bien-être avec des coachs de confiance dans votre communauté.",
       "ctafind": "Trouver un coach",
       "ctaMember": "Devenir membre",
       "noAlgorithms": "Pas d'algorithmes, pas de devinettes—juste des profils transparents, des portfolios et des accords directs.",
@@ -135,7 +135,7 @@
       "title": "Comment Ça Marche",
       "step1": {
         "title": "Créer un Profil",
-        "description": "Inscrivez-vous et parlez-nous de vos objectifs fitness"
+        "description": "Inscrivez-vous et parlez-nous de vos objectifs sport"
       },
       "step2": {
         "title": "Trouvez Votre Coach",
@@ -147,9 +147,9 @@
       }
     },
     "about": {
-      "eyebrow": "RÉVOLUTIONNER LE FITNESS",
+      "eyebrow": "RÉVOLUTIONNER LE sport",
       "title": "Plus qu'une simple application, <highlight>CoachMe</highlight> est une communauté.",
-      "description": "<highlight>CoachMe</highlight> a été fondé sur la conviction que tout le monde mérite l'accès à une expertise fitness de classe mondiale. Notre plateforme vous connecte avec des professionnels dévoués qui adaptent chaque entraînement à votre parcours unique.",
+      "description": "<highlight>CoachMe</highlight> a été fondé sur la conviction que tout le monde mérite l'accès à une expertise sport de classe mondiale. Notre plateforme vous connecte avec des professionnels dévoués qui adaptent chaque entraînement à votre parcours unique.",
       "features": {
         "access": {
           "title": "Accès Direct",
@@ -189,7 +189,7 @@
     },
     "disciplines": {
       "title": "Explorez Nos <highlight>Disciplines</highlight>",
-      "subtitle": "Nous vous connectons avec les meilleurs professionnels du fitness dans les domaines clés.",
+      "subtitle": "Nous vous connectons avec les meilleurs professionnels du sport dans les domaines clés.",
       "coachCount": "{count, plural, =0 {Aucun coach} =1 {# Coach} other {# Coachs}}"
     },
     "cta": {
@@ -199,10 +199,10 @@
     },
     "testimonials": {
       "title": "Ce que dit notre <highlight>communauté</highlight>",
-      "subtitle": "Découvrez comment <highlight>CoachMe</highlight> a aidé les gens à atteindre leurs objectifs de fitness grâce à un accompagnement professionnel.",
+      "subtitle": "Découvrez comment <highlight>CoachMe</highlight> a aidé les gens à atteindre leurs objectifs de sport grâce à un accompagnement professionnel.",
       "items": [
         {
-          "content": "CoachMe a transformé mon parcours fitness. L'attention personnalisée et les conseils d'expert de mon coach m'ont aidé à obtenir des résultats que je n'aurais jamais cru possibles.",
+          "content": "CoachMe a transformé mon parcours sport. L'attention personnalisée et les conseils d'expert de mon coach m'ont aidé à obtenir des résultats que je n'aurais jamais cru possibles.",
           "author": "Sarah Johnson",
           "role": "Passionnée de Yoga"
         },
@@ -231,12 +231,12 @@
   },
   "aboutPage": {
     "hero": {
-      "title": "Boostez Votre <highlight>Parcours Fitness</highlight>",
+      "title": "Boostez Votre <highlight>Parcours sport</highlight>",
       "subtitle": "CoachMe est plus qu'une plateforme ; nous sommes un mouvement dédié à rendre le coaching professionnel accessible à tous au Cameroun."
     },
     "mission": {
       "title": "Notre <highlight>Mission</highlight>",
-      "content": "Combler le fossé entre l'expertise fitness de classe mondiale et les individus en quête de transformation. Nous donnons aux coachs les moyens de briller et aux clients ceux d'atteindre leur meilleur état de santé."
+      "content": "Combler le fossé entre l'expertise sport de classe mondiale et les individus en quête de transformation. Nous donnons aux coachs les moyens de briller et aux clients ceux d'atteindre leur meilleur état de santé."
     },
     "vision": {
       "title": "Notre <highlight>Vision</highlight>",
@@ -244,15 +244,15 @@
     },
     "story": {
       "title": "Notre <highlight>Histoire</highlight>",
-      "intro": "CoachMe est né d'un constat simple : l'incroyable talent des professionnels du fitness au Cameroun ne parvenait pas aux personnes qui en avaient le plus besoin.",
+      "intro": "CoachMe est né d'un constat simple : l'incroyable talent des professionnels du sport au Cameroun ne parvenait pas aux personnes qui en avaient le plus besoin.",
       "timeline": {
         "2023": {
           "title": "L'Étincelle",
-          "description": "Inspirés par la scène fitness locale, nous avons commencé à conceptualiser une plateforme qui élimine les barrières et instaure la confiance."
+          "description": "Inspirés par la scène sport locale, nous avons commencé à conceptualiser une plateforme qui élimine les barrières et instaure la confiance."
         },
         "2024": {
           "title": "Bâtir le Pont",
-          "description": "Notre équipe de développeurs et d'experts fitness a joint ses forces pour créer une expérience fluide pour les coachs et les clients."
+          "description": "Notre équipe de développeurs et d'experts sport a joint ses forces pour créer une expérience fluide pour les coachs et les clients."
         },
         "today": {
           "title": "Lancement & Croissance",
@@ -329,7 +329,7 @@
   "coach": {
     "browse": {
       "title": "Trouvez Votre Coach Parfait",
-      "subtitle": "Parcourez les professionnels du fitness certifiés",
+      "subtitle": "Parcourez les professionnels du sport certifiés",
       "noCoaches": "Aucun coach trouvé",
       "filterByDiscipline": "Filtrer par Discipline",
       "filterCoaches": "Filtrer les Coachs",
@@ -375,9 +375,9 @@
       "certification": "Certification",
       "viewCertificate": "Voir le Certificat",
       "videos": "Vidéos",
-      "readyToStart": "Prêt à Commencer Votre Parcours Fitness?",
+      "readyToStart": "Prêt à Commencer Votre Parcours sport?",
       "contactDescription": "Contactez {name} aujourd'hui pour discuter de vos objectifs et commencer.",
-      "imageAlt": "Coach démontrant des techniques de fitness"
+      "imageAlt": "Coach démontrant des techniques de sport"
     },
     "onboarding": {
       "title": "Devenez Coach",
@@ -453,7 +453,7 @@
       "ageRangeLabel": "Tranche d'Âge",
       "heightLabel": "Taille (cm)",
       "weightLabel": "Poids (kg)",
-      "goalsLabel": "Objectifs Fitness",
+      "goalsLabel": "Objectifs sport",
       "completeButton": "Compléter le Profil",
       "completing": "Enregistrement..."
     },
@@ -476,7 +476,7 @@
       "messagesAction": "MESSAGES",
       "messagesDesc": "Discutez avec vos coachs, posez vos questions et partagez vos progrès.",
       "profileAction": "MON PROFIL",
-      "profileDesc": "Mettez à jour vos informations, vos préférences et vos objectifs fitness.",
+      "profileDesc": "Mettez à jour vos informations, vos préférences et vos objectifs sport.",
       "viewProfile": "Voir le Profil",
       "emptyConversations": "Aucune conversation active. Commencez par parcourir les coachs !",
       "discoverCoachesDesc": "Explorez notre marketplace et trouvez le coach parfait pour vos objectifs."
@@ -514,14 +514,14 @@
       "role": "Rôle",
       "memberSince": "Membre Depuis",
       "coachProfile": "Profil Coach",
-      "fitnessProfile": "Profil Fitness",
+      "sportProfile": "Profil sport",
       "status": "Statut",
       "bio": "Biographie",
       "portfolio": "Portfolio",
       "ageRange": "Tranche d'âge",
       "height": "Taille",
       "weight": "Poids",
-      "fitnessGoals": "Objectifs Fitness",
+      "sportGoals": "Objectifs sport",
       "basicInfo": "Informations de Base",
       "discipline": "Discipline",
       "avatar": "Avatar"
@@ -529,7 +529,7 @@
     "placeholders": {
       "bio": "Parlez-nous de vous et de votre philosophie...",
       "portfolio": "https://votre-portfolio.com",
-      "goals": "Quels sont vos objectifs de fitness?",
+      "goals": "Quels sont vos objectifs de sport?",
       "name": "Votre nom",
       "selectDiscipline": "Sélectionnez une discipline",
       "selectAgeRange": "Sélectionnez une tranche d'âge",
@@ -540,7 +540,7 @@
     },
     "buttons": {
       "saveCoachProfile": "Enregistrer Profil Coach",
-      "saveFitnessProfile": "Enregistrer Profil Fitness",
+      "savesportProfile": "Enregistrer Profil sport",
       "saveBasicInfo": "Enregistrer Info de Base",
       "saving": "Enregistrement...",
       "changeAvatar": "Changer Avatar",
@@ -705,7 +705,7 @@
         "portfolio": "Portfolio",
         "experience": "Expérience",
         "years": "ans",
-        "fitnessGoals": "Objectifs Fitness",
+        "sportGoals": "Objectifs sport",
         "loadError": "Échec du chargement des utilisateurs",
         "bio": "Biographie",
         "internalError": "Erreur interne du serveur"
@@ -993,7 +993,7 @@
     "coachRejected": "Coach rejeté avec succès"
   },
   "footer": {
-    "description": "Transformez votre parcours fitness avec des coachs certifiés qui vous guident à chaque étape.",
+    "description": "Transformez votre parcours sport avec des coachs certifiés qui vous guident à chaque étape.",
     "sections": {
       "quickLinks": "Liens Rapides",
       "resources": "Ressources",
@@ -1105,7 +1105,7 @@
             "Données d'identité : nom, nom d'utilisateur ou identifiant similaire.",
             "Données de contact : adresse e-mail et numéros de téléphone.",
             "Données techniques : adresse IP, données de connexion, type et version du navigateur.",
-            "Données de profil : vos intérêts, préférences et objectifs de fitness."
+            "Données de profil : vos intérêts, préférences et objectifs de sport."
           ]
         },
         {
@@ -1148,7 +1148,7 @@
         },
         {
           "title": "Avis de non-responsabilité en matière de coaching",
-          "content": "CoachMe est une plateforme qui met en relation des coachs et des clients. Nous ne fournissons pas de conseils médicaux. Consultez toujours un professionnel de la santé avant de commencer tout nouveau programme de fitness."
+          "content": "CoachMe est une plateforme qui met en relation des coachs et des clients. Nous ne fournissons pas de conseils médicaux. Consultez toujours un professionnel de la santé avant de commencer tout nouveau programme de sport."
         }
       ]
     },

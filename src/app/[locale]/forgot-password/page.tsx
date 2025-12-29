@@ -72,7 +72,7 @@ export default function ForgotPasswordPage() {
           <div className={styles.card}>
             <div className={styles.header}>
               <div className={styles.logo}>
-                <Image src="/coachMe-logo.png" alt="CoachMe by Ecotofitness" width={400} height={180} priority />
+                <Image src="/coachMe-logo.png" alt="CoachMe by Ecotosport" width={400} height={180} priority />
               </div>
               <h1 className={styles.title}>{t("forgotPasswordTitle")}</h1>
               <p className={styles.subtitle}>{t("forgotPasswordSubtitle")}</p>
@@ -106,7 +106,7 @@ export default function ForgotPasswordPage() {
         <div className={styles.imageSection}>
           <Image
             src="https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?q=80&w=1470&auto=format&fit=crop"
-            alt="Fitness Training"
+            alt="Sport Training"
             fill
             className={styles.heroImage}
             priority

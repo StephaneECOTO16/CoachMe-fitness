@@ -505,28 +505,34 @@ export default function ProfilePage() {
           {/* User Information Card */}
           <section className={styles.section}>
             <div className={styles.sectionHeader}>
-              <h2 className={styles.sectionTitle}>{t('labels.accountInfo')}</h2>
-              <Button variant="primary" size="sm" onClick={() => setIsEditModalOpen(true)}>
-                {t('labels.editProfile')}
+              <h2 className={styles.sectionTitle}>{t("labels.accountInfo")}</h2>
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={() => setIsEditModalOpen(true)}
+              >
+                {t("labels.editProfile")}
               </Button>
             </div>
 
             <div className={styles.infoCard}>
               <div className={styles.infoGrid}>
                 <div className={styles.infoItem}>
-                  <span className={styles.infoLabel}>{t('labels.name')}:</span>
-                  <span className={styles.infoValue}>{profileData.user.name || 'Not set'}</span>
+                  <span className={styles.infoLabel}>{t("labels.name")}:</span>
+                  <span className={styles.infoValue}>
+                    {profileData.user.name || "Not set"}
+                  </span>
                 </div>
                 <div className={styles.infoItem}>
-                  <span className={styles.infoLabel}>{t('labels.email')}:</span>
+                  <span className={styles.infoLabel}>{t("labels.email")}:</span>
                   <span className={styles.infoValue}>{profileData.user.email}</span>
                 </div>
                 <div className={styles.infoItem}>
-                  <span className={styles.infoLabel}>{t('labels.role')}:</span>
+                  <span className={styles.infoLabel}>{t("labels.role")}:</span>
                   <span className={styles.infoValue}>{profileData.user.role}</span>
                 </div>
                 <div className={styles.infoItem}>
-                  <span className={styles.infoLabel}>{t('labels.memberSince')}:</span>
+                  <span className={styles.infoLabel}>{t("labels.memberSince")}:</span>
                   <span className={styles.infoValue}>
                     {new Date(profileData.user.createdAt).toLocaleDateString()}
                   </span>
@@ -536,58 +542,71 @@ export default function ProfilePage() {
           </section>
 
           {/* Role-Specific Profile Information */}
-          {profileData.user.role === 'COACH' && profileData.profile && (
+          {profileData.user.role === "COACH" && profileData.profile && (
             <section className={styles.section}>
-              <h2 className={styles.sectionTitle}>{t('labels.coachProfile')}</h2>
+              <h2 className={styles.sectionTitle}>{t("labels.coachProfile")}</h2>
               <div className={styles.infoCard}>
                 <div className={styles.infoGrid}>
                   <div className={styles.infoItem}>
-                    <span className={styles.infoLabel}>{t('labels.discipline')}:</span>
-                    <span className={styles.infoValue}>{getDisciplineName(profileData.profile.discipline) || 'Not set'}</span>
+                    <span className={styles.infoLabel}>{t("labels.discipline")}:</span>
+                    <span className={styles.infoValue}>
+                      {getDisciplineName(profileData.profile.discipline) || "Not set"}
+                    </span>
                   </div>
                   <div className={styles.infoItem}>
-                    <span className={styles.infoLabel}>{t('labels.status')}:</span>
-                    <span className={styles.infoValue}>{profileData.profile.status}</span>
+                    <span className={styles.infoLabel}>{t("labels.status")}:</span>
+                    <span className={styles.infoValue}>
+                      {profileData.profile.status}
+                    </span>
                   </div>
                   {profileData.profile.rateAmount && (
                     <div className={styles.infoItem}>
-                      <span className={styles.infoLabel}>{t('rate')}:</span>
+                      <span className={styles.infoLabel}>{t("rate")}:</span>
                       <span className={styles.infoValue}>
-                        {new Intl.NumberFormat('fr-FR').format(Number(profileData.profile.rateAmount))} XAF{' '}
-                        {getRateLabel(profileData.profile.rateType)}
+                        {new Intl.NumberFormat("fr-FR").format(
+                          Number(profileData.profile.rateAmount)
+                        )}{" "}
+                        XAF {getRateLabel(profileData.profile.rateType)}
                       </span>
                     </div>
                   )}
-                  {profileData.profile.experienceYears !== null && profileData.profile.experienceYears !== undefined && (
-                    <div className={styles.infoItem}>
-                      <span className={styles.infoLabel}>{t('experience')}:</span>
-                      <span className={styles.infoValue}>{profileData.profile.experienceYears} {t('years')}</span>
-                    </div>
-                  )}
+                  {profileData.profile.experienceYears !== null &&
+                    profileData.profile.experienceYears !== undefined && (
+                      <div className={styles.infoItem}>
+                        <span className={styles.infoLabel}>{t("experience")}:</span>
+                        <span className={styles.infoValue}>
+                          {profileData.profile.experienceYears} {t("years")}
+                        </span>
+                      </div>
+                    )}
                   {(profileData.profile.city || profileData.profile.country) && (
                     <div className={styles.infoItem}>
-                      <span className={styles.infoLabel}>{t('location')}:</span>
+                      <span className={styles.infoLabel}>{t("location")}:</span>
                       <span className={styles.infoValue}>
-                        {[profileData.profile.city, profileData.profile.country].filter(Boolean).join(', ')}
+                        {[profileData.profile.city, profileData.profile.country]
+                          .filter(Boolean)
+                          .join(", ")}
                       </span>
                     </div>
                   )}
                   {profileData.profile.address && (
                     <div className={styles.infoItem}>
-                      <span className={styles.infoLabel}>{t('address')}:</span>
-                      <span className={styles.infoValue}>{profileData.profile.address}</span>
+                      <span className={styles.infoLabel}>{t("address")}:</span>
+                      <span className={styles.infoValue}>
+                        {profileData.profile.address}
+                      </span>
                     </div>
                   )}
                 </div>
                 {profileData.profile.bio && (
                   <div className={styles.bioSection}>
-                    <h3 className={styles.bioTitle}>{t('labels.bio')}</h3>
+                    <h3 className={styles.bioTitle}>{t("labels.bio")}</h3>
                     <p className={styles.bioText}>{profileData.profile.bio}</p>
                   </div>
                 )}
                 {profileData.profile.portfolio && (
                   <div className={styles.portfolioSection}>
-                    <h3 className={styles.bioTitle}>{t('labels.portfolio')}</h3>
+                    <h3 className={styles.bioTitle}>{t("labels.portfolio")}</h3>
                     <a
                       href={profileData.profile.portfolio}
                       target="_blank"
@@ -598,33 +617,61 @@ export default function ProfilePage() {
                     </a>
                   </div>
                 )}
-                {(profileData.profile.instagram || profileData.profile.facebook || profileData.profile.tiktok ||
-                  profileData.profile.twitter || profileData.profile.youtube) && (
+                {(profileData.profile.instagram ||
+                  profileData.profile.facebook ||
+                  profileData.profile.tiktok ||
+                  profileData.profile.twitter ||
+                  profileData.profile.youtube) && (
                     <div className={styles.bioSection}>
-                      <h3 className={styles.bioTitle}>{t('socialMedia')}</h3>
+                      <h3 className={styles.bioTitle}>{t("socialMedia")}</h3>
                       <div className={styles.socialLinks}>
                         {profileData.profile.instagram && (
-                          <a href={profileData.profile.instagram} target="_blank" rel="noopener noreferrer" className={styles.socialLink}>
+                          <a
+                            href={profileData.profile.instagram}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className={styles.socialLink}
+                          >
                             Instagram
                           </a>
                         )}
                         {profileData.profile.facebook && (
-                          <a href={profileData.profile.facebook} target="_blank" rel="noopener noreferrer" className={styles.socialLink}>
+                          <a
+                            href={profileData.profile.facebook}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className={styles.socialLink}
+                          >
                             Facebook
                           </a>
                         )}
                         {profileData.profile.tiktok && (
-                          <a href={profileData.profile.tiktok} target="_blank" rel="noopener noreferrer" className={styles.socialLink}>
+                          <a
+                            href={profileData.profile.tiktok}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className={styles.socialLink}
+                          >
                             TikTok
                           </a>
                         )}
                         {profileData.profile.twitter && (
-                          <a href={profileData.profile.twitter} target="_blank" rel="noopener noreferrer" className={styles.socialLink}>
+                          <a
+                            href={profileData.profile.twitter}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className={styles.socialLink}
+                          >
                             X (Twitter)
                           </a>
                         )}
                         {profileData.profile.youtube && (
-                          <a href={profileData.profile.youtube} target="_blank" rel="noopener noreferrer" className={styles.socialLink}>
+                          <a
+                            href={profileData.profile.youtube}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className={styles.socialLink}
+                          >
                             YouTube
                           </a>
                         )}
@@ -635,33 +682,39 @@ export default function ProfilePage() {
             </section>
           )}
 
-          {profileData.user.role === 'PROSPECT' && profileData.profile && (
+          {profileData.user.role === "PROSPECT" && profileData.profile && (
             <section className={styles.section}>
-              <h2 className={styles.sectionTitle}>{t('labels.fitnessProfile')}</h2>
+              <h2 className={styles.sectionTitle}>{t("labels.sportProfile")}</h2>
               <div className={styles.infoCard}>
                 <div className={styles.infoGrid}>
                   {profileData.profile.ageRange && (
                     <div className={styles.infoItem}>
-                      <span className={styles.infoLabel}>{t('labels.ageRange')}:</span>
-                      <span className={styles.infoValue}>{profileData.profile.ageRange}</span>
+                      <span className={styles.infoLabel}>{t("labels.ageRange")}:</span>
+                      <span className={styles.infoValue}>
+                        {profileData.profile.ageRange}
+                      </span>
                     </div>
                   )}
                   {profileData.profile.heightCm && (
                     <div className={styles.infoItem}>
-                      <span className={styles.infoLabel}>{t('labels.height')}:</span>
-                      <span className={styles.infoValue}>{profileData.profile.heightCm} cm</span>
+                      <span className={styles.infoLabel}>{t("labels.height")}:</span>
+                      <span className={styles.infoValue}>
+                        {profileData.profile.heightCm} cm
+                      </span>
                     </div>
                   )}
                   {profileData.profile.weightKg && (
                     <div className={styles.infoItem}>
-                      <span className={styles.infoLabel}>{t('labels.weight')}:</span>
-                      <span className={styles.infoValue}>{profileData.profile.weightKg} kg</span>
+                      <span className={styles.infoLabel}>{t("labels.weight")}:</span>
+                      <span className={styles.infoValue}>
+                        {profileData.profile.weightKg} kg
+                      </span>
                     </div>
                   )}
                 </div>
                 {profileData.profile.goals && (
                   <div className={styles.bioSection}>
-                    <h3 className={styles.bioTitle}>{t('labels.fitnessGoals')}</h3>
+                    <h3 className={styles.bioTitle}>{t("labels.sportGoals")}</h3>
                     <p className={styles.bioText}>{profileData.profile.goals}</p>
                   </div>
                 )}
@@ -947,7 +1000,7 @@ export default function ProfilePage() {
                 {/* Client-specific Form */}
                 {profileData.user.role === 'PROSPECT' && (
                   <form onSubmit={handleSubmitClient(onSubmitClient)} className={styles.form}>
-                    <h3 className={styles.formTitle}>{t('labels.fitnessProfile')}</h3>
+                    <h3 className={styles.formTitle}>{t('labels.sportProfile')}</h3>
 
                     <div className={styles.formGroup}>
                       <label htmlFor="ageRange" className={styles.label}>
@@ -993,7 +1046,7 @@ export default function ProfilePage() {
 
                     <div className={styles.formGroup}>
                       <label htmlFor="goals" className={styles.label}>
-                        {t('labels.fitnessGoals')}
+                        {t('labels.sportGoals')}
                       </label>
                       <textarea
                         {...registerClient('goals')}
@@ -1010,7 +1063,7 @@ export default function ProfilePage() {
                       disabled={isEditingProfile}
                       className={styles.submitButton}
                     >
-                      {isEditingProfile ? t('buttons.saving') : t('buttons.saveFitnessProfile')}
+                      {isEditingProfile ? t('buttons.saving') : t('buttons.saveSportProfile')}
                     </Button>
                   </form>
                 )}

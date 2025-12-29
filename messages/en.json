@@ -41,7 +41,7 @@
     "loginTitle": "Welcome Back",
     "loginSubtitle": "Sign in to your account",
     "registerTitle": "Join CoachMe",
-    "registerSubtitle": "Start your fitness journey today",
+    "registerSubtitle": "Start your sport journey today",
     "email": "Email",
     "password": "Password",
     "confirmPassword": "Confirm Password",
@@ -63,14 +63,14 @@
     "termsConditions": "Terms and Conditions",
     "accountType": "Account Type",
     "lookingForCoach": "I'm looking for a coach",
-    "imACoach": "I'm a fitness coach",
+    "imACoach": "I'm a sport coach",
     "additionalInfo": "Additional Information (Optional)",
     "ageRange": "Age Range",
     "selectAgeRange": "Select age range",
     "heightCm": "Height (cm)",
     "weightKg": "Weight (kg)",
-    "fitnessGoals": "Fitness Goals",
-    "fitnessGoalsPlaceholder": "e.g., Weight loss, muscle gain, general fitness...",
+    "sportGoals": "sport Goals",
+    "sportGoalsPlaceholder": "e.g., Weight loss, muscle gain, general sport...",
     "coachInformation": "Coach Information",
     "disciplineRequired": "Discipline *",
     "selectDiscipline": "Select your discipline",
@@ -100,9 +100,9 @@
   },
   "home": {
     "hero": {
-      "smallLabel": "Fitness Marketplace for Real Human Coaching",
+      "smallLabel": "sport Marketplace for Real Human Coaching",
       "title": "We connect <highlight>coaches</highlight> & <highlight>clients</highlight> in one platform.",
-      "subtitle": "Connect with certified fitness professionals across Cameroon. Build your wellness journey with trusted coaches in your community.",
+      "subtitle": "Connect with certified sport professionals across Cameroon. Build your wellness journey with trusted coaches in your community.",
       "ctafind": "Find a coach",
       "ctaMember": "Become a member",
       "noAlgorithms": "No algorithms, no guesswork—just transparent profiles, portfolios, and direct agreements.",
@@ -135,7 +135,7 @@
       "title": "How It Works",
       "step1": {
         "title": "Create Profile",
-        "description": "Sign up and tell us about your fitness goals"
+        "description": "Sign up and tell us about your sport goals"
       },
       "step2": {
         "title": "Find Your Coach",
@@ -147,9 +147,9 @@
       }
     },
     "about": {
-      "eyebrow": "REVOLUTIONIZING FITNESS",
+      "eyebrow": "REVOLUTIONIZING sport",
       "title": "More than just an app, <highlight>CoachMe</highlight> is a community.",
-      "description": "<highlight>CoachMe</highlight> was founded on the belief that everyone deserves access to world-class fitness expertise. Our platform connects you with dedicated professionals who tailor every workout to your unique journey, ensuring that your wellness goals are always within reach.",
+      "description": "<highlight>CoachMe</highlight> was founded on the belief that everyone deserves access to world-class sport expertise. Our platform connects you with dedicated professionals who tailor every workout to your unique journey, ensuring that your wellness goals are always within reach.",
       "features": {
         "access": {
           "title": "Direct Access",
@@ -189,7 +189,7 @@
     },
     "disciplines": {
       "title": "Explore Our <highlight>Disciplines</highlight>",
-      "subtitle": "Connecting you with the best fitness professionals across top domains.",
+      "subtitle": "Connecting you with the best sport professionals across top domains.",
       "coachCount": "{count, plural, =0 {No coaches} =1 {# Coach} other {# Coaches}}"
     },
     "cta": {
@@ -199,10 +199,10 @@
     },
     "testimonials": {
       "title": "What Our <highlight>Community</highlight> Says",
-      "subtitle": "Discover how <highlight>CoachMe</highlight> has helped people achieve their fitness goals through professional guidance.",
+      "subtitle": "Discover how <highlight>CoachMe</highlight> has helped people achieve their sport goals through professional guidance.",
       "items": [
         {
-          "content": "CoachMe transformed my fitness journey. The personalized attention and expert guidance from my coach helped me achieve results I never thought possible.",
+          "content": "CoachMe transformed my sport journey. The personalized attention and expert guidance from my coach helped me achieve results I never thought possible.",
           "author": "Sarah Johnson",
           "role": "Yoga Enthusiast"
         },
@@ -222,7 +222,7 @@
           "role": "CrossFit Athlete"
         },
         {
-          "content": "The community aspect is amazing. My coach not only trains me but also connects me with other clients. It's more than fitness—it's a lifestyle change.",
+          "content": "The community aspect is amazing. My coach not only trains me but also connects me with other clients. It's more than sport—it's a lifestyle change.",
           "author": "Amina Kamara",
           "role": "Wellness Advocate"
         }
@@ -231,12 +231,12 @@
   },
   "aboutPage": {
     "hero": {
-      "title": "Empowering Your <highlight>Fitness Journey</highlight>",
+      "title": "Empowering Your <highlight>sport Journey</highlight>",
       "subtitle": "CoachMe is more than a platform; we are a movement dedicated to making professional coaching accessible to everyone in Cameroon."
     },
     "mission": {
       "title": "Our <highlight>Mission</highlight>",
-      "content": "To bridge the gap between world-class fitness expertise and individuals seeking transformation. We empower coaches to shine and clients to achieve their healthiest selves."
+      "content": "To bridge the gap between world-class sport expertise and individuals seeking transformation. We empower coaches to shine and clients to achieve their healthiest selves."
     },
     "vision": {
       "title": "Our <highlight>Vision</highlight>",
@@ -244,15 +244,15 @@
     },
     "story": {
       "title": "Our <highlight>Story</highlight>",
-      "intro": "CoachMe was born from a simple observation: the incredible talent of fitness professionals in Cameroon wasn't reaching the people who needed it most.",
+      "intro": "CoachMe was born from a simple observation: the incredible talent of sport professionals in Cameroon wasn't reaching the people who needed it most.",
       "timeline": {
         "2023": {
           "title": "The Spark",
-          "description": "Inspired by the local fitness scene, we began conceptualizing a platform that removes barriers and builds trust."
+          "description": "Inspired by the local sport scene, we began conceptualizing a platform that removes barriers and builds trust."
         },
         "2024": {
           "title": "Building the Bridge",
-          "description": "Our team of developers and fitness experts joined forces to create a seamless experience for both coaches and clients."
+          "description": "Our team of developers and sport experts joined forces to create a seamless experience for both coaches and clients."
         },
         "today": {
           "title": "Launch & Growth",
@@ -329,7 +329,7 @@
   "coach": {
     "browse": {
       "title": "Find Your Perfect Coach",
-      "subtitle": "Browse certified fitness professionals",
+      "subtitle": "Browse certified sport professionals",
       "noCoaches": "No coaches found",
       "filterByDiscipline": "Filter by Discipline",
       "filterCoaches": "Filter Coaches",
@@ -350,9 +350,9 @@
       "certification": "Certification",
       "viewCertificate": "View Certificate",
       "videos": "Videos",
-      "readyToStart": "Ready to Start Your Fitness Journey?",
+      "readyToStart": "Ready to Start Your sport Journey?",
       "contactDescription": "Contact {name} today to discuss your goals and get started.",
-      "imageAlt": "Coach demonstrating fitness techniques",
+      "imageAlt": "Coach demonstrating sport techniques",
       "rateType": "Rate Type",
       "rateTypeAll": "All Types",
       "rateTypeHour": "Hourly",
@@ -440,7 +440,7 @@
       "ageRangeLabel": "Age Range",
       "heightLabel": "Height (cm)",
       "weightLabel": "Weight (kg)",
-      "goalsLabel": "Fitness Goals",
+      "goalsLabel": "sport Goals",
       "completeButton": "Complete Profile",
       "completing": "Saving..."
     },
@@ -463,7 +463,7 @@
       "messagesAction": "MESSAGES",
       "messagesDesc": "Chat with your coaches, ask questions and share your progress.",
       "profileAction": "MY PROFILE",
-      "profileDesc": "Update your information, preferences and fitness goals.",
+      "profileDesc": "Update your information, preferences and sport goals.",
       "viewProfile": "View Profile",
       "emptyConversations": "No active conversations. Start by browsing coaches!",
       "discoverCoachesDesc": "Explore our marketplace and find the perfect coach for your goals."
@@ -501,14 +501,14 @@
       "role": "Role",
       "memberSince": "Member Since",
       "coachProfile": "Coach Profile",
-      "fitnessProfile": "Fitness Profile",
+      "sportProfile": "sport Profile",
       "status": "Status",
       "bio": "Bio",
       "portfolio": "Portfolio",
       "ageRange": "Age Range",
       "height": "Height",
       "weight": "Weight",
-      "fitnessGoals": "Fitness Goals",
+      "sportGoals": "sport Goals",
       "basicInfo": "Basic Information",
       "discipline": "Discipline",
       "avatar": "Avatar"
@@ -516,7 +516,7 @@
     "placeholders": {
       "bio": "Tell clients about yourself...",
       "portfolio": "https://your-portfolio.com",
-      "goals": "What are your fitness goals?",
+      "goals": "What are your sport goals?",
       "name": "Your name",
       "selectDiscipline": "Select discipline",
       "selectAgeRange": "Select age range",
@@ -527,7 +527,7 @@
     },
     "buttons": {
       "saveCoachProfile": "Save Coach Profile",
-      "saveFitnessProfile": "Save Fitness Profile",
+      "savesportProfile": "Save sport Profile",
       "saveBasicInfo": "Save Basic Info",
       "saving": "Saving...",
       "changeAvatar": "Change Avatar",
@@ -692,7 +692,7 @@
         "portfolio": "Portfolio",
         "experience": "Experience",
         "years": "years",
-        "fitnessGoals": "Fitness Goals",
+        "sportGoals": "sport Goals",
         "loadError": "Failed to load users",
         "bio": "Bio",
         "internalError": "Internal server error"
@@ -1030,7 +1030,7 @@
     "coachRejected": "Coach rejected successfully"
   },
   "footer": {
-    "description": "Transform your fitness journey with certified coaches who guide you every step of the way.",
+    "description": "Transform your sport journey with certified coaches who guide you every step of the way.",
     "sections": {
       "quickLinks": "Quick Links",
       "resources": "Resources",
@@ -1142,7 +1142,7 @@
             "Identity Data: name, username or similar identifier.",
             "Contact Data: email address and telephone numbers.",
             "Technical Data: IP address, login data, browser type and version.",
-            "Profile Data: your interests, preferences, and fitness goals."
+            "Profile Data: your interests, preferences, and sport goals."
           ]
         },
         {
@@ -1185,7 +1185,7 @@
         },
         {
           "title": "Coaching Disclaimer",
-          "content": "CoachMe is a platform that connects coaches and clients. We do not provide medical advice. Always consult with a healthcare professional before starting any new fitness program."
+          "content": "CoachMe is a platform that connects coaches and clients. We do not provide medical advice. Always consult with a healthcare professional before starting any new sport program."
         }
       ]
     },
