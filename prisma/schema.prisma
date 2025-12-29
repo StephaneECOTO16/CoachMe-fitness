@@ -52,6 +52,8 @@ model CoachProfile {
   user            User            @relation(fields: [userId], references: [id])
   commissionLogs  CommissionLog[]
   media           Media[]
+
+  @@index([disciplineId])
 }
 
 model ClientProfile {
@@ -79,6 +81,9 @@ model Media {
   createdAt   DateTime      @default(now())
   coach       CoachProfile? @relation(fields: [coachId], references: [id])
   owner       User?         @relation(fields: [ownerId], references: [id])
+
+  @@index([ownerId])
+  @@index([coachId])
 }
 
 model Chat {
@@ -104,6 +109,9 @@ model Message {
   createdAt DateTime @default(now())
   chat      Chat     @relation(fields: [chatId], references: [id])
   sender    User     @relation("senderMessages", fields: [senderId], references: [id])
+
+  @@index([chatId])
+  @@index([senderId])
 }
 
 model AdminReview {
@@ -147,7 +155,6 @@ model PasswordResetToken {
   createdAt DateTime @default(now())
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@index([token])
   @@index([userId])
 }
 
@@ -181,3 +188,5 @@ enum RateType {
   WEEK
   MONTH
 }
+
+

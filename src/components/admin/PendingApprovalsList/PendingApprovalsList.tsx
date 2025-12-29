@@ -66,7 +66,7 @@ const PendingApprovalsList: React.FC<PendingApprovalsListProps> = ({
     ];
 
     const renderActions = (coach: PendingCoach) => {
-        const dropdownItems: any[] = [];
+        const dropdownItems: { label: string; icon: React.ReactNode; variant?: 'default' | 'danger'; onClick: () => void }[] = [];
 
         if (onApprove) {
             dropdownItems.push({

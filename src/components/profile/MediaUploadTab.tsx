@@ -177,7 +177,6 @@ export default function MediaUploadTab() {
       toast.success(t('success.fileUploaded', { fileName: processedFile.name }));
       fetchMediaFiles(); // Refresh list
     } catch (error) {
-      console.error('Upload error:', error);
       toast.error(t('error.fileUploadFailed', { fileName: file.name }));
     } finally {
       // Remove from uploading state
