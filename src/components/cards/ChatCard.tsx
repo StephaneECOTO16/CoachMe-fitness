@@ -36,7 +36,7 @@ const ChatCard: React.FC<ChatCardProps> = ({
   chat,
   onClick,
   isActive = false,
-  locale = 'en',
+  locale = 'fr',
   className = '',
 }) => {
   const router = useRouter();

@@ -33,7 +33,7 @@ const ConversationList: React.FC<ConversationListProps> = ({
     isLoading = false,
     loadingSize = 'lg',
     limit,
-    locale = 'en',
+    locale = 'fr',
     emptyState,
     onChatClick,
     className = '',
