@@ -23,7 +23,7 @@ export async function POST(request: Request) {
             html: getContactInquiryTemplate(name, email, subject, message),
         });
 
-        console.log('Contact Form Submission:', { name, email, subject, message });
+
 
         return NextResponse.json(
             { message: 'Message sent successfully' },

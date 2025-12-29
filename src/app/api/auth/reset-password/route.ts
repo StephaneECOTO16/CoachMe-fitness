@@ -98,7 +98,7 @@ export async function POST(req: Request) {
       }),
     ]);
 
-    console.log(`[Reset Password] Password reset successful for user ID: ${resetToken.userId}`);
+
 
     return NextResponse.json({
       success: true,
