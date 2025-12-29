@@ -9,7 +9,7 @@ export type Language = 'EN' | 'FR';
 export const translations: Record<Language, Record<string, string>> = {
     EN: {
         // Common
-        'app.title': 'Mandara Fitness',
+        'app.title': 'Mandara Sport',
         'nav.home': 'Home',
         'nav.coaches': 'Find Coaches',
         'nav.profile': 'Profile',
@@ -75,7 +75,7 @@ export const translations: Record<Language, Record<string, string>> = {
 
     FR: {
         // Common
-        'app.title': 'Mandara Fitness',
+        'app.title': 'Mandara Sport',
         'nav.home': 'Accueil',
         'nav.coaches': 'Trouver des Coachs',
         'nav.profile': 'Profil',

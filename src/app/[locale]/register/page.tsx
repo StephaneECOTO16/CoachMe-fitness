@@ -165,7 +165,7 @@ export default function RegisterPage() {
               <div className={styles.logo}>
                 <Image
                   src="/coachMe-logo.png"
-                  alt="CoachMe by Ecotofitness"
+                  alt="CoachMe by Ecotosport"
                   width={400}
                   height={180}
                   priority
@@ -287,11 +287,11 @@ export default function RegisterPage() {
 
                     <div className={styles.formCol}>
                       <label className={styles.label}>
-                        {t("fitnessGoals")}
+                        {t("sportGoals")}
                       </label>
                       <textarea
                         className={styles.textarea}
-                        placeholder={t("fitnessGoalsPlaceholder")}
+                        placeholder={t("sportGoalsPlaceholder")}
                         rows={2}
                         {...register("goals")}
                       />
@@ -404,7 +404,7 @@ export default function RegisterPage() {
         <div className={styles.imageSection}>
           <Image
             src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=1470&auto=format&fit=crop"
-            alt="Fitness Training"
+            alt="Sport Training"
             fill
             className={styles.heroImage}
             priority

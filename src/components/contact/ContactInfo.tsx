@@ -16,8 +16,8 @@ export default function ContactInfo() {
                 </div>
                 <div className={styles.details}>
                     <span className={styles.label}>{t("email")}</span>
-                    <a href="mailto:info@ecotofitness.com" className={styles.value + " " + styles.link}>
-                        info@ecotofitness.com
+                    <a href="mailto:info@ecotosport.com" className={styles.value + " " + styles.link}>
+                        info@ecotosport.com
                     </a>
                 </div>
             </div>

@@ -98,7 +98,7 @@ export default function ResetPasswordPage() {
           <div className={styles.card}>
             <div className={styles.header}>
               <div className={styles.logo}>
-                <Image src="/coachMe-logo.png" alt="CoachMe by Ecotofitness" width={400} height={180} priority />
+                <Image src="/coachMe-logo.png" alt="CoachMe by Ecotosport" width={400} height={180} priority />
               </div>
               <h1 className={styles.title}>{t("resetPasswordTitle")}</h1>
               <p className={styles.subtitle}>{t("resetPasswordSubtitle")}</p>
@@ -125,7 +125,7 @@ export default function ResetPasswordPage() {
         </div>
 
         <div className={styles.imageSection}>
-          <Image src="https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?q=80&w=1470&auto=format&fit=crop" alt="Fitness Training" fill className={styles.heroImage} priority />
+          <Image src="https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?q=80&w=1470&auto=format&fit=crop" alt="Sport Training" fill className={styles.heroImage} priority />
           <div className={styles.imageOverlay} />
         </div>
       </div>
