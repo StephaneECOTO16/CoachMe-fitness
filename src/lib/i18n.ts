@@ -142,15 +142,15 @@ export const translations: Record<Language, Record<string, string>> = {
 
 /**
  * Get a translated string for the given language and key.
- * Falls back to English if translation not found.
+ * Falls back to French if translation not found.
  */
-export function t(key: string, language: Language = 'EN'): string {
-    return translations[language]?.[key] || translations.EN[key] || key;
+export function t(key: string, language: Language = 'FR'): string {
+    return translations[language]?.[key] || translations.FR[key] || key;
 }
 
 /**
  * Get the preferred language from browser or localStorage.
- * Defaults to 'EN'.
+ * Defaults to 'FR'.
  */
 export function getPreferredLanguage(): Language {
     if (typeof window !== 'undefined') {
@@ -162,5 +162,5 @@ export function getPreferredLanguage(): Language {
         if (browserLang === 'FR') return 'FR';
     }
 
-    return 'EN';
+    return 'FR';
 }

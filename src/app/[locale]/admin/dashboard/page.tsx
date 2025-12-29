@@ -166,7 +166,7 @@ export default function AdminDashboard() {
     setRejectModalOpen(true);
   };
 
-  const handleOpenView = (coach: PendingCoach) => {
+  const handleOpenView = (coach: any) => {
     setSelectedCoach(coach);
     setIsViewModalOpen(true);
   };
@@ -390,7 +390,7 @@ export default function AdminDashboard() {
                           key={chat.id}
                           chat={chat}
                           onClick={() => handleChatClick(chat.id)}
-                          locale={user?.language || 'en'}
+                          locale={'fr'}
                         />
                       ))
                     ) : (
