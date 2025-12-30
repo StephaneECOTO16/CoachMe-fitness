@@ -266,12 +266,13 @@
 }
 
 /* Section */
-background: white;
-border-radius: var(--radius-xl);
-padding: var(--space-4);
-margin-bottom: var(--space-6);
-box-shadow: var(--shadow-sm);
-border: 1px solid var(--gray-200);
+.section {
+  background: white;
+  border-radius: var(--radius-xl);
+  padding: var(--space-4);
+  margin-bottom: var(--space-6);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--gray-200);
 }
 
 @media (min-width: 768px) {
