@@ -798,6 +798,7 @@
     "disciplineRequired": "Discipline is required",
     "invalidUrl": "Must be a valid URL",
     "passwordRequirements": "Must contain at least 8 characters, including uppercase, lowercase, and a number",
+    "fileTooLarge": "File too large. Maximum size is {size}MB",
     "passwordsDoNotMatch": "Passwords do not match",
     "emailRequired": "Email is required",
     "emailInvalid": "Email must be valid",
