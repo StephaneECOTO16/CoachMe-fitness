@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma';
 import { requireAuth } from '@/lib/auth';
 import { z } from 'zod';
 import { parseRequestBody } from '@/lib/schemas';
+import { deleteMediaFromS3 } from '@/lib/aws-s3';
 
 const UpdateDisciplineSchema = z.object({
     name: z.string().min(2).optional(),
@@ -35,9 +36,23 @@ export async function PATCH(
     }
 
     try {
-        const updateData: any = {};
+        const updateData: Record<string, any> = {};
         if (data?.name) updateData.name = data.name;
-        if (data?.imageKey) updateData.imageUrl = data.imageKey;
+
+        if (data?.imageKey) {
+            // Get original discipline to find old image
+            const oldDiscipline = await prisma.discipline.findUnique({
+                where: { id: disciplineId },
+                select: { imageUrl: true }
+            });
+
+            updateData.imageUrl = data.imageKey;
+
+            // Delete old image from S3 if it exists and is different
+            if (oldDiscipline?.imageUrl && oldDiscipline.imageUrl !== data.imageKey) {
+                await deleteMediaFromS3(oldDiscipline.imageUrl);
+            }
+        }
 
         const discipline = await prisma.discipline.update({
             where: { id: disciplineId },
@@ -90,9 +105,20 @@ export async function DELETE(
             }, { status: 409 });
         }
 
+        // Get discipline to find old image before deletion
+        const discipline = await prisma.discipline.findUnique({
+            where: { id: disciplineId },
+            select: { imageUrl: true }
+        });
+
         await prisma.discipline.delete({
             where: { id: disciplineId },
         });
+
+        // Delete image from S3 if it exists
+        if (discipline?.imageUrl) {
+            await deleteMediaFromS3(discipline.imageUrl);
+        }
 
         return NextResponse.json({ success: true });
     } catch (err: any) {

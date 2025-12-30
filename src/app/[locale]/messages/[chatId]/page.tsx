@@ -9,8 +9,6 @@ import { usePusher } from "@/contexts/PusherContext";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import Button from "@/components/ui/Button";
 import { ChatBubble, LoadingIndicator } from "@/components";
-import toast from "@/lib/toast";
-import Image from "next/image";
 import UserAvatar from "@/components/ui/UserAvatar/UserAvatar";
 import styles from "./page.module.css";
 
@@ -73,6 +71,7 @@ export default function ConversationPage() {
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const chatId = params?.chatId as string;
 
@@ -145,13 +144,34 @@ export default function ConversationPage() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  const handleSendMessage = async (e: React.FormEvent) => {
-    e.preventDefault();
+  // Handle textarea auto-resize
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = "auto";
+      const scrollHeight = textareaRef.current.scrollHeight;
+      textareaRef.current.style.height = `${scrollHeight}px`;
+
+      // Only show scrollbar if we hit or exceed max-height (150px from CSS)
+      if (scrollHeight >= 150) {
+        textareaRef.current.style.overflowY = "auto";
+      } else {
+        textareaRef.current.style.overflowY = "hidden";
+      }
+    }
+  }, [newMessage]);
+
+  const handleSendMessage = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     if (!newMessage.trim() || !token || !chatId || sending) return;
 
     setSending(true);
     const messageContent = newMessage.trim();
     setNewMessage(""); // Optimistically clear input
+
+    // Reset textarea height
+    if (textareaRef.current) {
+      textareaRef.current.style.height = "auto";
+    }
 
     try {
       const response = await fetch(`/api/chat/${chatId}/messages`, {
@@ -178,6 +198,13 @@ export default function ConversationPage() {
       setNewMessage(messageContent); // Restore message on failure
     } finally {
       setSending(false);
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSendMessage();
     }
   };
 
@@ -246,7 +273,9 @@ export default function ConversationPage() {
               </div>
               <div>
                 <h1 className={styles.participantName}>{participant?.name}</h1>
-                <p className={styles.participantType}>{typeof participant?.type === 'string' ? participant.type : (participant?.type as any)?.name}</p>
+                <p className={styles.participantType}>
+                  {participant?.type}
+                </p>
               </div>
             </div>
             <div className={styles.headerActions}>
@@ -374,9 +403,9 @@ export default function ConversationPage() {
                       name: isOwnMessage
                         ? user?.name || "You"
                         : participant?.name || "User",
-                      avatar: isOwnMessage ? user?.avatar || null : message.sender.avatar,
+                      avatar: isOwnMessage ? user?.avatar || undefined : message.sender.avatar || undefined,
                     },
-                    status: undefined,
+                    status: undefined as any,
                   };
                   return (
                     <ChatBubble
@@ -420,15 +449,17 @@ export default function ConversationPage() {
                   <path d="M7 12l5 5 5-5-5-5-5 5Z" fill="currentColor" />
                 </svg>
               </button>
-              <input
-                type="text"
+              <textarea
+                ref={textareaRef}
                 value={newMessage}
                 onChange={(e) => setNewMessage(e.target.value)}
+                onKeyDown={handleKeyDown}
                 placeholder={t("messagePlaceholder", {
                   name: participant?.name || "user",
                 })}
                 className={styles.input}
                 disabled={sending}
+                rows={1}
               />
               <Button
                 type="submit"

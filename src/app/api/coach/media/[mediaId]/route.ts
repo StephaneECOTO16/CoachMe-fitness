@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { requireAuth } from '@/lib/auth';
+import { deleteMediaFromS3 } from '@/lib/aws-s3';
 
 /**
  * DELETE /api/coach/media/[mediaId]
@@ -65,14 +66,10 @@ export async function DELETE(
             where: { id: mediaId },
         });
 
-        // Note: In production, you should also delete the file from S3
-        // This would require AWS SDK integration
-        // Example:
-        // const s3Client = new S3Client({ region: process.env.AWS_REGION });
-        // await s3Client.send(new DeleteObjectCommand({
-        //     Bucket: process.env.AWS_S3_BUCKET,
-        //     Key: media.url
-        // }));
+        // 2. Physical Deletion from S3/R2
+        if (media.url) {
+            await deleteMediaFromS3(media.url);
+        }
 
         return NextResponse.json({ success: true });
     } catch (err: unknown) {
