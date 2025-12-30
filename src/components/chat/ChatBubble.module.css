@@ -80,6 +80,7 @@
   margin: 0;
   font-size: 0.9375rem;
   line-height: 1.6;
+  white-space: pre-wrap;
 }
 
 .meta {

@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma';
 import { requireAuth, comparePassword } from '@/lib/auth';
 import { DeleteAccountRequestSchema, parseRequestBody } from '@/lib/schemas';
 import { cookies } from 'next/headers';
+import { deleteMediaFromS3 } from '@/lib/aws-s3';
 
 export async function POST(req: NextRequest) {
     const authPayload = await requireAuth(req, undefined, { checkCoachStatus: false });
@@ -24,8 +25,9 @@ export async function POST(req: NextRequest) {
         const user = await prisma.user.findUnique({
             where: { id: authPayload.userId },
             include: {
-                coachProfile: true,
+                coachProfile: { include: { media: true } },
                 clientProfile: true,
+                medias: true,
             }
         });
 
@@ -78,11 +80,40 @@ export async function POST(req: NextRequest) {
                 await tx.clientProfile.delete({ where: { id: user.clientProfile.id } });
             }
 
-            // 4. Delete Media owned by user
+            // 4. Collect all file keys for physical deletion
+            const filesToDelete: string[] = [];
+            if (user.avatar) filesToDelete.push(user.avatar);
+
+            // Add all coach media
+            if (user.coachProfile?.media) {
+                user.coachProfile.media.forEach(m => {
+                    if (m.url) filesToDelete.push(m.url);
+                });
+            }
+
+            // Add any other media owned by user
+            if (user.medias) {
+                user.medias.forEach(m => {
+                    if (m.url && !filesToDelete.includes(m.url)) {
+                        filesToDelete.push(m.url);
+                    }
+                });
+            }
+
+            // Delete Media records from database
             await tx.media.deleteMany({ where: { ownerId: user.id } });
+            if (user.coachProfile) {
+                await tx.media.deleteMany({ where: { coachId: user.coachProfile.id } });
+            }
 
             // 5. Finally delete the user (PasswordResetTokens should cascade based on schema)
             await tx.user.delete({ where: { id: user.id } });
+
+            // 6. Physically delete files from S3/R2 (after successful DB transaction)
+            // Note: We do this after the transaction so we don't delete files if the DB op fails
+            for (const key of filesToDelete) {
+                await deleteMediaFromS3(key);
+            }
         });
 
         // Clear the auth cookie

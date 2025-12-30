@@ -5,7 +5,7 @@
  * Supports Cloudflare R2, AWS S3, and other S3-compatible services (MinIO, Spaces, etc).
  */
 
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+import { S3Client, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
 // Cloudflare R2 configuration
@@ -179,4 +179,25 @@ export function getPublicUrl(key: string): string {
     const base = publicUrl.replace(/\/$/, '');
     const normalizedKey = key.replace(/^\//, '');
     return `${base}/${normalizedKey}`;
+}
+
+/**
+ * Permanently delete a file from R2/S3 storage.
+ * @param key - The S3/R2 object key
+ */
+export async function deleteMediaFromS3(key: string): Promise<void> {
+    if (!key) return;
+
+    try {
+        const command = new DeleteObjectCommand({
+            Bucket: BUCKET_NAME,
+            Key: key,
+        });
+
+        await s3Client.send(command);
+    } catch (error) {
+        console.error(`[deleteMediaFromS3] Error deleting key ${key}:`, error);
+        // We don't throw here to avoid blocking database cleanup if storage deletion fails
+        // but in a production environment, you might want more robust error tracking.
+    }
 }

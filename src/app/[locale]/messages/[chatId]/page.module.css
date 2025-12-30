@@ -258,7 +258,7 @@
 .inputForm {
   display: flex;
   gap: var(--space-3);
-  align-items: center;
+  align-items: flex-end;
 }
 
 .inputIconButton {
@@ -284,6 +284,12 @@
   border-radius: var(--radius-lg);
   font-size: var(--text-base);
   transition: all var(--transition-base);
+  resize: none;
+  min-height: 48px;
+  max-height: 150px;
+  line-height: 1.5;
+  font-family: inherit;
+  overflow-y: hidden;
 }
 
 .input:focus {
@@ -300,6 +306,9 @@
 .sendButton {
   flex-shrink: 0;
   white-space: nowrap;
+  height: 48px;
+  display: flex;
+  align-items: center;
 }
 
 /* Loading State */
