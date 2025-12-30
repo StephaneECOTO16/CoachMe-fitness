@@ -1,9 +1,9 @@
 'use client';
 
-import { useEffect, useState, useMemo, useRef } from 'react';
+import { useEffect, useState, useMemo, useRef, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { Search, Plus, Pencil, Trash2, X, Image as ImageIcon, Users, Dumbbell } from 'lucide-react';
+import { useSearchParams } from 'next/navigation';
+import { Search, Plus, Pencil, Trash2, X, Image as ImageIcon, Users } from 'lucide-react';
 import { useDropzone } from 'react-dropzone';
 import imageCompression from 'browser-image-compression';
 import Image from 'next/image';
@@ -25,8 +25,8 @@ export default function AdminDisciplinesPage() {
     const t = useTranslations('admin.disciplines');
     const tDash = useTranslations('admin.dashboard');
     const tCommon = useTranslations('common');
+    const tVal = useTranslations('validation');
     const searchParams = useSearchParams();
-    const router = useRouter();
 
     const [disciplines, setDisciplines] = useState<Discipline[]>([]);
     const [loading, setLoading] = useState(true);
@@ -50,7 +50,7 @@ export default function AdminDisciplinesPage() {
     // Refs for scrolling to disciplines
     const disciplineRefs = useRef<{ [key: number]: HTMLDivElement | null }>({});
 
-    const fetchDisciplines = async () => {
+    const fetchDisciplines = useCallback(async () => {
         try {
             setLoading(true);
             const token = localStorage.getItem('token');
@@ -69,11 +69,11 @@ export default function AdminDisciplinesPage() {
         } finally {
             setLoading(false);
         }
-    };
+    }, [tDash]);
 
     useEffect(() => {
         fetchDisciplines();
-    }, []);
+    }, [fetchDisciplines]);
 
     // Handle highlight query parameter
     useEffect(() => {
@@ -163,7 +163,9 @@ export default function AdminDisciplinesPage() {
     const { getRootProps, getInputProps, isDragActive } = useDropzone({
         accept: { 'image/*': ['.jpeg', '.jpg', '.png', '.webp'] },
         maxFiles: 1,
+        maxSize: 5 * 1024 * 1024, // 5MB
         onDrop,
+        onDropRejected: () => toast.error(tVal('fileTooLarge', { size: 5 })),
     });
 
     const handleSave = async () => {
@@ -175,7 +177,7 @@ export default function AdminDisciplinesPage() {
         setIsSubmitting(true);
         try {
             const token = localStorage.getItem('token');
-            let imageKey = editingDiscipline?.imageUrl ? (editingDiscipline.imageUrl.split('/').pop() || '') : '';
+            let imageKey: string | undefined = undefined;
 
             // 1. Upload new image if provided
             if (image.file) {
@@ -208,7 +210,7 @@ export default function AdminDisciplinesPage() {
                 : '/api/disciplines/create';
 
             const method = editingDiscipline ? 'PATCH' : 'POST';
-            const body: any = { name };
+            const body: { name: string; imageKey?: string } = { name };
             if (imageKey) body.imageKey = imageKey;
 
             const res = await fetch(url, {
@@ -387,7 +389,15 @@ export default function AdminDisciplinesPage() {
                             <label className={styles.inputLabel}>{tDash('createDiscipline.imageLabel')}</label>
                             {image.preview ? (
                                 <div className={styles.previewContainer}>
-                                    <img src={image.preview} alt="Preview" className={styles.previewImage} />
+                                    <div className={styles.previewImageWrapper}>
+                                        <Image
+                                            src={image.preview}
+                                            alt="Preview"
+                                            fill
+                                            style={{ objectFit: 'cover', borderRadius: '8px' }}
+                                            unoptimized
+                                        />
+                                    </div>
                                     <button
                                         className={styles.removeImageBtn}
                                         onClick={() => setImage({ file: null, preview: null })}

@@ -47,9 +47,9 @@ export function isValidMediaMimeType(mimeType: string): boolean {
 
 /**
  * Validate file size (in bytes).
- * Default max: 50MB (52,428,800 bytes)
+ * Default max: 10MB (10,485,760 bytes)
  */
-export function isValidFileSize(fileSizeBytes: number, maxSizeBytes = 52428800): boolean {
+export function isValidFileSize(fileSizeBytes: number, maxSizeBytes = 10485760): boolean {
     return fileSizeBytes > 0 && fileSizeBytes <= maxSizeBytes;
 }
 
@@ -81,7 +81,7 @@ export function validateFileUpload(
     fileName: string,
     mimeType: string,
     fileSizeBytes: number,
-    maxSizeBytes = 52428800,
+    maxSizeBytes = 10485760,
 ): { valid: boolean; sanitizedFileName?: string; error?: string } {
     if (!fileName || fileName.trim().length === 0) {
         return { valid: false, error: 'File name is required' };

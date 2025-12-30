@@ -327,3 +327,9 @@
         width: 100%;
     }
 }
+
+.previewImageWrapper {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16/9;
+}

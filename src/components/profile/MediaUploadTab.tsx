@@ -7,8 +7,8 @@ import { toast } from 'sonner';
 import imageCompression from 'browser-image-compression';
 import { useTranslations } from 'next-intl';
 import { useAuth } from '@/contexts/AuthContext';
-import Button from '@/components/ui/Button';
 import LoadingIndicator from '@/components/loading/LoadingIndicator';
+import Image from 'next/image';
 import styles from './MediaUploadTab.module.css';
 
 interface MediaFile {
@@ -32,6 +32,7 @@ export default function MediaUploadTab() {
   const t = useTranslations('toast');
   const tCommon = useTranslations('common');
   const tMedia = useTranslations('coachDashboard.settingsModal.media');
+  const tVal = useTranslations('validation');
   const { token } = useAuth();
   const [mediaFiles, setMediaFiles] = useState<MediaFile[]>([]);
   const [uploadingFiles, setUploadingFiles] = useState<Record<string, UploadingFile>>({});
@@ -72,7 +73,7 @@ export default function MediaUploadTab() {
   }, [uploadingFiles]);
 
   // Compress image if needed
-  const compressImage = async (file: File): Promise<File> => {
+  const compressImage = useCallback(async (file: File): Promise<File> => {
     if (!file.type.startsWith('image/')) return file;
 
     try {
@@ -88,10 +89,10 @@ export default function MediaUploadTab() {
       console.error('Compression failed:', error);
       return file;
     }
-  };
+  }, [t]);
 
   // Upload file with progress tracking
-  const uploadFile = async (file: File, type: 'CERTIFICATE' | 'IMAGE' | 'VIDEO') => {
+  const uploadFile = useCallback(async (file: File, type: 'CERTIFICATE' | 'IMAGE' | 'VIDEO') => {
     const fileKey = `${file.name}-${Date.now()}`;
 
     try {
@@ -189,12 +190,12 @@ export default function MediaUploadTab() {
         return updated;
       });
     }
-  };
+  }, [token, t, compressImage, fetchMediaFiles]);
 
   // Handle file drop
   const handleDrop = useCallback((acceptedFiles: File[], type: 'CERTIFICATE' | 'IMAGE' | 'VIDEO') => {
     acceptedFiles.forEach(file => uploadFile(file, type));
-  }, [token]);
+  }, [uploadFile]);
 
   // Delete file
   const handleDelete = async (mediaId: number, fileName: string) => {
@@ -225,23 +226,26 @@ export default function MediaUploadTab() {
       'application/pdf': ['.pdf'],
       'image/*': ['.jpg', '.jpeg', '.png'],
     },
-    maxSize: 10 * 1024 * 1024, // 10MB
+    maxSize: 5 * 1024 * 1024, // 5MB
     onDrop: (files) => handleDrop(files, 'CERTIFICATE'),
+    onDropRejected: () => toast.error(tVal('fileTooLarge', { size: 5 })),
   });
 
   // Dropzone for images
   const imageDropzone = useDropzone({
     accept: { 'image/*': ['.jpg', '.jpeg', '.png', '.webp'] },
-    maxSize: 10 * 1024 * 1024,
+    maxSize: 5 * 1024 * 1024,
     multiple: true,
     onDrop: (files) => handleDrop(files, 'IMAGE'),
+    onDropRejected: () => toast.error(tVal('fileTooLarge', { size: 5 })),
   });
 
   // Dropzone for videos
   const videoDropzone = useDropzone({
     accept: { 'video/*': ['.mp4', '.webm', '.mov'] },
-    maxSize: 50 * 1024 * 1024, // 50MB
+    maxSize: 10 * 1024 * 1024, // 10MB
     onDrop: (files) => handleDrop(files, 'VIDEO'),
+    onDropRejected: () => toast.error(tVal('fileTooLarge', { size: 10 })),
   });
 
   if (loading) {
@@ -275,7 +279,7 @@ export default function MediaUploadTab() {
           <input {...certificateDropzone.getInputProps()} />
           <Upload size={32} />
           <p>{certificateDropzone.isDragActive ? 'Drop here...' : tMedia('certificates.dropzone')}</p>
-          <span className={styles.dropzoneHint}>{tMedia('maxFileSize', { size: '10' })} • PDF, JPG, PNG</span>
+          <span className={styles.dropzoneHint}>{tMedia('maxFileSize', { size: '5' })} • PDF, JPG, PNG</span>
         </div>
 
         <FileList files={certificates} onDelete={handleDelete} tMedia={tMedia} />
@@ -298,7 +302,7 @@ export default function MediaUploadTab() {
           <input {...imageDropzone.getInputProps()} />
           <Upload size={32} />
           <p>{imageDropzone.isDragActive ? 'Drop here...' : tMedia('images.dropzone')}</p>
-          <span className={styles.dropzoneHint}>{tMedia('maxFileSize', { size: '10' })} • Multiple files supported</span>
+          <span className={styles.dropzoneHint}>{tMedia('maxFileSize', { size: '5' })} • Multiple files supported</span>
         </div>
 
         <FileList files={images} onDelete={handleDelete} showPreview tMedia={tMedia} />
@@ -321,7 +325,7 @@ export default function MediaUploadTab() {
           <input {...videoDropzone.getInputProps()} />
           <Upload size={32} />
           <p>{videoDropzone.isDragActive ? 'Drop here...' : tMedia('videos.dropzone')}</p>
-          <span className={styles.dropzoneHint}>{tMedia('maxFileSize', { size: '50' })} • MP4, WebM, MOV</span>
+          <span className={styles.dropzoneHint}>{tMedia('maxFileSize', { size: '10' })} • MP4, WebM, MOV</span>
         </div>
 
         <FileList files={videos} onDelete={handleDelete} showPreview tMedia={tMedia} />
@@ -333,7 +337,17 @@ export default function MediaUploadTab() {
           <h4 className={styles.uploadingTitle}>{tMedia('uploading')}</h4>
           {Object.entries(uploadingFiles).map(([key, { file, preview, progress }]) => (
             <div key={key} className={styles.uploadingItem}>
-              {preview && <img src={preview} alt={file.name} className={styles.uploadingPreview} />}
+              {preview && (
+                <div className={styles.uploadingPreviewWrapper}>
+                  <Image
+                    src={preview}
+                    alt={file.name}
+                    fill
+                    className={styles.uploadingPreview}
+                    unoptimized
+                  />
+                </div>
+              )}
               <div className={styles.uploadingInfo}>
                 <p className={styles.uploadingName}>{file.name}</p>
                 <div className={styles.progressBar}>
@@ -359,7 +373,7 @@ function FileList({
   files: MediaFile[];
   onDelete: (id: number, name: string) => void;
   showPreview?: boolean;
-  tMedia: any;
+  tMedia: (key: string, values?: any) => string;
 }) {
   if (files.length === 0) {
     return (
@@ -375,7 +389,13 @@ function FileList({
         <div key={file.id} className={showPreview ? styles.gridItem : styles.listItem}>
           {showPreview && file.type === 'IMAGE' && (
             <div className={styles.previewImage}>
-              <img src={file.url} alt={file.description || 'Image'} />
+              <Image
+                src={file.url}
+                alt={file.description || 'Image'}
+                fill
+                style={{ objectFit: 'cover' }}
+                unoptimized
+              />
             </div>
           )}
           {showPreview && file.type === 'VIDEO' && (
