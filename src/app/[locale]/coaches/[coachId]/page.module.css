@@ -49,7 +49,7 @@
 }
 
 .coachAvatar {
-  width: auto;
+  width: 100%;
   height: 200px;
   object-fit: cover;
   border-radius: var(--radius-lg);
@@ -266,13 +266,18 @@
 }
 
 /* Section */
-.section {
-  background: white;
-  border-radius: var(--radius-xl);
-  padding: var(--space-8);
-  margin-bottom: var(--space-6);
-  box-shadow: var(--shadow-sm);
-  border: 1px solid var(--gray-200);
+background: white;
+border-radius: var(--radius-xl);
+padding: var(--space-4);
+margin-bottom: var(--space-6);
+box-shadow: var(--shadow-sm);
+border: 1px solid var(--gray-200);
+}
+
+@media (min-width: 768px) {
+  .section {
+    padding: var(--space-8);
+  }
 }
 
 .sectionTitle {
@@ -294,6 +299,8 @@
   line-height: 1.7;
   color: var(--text-secondary);
   white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 /* Badge List */
