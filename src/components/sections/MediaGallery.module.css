@@ -1,9 +1,21 @@
-/* Masonry layout using CSS columns */
 .gallery {
-  column-width: 280px;
-  column-gap: 0.75rem;
+  column-count: 2;
+  column-gap: 0.5rem;
   width: 100%;
   padding-bottom: 2rem;
+}
+
+@media (min-width: 768px) {
+  .gallery {
+    column-count: 3;
+    column-gap: 0.75rem;
+  }
+}
+
+@media (min-width: 1200px) {
+  .gallery {
+    column-count: 4;
+  }
 }
 
 /* Base card styling */

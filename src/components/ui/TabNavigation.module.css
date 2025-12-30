@@ -3,10 +3,15 @@
   gap: 0.5rem;
   border-bottom: 2px solid #e5e7eb;
   margin-bottom: 1rem;
+  overflow-x: auto;
+  max-width: 100%;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  /* Hide scrollbar for cleaner look */
 }
 
 .tabNavigation::-webkit-scrollbar {
-  height: 4px;
+  display: none;
 }
 
 .tabNavigation::-webkit-scrollbar-thumb {
