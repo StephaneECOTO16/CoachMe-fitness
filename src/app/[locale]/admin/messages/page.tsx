@@ -4,13 +4,25 @@ import { Link } from '@/i18n/routing';
 import { useSearchParams } from 'next/navigation';
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
-import { Search, RefreshCw, ArrowLeft } from 'lucide-react';
+import { Search, RefreshCw, PanelLeft, ArrowLeft } from 'lucide-react';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
-import { LoadingIndicator } from '@/components';
 import ConversationList from '@/components/chat/ConversationList/ConversationList';
 import MessageThread from '@/components/chat/MessageThread/MessageThread';
 import { Chat } from '@/components/chat/types';
 import { ChatMessage } from '@/components/chat/ChatBubble';
+
+interface Message {
+    id: number;
+    chatId: number;
+    senderId: number;
+    content: string;
+    createdAt: string;
+    sender: {
+        name: string | null;
+        avatar: string | null;
+        email: string;
+    };
+}
 import toast from '@/lib/toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { usePusher } from '@/contexts/PusherContext';
@@ -19,8 +31,7 @@ import styles from './page.module.css';
 
 export default function AdminMessagesPage() {
     const t = useTranslations('admin.messages');
-    const tCommon = useTranslations('common');
-    const { token, user } = useAuth();
+    const { token } = useAuth();
     const { subscribeToChat, isConnected } = usePusher();
     const searchParams = useSearchParams();
 
@@ -30,17 +41,21 @@ export default function AdminMessagesPage() {
     const [searchQuery, setSearchQuery] = useState('');
     const [isLoadingChats, setIsLoadingChats] = useState(true);
     const [isLoadingMessages, setIsLoadingMessages] = useState(false);
+    const [showMobileSidebar, setShowMobileSidebar] = useState(true);
 
     // Initialize selectedChatId from URL param
     useEffect(() => {
         const chatIdParam = searchParams.get('chatId');
         if (chatIdParam) {
             setSelectedChatId(chatIdParam);
+            setShowMobileSidebar(false); // Hide sidebar on deep link to show chat
+        } else {
+            setShowMobileSidebar(true); // Show sidebar if no chat selected
         }
     }, [searchParams]);
 
     // Fetch all conversations
-    const fetchChats = async () => {
+    const fetchChats = useCallback(async () => {
         if (!token) return;
         try {
             setIsLoadingChats(true);
@@ -60,10 +75,10 @@ export default function AdminMessagesPage() {
         } finally {
             setIsLoadingChats(false);
         }
-    };
+    }, [token]);
 
     // Fetch messages for selected chat
-    const fetchMessages = async (chatId: string) => {
+    const fetchMessages = useCallback(async (chatId: string) => {
         if (!token) return;
         try {
             setIsLoadingMessages(true);
@@ -76,8 +91,6 @@ export default function AdminMessagesPage() {
                 const formattedMessages: ChatMessage[] = (data.messages || []).map((msg: Message) => {
                     // In Admin view, we'll put Coach on the right and Client on the left
                     // to give it a structured 1:1 look.
-                    const isCoach = msg.senderId === selectedChat?.coach.user.id;
-
                     return {
                         id: String(msg.id),
                         content: msg.content,
@@ -100,16 +113,17 @@ export default function AdminMessagesPage() {
         } finally {
             setIsLoadingMessages(false);
         }
-    };
+    }, [token]);
 
     useEffect(() => {
         if (token) {
             fetchChats();
         }
-    }, [token]);
+    }, [token, fetchChats]);
 
     const handleChatClick = (chatId: string) => {
         setSelectedChatId(chatId);
+        setShowMobileSidebar(false); // Close sidebar on mobile when chat selected
     };
 
     const selectedChat = useMemo(() =>
@@ -122,10 +136,10 @@ export default function AdminMessagesPage() {
         } else {
             setMessages([]);
         }
-    }, [selectedChatId, token]);
+    }, [selectedChatId, token, fetchMessages]);
 
     // Handle incoming real-time messages
-    const handleIncomingMessage = useCallback((newMessage: any) => {
+    const handleIncomingMessage = useCallback((newMessage: Message) => {
         setMessages((prev) => {
             // Prevent duplicate messages
             if (prev.some((m) => String(m.id) === String(newMessage.id))) {
@@ -173,7 +187,7 @@ export default function AdminMessagesPage() {
         return () => {
             unsubscribe();
         };
-    }, [selectedChat?.id, isConnected, subscribeToChat, handleIncomingMessage]);
+    }, [selectedChat, isConnected, subscribeToChat, handleIncomingMessage]);
 
     const filteredChats = useMemo(() => {
         if (!searchQuery.trim()) return chats;
@@ -199,10 +213,28 @@ export default function AdminMessagesPage() {
         <ProtectedRoute allowedRoles={['ADMIN']}>
             <div className={styles.container}>
                 {/* Left Sidebar - Conversations List */}
-                <div className={styles.sidebar}>
+                <div className={`${styles.sidebar} ${showMobileSidebar ? styles.active : ''}`}>
                     <div className={styles.sidebarHeader}>
-                        <div className={styles.headerTop}>
+                        <div className={styles.sidebarTopNav}>
+                            <Link
+                                href="/admin/dashboard"
+                                className={styles.backToDashboardCompact}
+                            >
+                                <ArrowLeft size={16} />
+                                <span>{t('backToDashboard')}</span>
+                            </Link>
 
+                            {/* Mobile Close Button */}
+                            <button
+                                className={styles.mobileCloseBtn}
+                                onClick={() => setShowMobileSidebar(false)}
+                                aria-label="Close conversation list"
+                            >
+                                <PanelLeft size={20} />
+                            </button>
+                        </div>
+
+                        <div className={styles.headerTop}>
                             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
                                 <h1 className={styles.title}>{t('title')}</h1>
                                 <button
@@ -245,48 +277,39 @@ export default function AdminMessagesPage() {
 
                 {/* Right Panel - Message Thread */}
                 <div className={styles.mainPanel}>
-                    {selectedChat && (
-                        <div className={styles.chatHeader}>
-                            <div className={styles.chatHeaderContent}>
-                                <div className={styles.avatarGroup}>
-                                    <div className={styles.avatarWrapper}>
-                                        <UserAvatar user={selectedChat.coach.user} size="md" />
-                                    </div>
-                                    <div className={styles.avatarWrapper}>
-                                        <UserAvatar user={selectedChat.client.user} size="md" />
-                                    </div>
-                                </div>
-                                <div className={styles.chatHeaderInfo}>
-                                    <h2 className={styles.chatTitle}>
-                                        {selectedChat.coach.user.name} <span className={styles.separator}>×</span> {selectedChat.client.user.name}
-                                    </h2>
-                                    <p className={styles.chatSubtitle}>
-                                        {selectedChat.coach.discipline.name} · Thread #{selectedChat.id}
-                                    </p>
-                                </div>
-                            </div>
-                            <Link
-                                href="/admin/dashboard"
-                                style={{
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '6px',
-                                    color: '#6b7280',
-                                    textDecoration: 'none',
-                                    fontSize: '0.875rem',
-                                    fontWeight: 500,
-                                    padding: '8px 12px',
-                                    borderRadius: '6px',
-                                    transition: 'background-color 0.2s',
-                                    marginLeft: 'auto'
-                                }}
-                                className="hover:bg-gray-100" // simpler hover effect if tailwind is available, else I might need inline hover or class
+                    <div className={`${styles.chatHeader} ${!selectedChat ? styles.mobileOnlyHeader : ''}`}>
+                        <div className={styles.chatHeaderContent}>
+                            {/* Mobile Toggle Button - Always visible on mobile */}
+                            <button
+                                className={styles.mobileToggleBtn}
+                                onClick={() => setShowMobileSidebar(true)}
+                                aria-label="Show conversation list"
                             >
-                                <ArrowLeft size={16} />
-                                <span>{t('backToDashboard')}</span>
-                            </Link>
+                                <PanelLeft size={20} />
+                            </button>
+
+                            {selectedChat && (
+                                <>
+                                    <div className={styles.avatarGroup}>
+                                        <div className={styles.avatarWrapper}>
+                                            <UserAvatar user={selectedChat.coach.user} size="md" />
+                                        </div>
+                                        <div className={styles.avatarWrapper}>
+                                            <UserAvatar user={selectedChat.client.user} size="md" />
+                                        </div>
+                                    </div>
+                                    <div className={styles.chatHeaderInfo}>
+                                        <h2 className={styles.chatTitle}>
+                                            {selectedChat.coach.user.name} <span className={styles.separator}>×</span> {selectedChat.client.user.name}
+                                        </h2>
+                                        <p className={styles.chatSubtitle}>
+                                            {selectedChat.coach.discipline.name} · Thread #{selectedChat.id}
+                                        </p>
+                                    </div>
+                                </>
+                            )}
                         </div>
-                    )}
+                    </div>
 
                     <MessageThread
                         messages={messages}
