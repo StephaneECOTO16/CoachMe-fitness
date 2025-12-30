@@ -346,17 +346,34 @@ select:focus {
    SCROLLBAR
    ============================================ */
 /* Hide scrollbar for Chrome, Safari and Opera */
+/* Custom Scrollbar */
 ::-webkit-scrollbar {
-  display: none !important;
+  width: 10px;
+  /* Width for vertical scrollbar */
+  height: 10px;
+  /* Height for horizontal scrollbar */
 }
 
-/* Hide scrollbar for IE, Edge and Firefox */
+::-webkit-scrollbar-track {
+  background: var(--gray-100);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--primary);
+  border-radius: var(--radius-full);
+  border: 2px solid var(--gray-100);
+  /* Creates padding effect */
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-dark);
+}
+
+/* Firefox */
 html,
 body {
-  -ms-overflow-style: none !important;
-  /* IE and Edge */
-  scrollbar-width: none !important;
-  /* Firefox */
+  scrollbar-width: thin;
+  scrollbar-color: var(--primary) var(--gray-100);
 }
 
 /* ============================================

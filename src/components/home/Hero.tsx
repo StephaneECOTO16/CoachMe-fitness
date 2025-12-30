@@ -60,7 +60,7 @@ export default function HomeHero() {
                 <div className={styles.contentRight}>
                     <div className={styles.imageWrapper}>
                         <Image
-                            src="/hero-coach.jpg"
+                            src="/hero.png"
                             alt="Professional Coach"
                             fill
                             priority
