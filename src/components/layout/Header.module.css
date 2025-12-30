@@ -193,18 +193,19 @@
 
 .mobileMenu {
   position: fixed;
-  top: 60px;
+  top: 90px;
   left: 0;
   right: 0;
-  bottom: 0;
+  height: calc(100dvh - 90px);
+  /* Use dvh for mobile browser address bars */
   background: rgba(255, 255, 255, 0.98);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  padding: var(--space-8) var(--space-4);
+  padding: var(--space-8) var(--space-4) var(--space-24);
+  /* Extra bottom padding for scrolling */
   transform: translateX(100%);
   transition: transform var(--transition-smooth);
   overflow-y: auto;
-  margin-top: var(--space-6);
   z-index: 10000;
 }
 
