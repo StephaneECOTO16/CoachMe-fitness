@@ -201,6 +201,11 @@
 @media (max-width: 768px) {
     .subForm {
         flex-direction: column;
+        align-items: stretch;
+    }
+
+    .formGridRow {
+        grid-template-columns: 1fr;
     }
 
     .submitSmall {
