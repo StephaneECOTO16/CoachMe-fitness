@@ -27,11 +27,11 @@ const sourceSans = Source_Sans_3({
 });
 
 export const metadata: Metadata = {
-  title: "CoachMe by Ecotosport - Transform Your Sport Journey",
+  title: "CoachMe by Ecotofitness - Transform Your Sport Journey",
   description:
     "Connect with certified sport coaches who will guide you to achieve your goals. Find personal trainers, yoga instructors, and wellness coaches.",
   keywords:
-    "sport, personal training, coaching, wellness, health, CoachMe, Ecotosport",
+    "sport, personal training, coaching, wellness, health, CoachMe, Ecotofitness, fitness",
 };
 
 export function generateStaticParams() {
