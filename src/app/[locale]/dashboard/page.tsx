@@ -11,7 +11,6 @@ import {
   ConversationList,
   Chat,
   CoachCard,
-  ChatCard,
   type CoachData,
   Button,
   EmptyState,

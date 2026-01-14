@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/routing';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
@@ -48,8 +48,6 @@ interface Coach {
 
 export default function AdminCoachReviewPage() {
   const params = useParams();
-  const router = useRouter();
-  const t = useTranslations('admin.coaches');
   const tCommon = useTranslations('common');
   const [coach, setCoach] = useState<Coach | null>(null);
   const [loading, setLoading] = useState(true);

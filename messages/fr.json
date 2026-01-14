@@ -709,7 +709,15 @@
         "sportGoals": "Objectifs sport",
         "loadError": "Échec du chargement des utilisateurs",
         "bio": "Biographie",
-        "internalError": "Erreur interne du serveur"
+        "internalError": "Erreur interne du serveur",
+        "deleteUser": "Supprimer l'Utilisateur",
+        "deleteSuccess": "Utilisateur supprimé avec succès",
+        "deleteError": "Échec de la suppression de l'utilisateur",
+        "deleteModal": {
+          "title": "Supprimer l'Utilisateur",
+          "message": "Êtes-vous sûr de vouloir supprimer ce {role} ? Toutes les données associées, y compris le profil, les messages et l'activité seront définitivement supprimées.",
+          "confirm": "Supprimer Définitivement"
+        }
       }
     },
     "coaches": {

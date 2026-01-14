@@ -3,7 +3,7 @@
 import { useTranslations } from "next-intl";
 import { Award, MapPin, Calendar } from "lucide-react";
 import styles from "./WhyChooseUs.module.css";
-import React, { useRef, useState, useEffect } from 'react';
+import { useRef, useState } from 'react';
 
 export default function WhyChooseUs() {
     const t = useTranslations("home.whyChooseUs");

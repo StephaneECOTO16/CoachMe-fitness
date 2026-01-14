@@ -25,11 +25,11 @@ interface Discipline {
 }
 
 // Schema factories for localized validation
-const createEditProfileSchema = (t: any) => z.object({
+const createEditProfileSchema = (t: (key: string) => string) => z.object({
   name: z.string().min(2, t('validation.nameMinLength')),
 });
 
-const createEditCoachSchema = (t: any) => z.object({
+const createEditCoachSchema = (t: (key: string) => string) => z.object({
   discipline: z.string().min(1, t('validation.disciplineRequired')),
   bio: z.string().optional(),
   portfolio: z.string().url(t('validation.invalidUrl')).or(z.literal('')).optional(),
@@ -46,7 +46,8 @@ const createEditCoachSchema = (t: any) => z.object({
   youtube: z.string().url(t('validation.invalidUrl')).or(z.literal('')).optional(),
 });
 
-const createEditClientSchema = (t: any) => z.object({
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const createEditClientSchema = (_t: (key: string) => string) => z.object({
   ageRange: z.string().optional(),
   heightCm: z.number().positive().optional().or(z.nan()),
   weightKg: z.number().positive().optional().or(z.nan()),
@@ -90,7 +91,7 @@ export default function ProfilePage() {
   const t = useTranslations('profile');
   const tToast = useTranslations('toast');
   const tCommon = useTranslations('common');
-  const { user, token, login } = useAuth();
+  const { token, login } = useAuth();
   const searchParams = useSearchParams();
   const router = useRouter();
   const [profileData, setProfileData] = useState<ProfileData | null>(null);
@@ -140,7 +141,7 @@ export default function ProfilePage() {
   const {
     register: registerClient,
     handleSubmit: handleSubmitClient,
-    formState: { errors: errorsClient },
+    formState: { errors: _errorsClient },
     reset: resetClient,
   } = useForm({
     resolver: zodResolver(createEditClientSchema(t)),
@@ -306,12 +307,6 @@ export default function ProfilePage() {
     }
   };
 
-  const handleAvatarInputChange = async (e: any) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    await uploadAvatarFile(file);
-  };
-
   const handleRemoveAvatar = async () => {
     if (!token) return;
 
@@ -340,7 +335,7 @@ export default function ProfilePage() {
     disabled: isUploadingAvatar,
   });
 
-  const onSubmitUser = async (data: any) => {
+  const onSubmitUser = async (data: { name: string }) => {
     setIsEditingProfile(true);
 
     try {
@@ -371,7 +366,7 @@ export default function ProfilePage() {
     }
   };
 
-  const onSubmitCoach = async (data: any) => {
+  const onSubmitCoach = async (data: { discipline: string; bio?: string; portfolio?: string; rateType?: string; rateAmount?: number; address?: string; city?: string; country?: string; experienceYears?: number; instagram?: string; facebook?: string; tiktok?: string; twitter?: string; youtube?: string }) => {
     setIsEditingProfile(true);
 
     try {
@@ -417,7 +412,7 @@ export default function ProfilePage() {
     }
   };
 
-  const onSubmitClient = async (data: any) => {
+  const onSubmitClient = async (data: { ageRange?: string; heightCm?: number; weightKg?: number; goals?: string }) => {
     setIsEditingProfile(true);
 
     try {
@@ -486,6 +481,7 @@ export default function ProfilePage() {
           <div className={styles.heroContent}>
             <div className={styles.heroAvatar}>
               {profileData.user.avatar ? (
+                // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={profileData.user.avatar}
                   alt={profileData.user.name || 'User'}
@@ -1089,6 +1085,7 @@ export default function ProfilePage() {
 
                   {profileData.user.avatar ? (
                     <div className={styles.avatarPreviewContainer}>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src={profileData.user.avatar}
                         alt={profileData.user.name || 'Avatar'}

@@ -53,7 +53,7 @@ const DeleteAccountZone: React.FC = () => {
                     toast.error(tErr('deleteFailed'));
                 }
             }
-        } catch (error) {
+        } catch {
             toast.error(tErr('deleteFailed'));
         } finally {
             setIsDeleting(false);

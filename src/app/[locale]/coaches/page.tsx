@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
-import { Link } from "@/i18n/routing";
 import { LoadingIndicator, CoachCard, Pagination, type CoachData } from "@/components";
 import Button from "@/components/ui/Button";
 import styles from "./page.module.css";
@@ -149,12 +148,6 @@ export default function CoachesPage() {
     }, 0);
     // Reset to page 1 when filters change
     setCurrentPage(1);
-  };
-
-  const getRateLabel = (rateType: Coach["rateType"]) => {
-    if (rateType === "WEEK") return t("perWeek");
-    if (rateType === "MONTH") return t("perMonth");
-    return t("perHour");
   };
 
   const transformCoachData = (coach: Coach): CoachData => ({

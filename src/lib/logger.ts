@@ -68,7 +68,7 @@ export function logRequest(
     requestId: string,
     method: string,
     pathname: string,
-    metadata?: Record<string, any>,
+    metadata?: Record<string, unknown>,
 ) {
     logger.info(
         {
@@ -90,7 +90,7 @@ export function logResponse(
     pathname: string,
     statusCode: number,
     duration: number,
-    metadata?: Record<string, any>,
+    metadata?: Record<string, unknown>,
 ) {
     const level = statusCode >= 400 ? 'warn' : 'info';
     logger[level](

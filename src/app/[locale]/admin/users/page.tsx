@@ -2,9 +2,10 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
-import { Eye, CheckCircle, XCircle, MoreVertical } from 'lucide-react';
-import { DataTable, StatusBadge, ColumnConfig, Modal, LoadingIndicator, Dropdown } from '@/components';
+import { Eye, CheckCircle, XCircle, MoreVertical, Trash2 } from 'lucide-react';
+import { DataTable, StatusBadge, ColumnConfig, Modal, Dropdown } from '@/components';
 import UserAvatar from '@/components/ui/UserAvatar/UserAvatar';
+import DeleteConfirmModal from '@/components/ui/DeleteConfirmModal';
 import toast from '@/lib/toast';
 import Button from '@/components/ui/Button';
 import styles from './page.module.css';
@@ -20,8 +21,8 @@ interface UserData {
     coachId: number | null;
     goals: string | null;
     createdAt: string;
-    coachProfile?: any;
-    clientProfile?: any;
+    coachProfile?: { experienceYears?: number };
+    clientProfile?: { goals?: string };
 }
 
 export default function AdminUsersPage() {
@@ -40,6 +41,7 @@ export default function AdminUsersPage() {
     const [selectedUser, setSelectedUser] = useState<UserData | null>(null);
     const [isViewModalOpen, setIsViewModalOpen] = useState(false);
     const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [rejectionReason, setRejectionReason] = useState('');
     const [isActionLoading, setIsActionLoading] = useState(false);
 
@@ -66,6 +68,7 @@ export default function AdminUsersPage() {
 
     useEffect(() => {
         fetchUsers();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const handleApprove = async (coachId: number) => {
@@ -89,7 +92,7 @@ export default function AdminUsersPage() {
             } else {
                 toast.error(data.error?.message || t('messages.approveError'));
             }
-        } catch (error) {
+        } catch {
             toast.error(t('messages.errorOccurred'));
         } finally {
             setIsActionLoading(false);
@@ -127,7 +130,36 @@ export default function AdminUsersPage() {
             } else {
                 toast.error(data.error?.message || t('messages.rejectError'));
             }
-        } catch (error) {
+        } catch {
+            toast.error(t('messages.errorOccurred'));
+        } finally {
+            setIsActionLoading(false);
+        }
+    };
+
+    const handleDelete = async () => {
+        if (!selectedUser) return;
+
+        setIsActionLoading(true);
+        try {
+            const token = localStorage.getItem('token');
+            const res = await fetch(`/api/admin/users/${selectedUser.id}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            const data = await res.json();
+            if (data.success) {
+                toast.success(tUsers('deleteSuccess'));
+                fetchUsers();
+                setIsDeleteModalOpen(false);
+                setIsViewModalOpen(false);
+            } else {
+                toast.error(data.error?.message || tUsers('deleteError'));
+            }
+        } catch {
             toast.error(t('messages.errorOccurred'));
         } finally {
             setIsActionLoading(false);
@@ -205,7 +237,7 @@ export default function AdminUsersPage() {
     };
 
     const renderActions = (user: UserData) => {
-        const dropdownItems: any[] = [];
+        const dropdownItems: { label: string; icon: React.ReactNode; variant?: 'default' | 'danger'; onClick: () => void }[] = [];
 
         if (user.role === 'COACH' && user.coachId) {
             if (user.status !== 'APPROVED') {
@@ -227,21 +259,45 @@ export default function AdminUsersPage() {
                     }
                 });
             }
+            // Add delete action for coaches
+            dropdownItems.push({
+                label: tUsers('deleteUser'),
+                icon: <Trash2 size={16} />,
+                variant: 'danger',
+                onClick: () => {
+                    setSelectedUser(user);
+                    setIsDeleteModalOpen(true);
+                }
+            });
         }
 
         return (
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'flex-end' }}>
                 <button
+                    type="button"
                     className={styles.actionIconBtn}
                     onClick={() => handleOpenView(user)}
                     title={tUsers('viewDetails')}
                 >
                     <Eye size={18} />
                 </button>
+                {user.role === 'PROSPECT' && (
+                    <button
+                        type="button"
+                        className={styles.actionIconBtnDanger}
+                        onClick={() => {
+                            setSelectedUser(user);
+                            setIsDeleteModalOpen(true);
+                        }}
+                        title={tUsers('deleteUser')}
+                    >
+                        <Trash2 size={18} />
+                    </button>
+                )}
                 {dropdownItems.length > 0 && (
                     <Dropdown
                         trigger={
-                            <button className={styles.actionIconBtn} title={tUsers('moreActions')}>
+                            <button type="button" className={styles.actionIconBtn} title={tUsers('moreActions')}>
                                 <MoreVertical size={18} />
                             </button>
                         }
@@ -385,6 +441,19 @@ export default function AdminUsersPage() {
                     </div>
                 </div>
             </Modal>
+
+            {/* Delete Confirmation Modal */}
+            <DeleteConfirmModal
+                isOpen={isDeleteModalOpen}
+                onClose={() => setIsDeleteModalOpen(false)}
+                onConfirm={handleDelete}
+                title={tUsers('deleteModal.title')}
+                message={tUsers('deleteModal.message', { role: selectedUser?.role || '' })}
+                itemName={selectedUser?.name || selectedUser?.email || ''}
+                confirmText={tUsers('deleteModal.confirm')}
+                cancelText={tCommon('cancel')}
+                isLoading={isActionLoading}
+            />
         </div>
     );
 }

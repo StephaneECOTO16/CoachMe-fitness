@@ -49,7 +49,7 @@ model CoachProfile {
   updatedAt       DateTime        @updatedAt
   adminReviews    AdminReview[]
   chatsAsCoach    Chat[]          @relation("coachChats")
-  user            User            @relation(fields: [userId], references: [id])
+  user            User            @relation(fields: [userId], references: [id], onDelete: Cascade)
   commissionLogs  CommissionLog[]
   media           Media[]
 
@@ -66,7 +66,7 @@ model ClientProfile {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   chats     Chat[]   @relation("clientChats")
-  user      User     @relation(fields: [userId], references: [id])
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Media {
@@ -79,8 +79,8 @@ model Media {
   sizeBytes   Int?
   description String?
   createdAt   DateTime      @default(now())
-  coach       CoachProfile? @relation(fields: [coachId], references: [id])
-  owner       User?         @relation(fields: [ownerId], references: [id])
+  coach       CoachProfile? @relation(fields: [coachId], references: [id], onDelete: Cascade)
+  owner       User?         @relation(fields: [ownerId], references: [id], onDelete: Cascade)
 
   @@index([ownerId])
   @@index([coachId])
@@ -92,8 +92,8 @@ model Chat {
   clientId  Int
   createdAt DateTime      @default(now())
   updatedAt DateTime      @updatedAt
-  client    ClientProfile @relation("clientChats", fields: [clientId], references: [id])
-  coach     CoachProfile  @relation("coachChats", fields: [coachId], references: [id])
+  client    ClientProfile @relation("clientChats", fields: [clientId], references: [id], onDelete: Cascade)
+  coach     CoachProfile  @relation("coachChats", fields: [coachId], references: [id], onDelete: Cascade)
   messages  Message[]
 
   @@index([coachId])
@@ -107,8 +107,8 @@ model Message {
   content   String
   isRead    Boolean  @default(false)
   createdAt DateTime @default(now())
-  chat      Chat     @relation(fields: [chatId], references: [id])
-  sender    User     @relation("senderMessages", fields: [senderId], references: [id])
+  chat      Chat     @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  sender    User     @relation("senderMessages", fields: [senderId], references: [id], onDelete: Cascade)
 
   @@index([chatId])
   @@index([senderId])
@@ -121,8 +121,8 @@ model AdminReview {
   action    ReviewAction
   comment   String?
   createdAt DateTime     @default(now())
-  admin     User         @relation(fields: [adminId], references: [id])
-  coach     CoachProfile @relation(fields: [coachId], references: [id])
+  admin     User         @relation(fields: [adminId], references: [id], onDelete: Cascade)
+  coach     CoachProfile @relation(fields: [coachId], references: [id], onDelete: Cascade)
 }
 
 model Discipline {
@@ -141,7 +141,7 @@ model CommissionLog {
   reference String?
   note      String?
   createdAt DateTime     @default(now())
-  coach     CoachProfile @relation(fields: [coachId], references: [id])
+  coach     CoachProfile @relation(fields: [coachId], references: [id], onDelete: Cascade)
 }
 
 /// Stores password reset tokens for secure password recovery.

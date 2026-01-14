@@ -1,9 +1,8 @@
 'use client';
 
-import React, { ReactNode } from 'react';
+import { ReactNode } from 'react';
 import { Search, ChevronDown, ListFilter, ArrowUpDown, Eye, MoreVertical } from 'lucide-react';
-import { Pagination, LoadingIndicator, StatusBadge } from '@/components';
-import UserAvatar from '@/components/ui/UserAvatar/UserAvatar';
+import { Pagination, LoadingIndicator } from '@/components';
 import styles from './DataTable.module.css';
 
 export interface ColumnConfig<T> {
@@ -165,7 +164,7 @@ const DataTable = <T extends { id: string | number }>({
                                             className={`${styles.td} ${column.className || ''}`}
                                             style={{ textAlign: column.align || 'left' }}
                                         >
-                                            {column.render ? column.render(item) : (item as any)[column.key]}
+                                            {column.render ? column.render(item) : (item as Record<string, unknown>)[column.key] as ReactNode}
                                         </td>
                                     ))}
 

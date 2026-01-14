@@ -1,8 +1,8 @@
 // Test script for Brevo email configuration
-// Run with: node test-email.js
+// Run with: node test-email.mjs
 
-require('dotenv').config({ path: '.env' });
-const nodemailer = require('nodemailer');
+import 'dotenv/config';
+import nodemailer from 'nodemailer';
 
 async function testEmailConfig() {
   console.log('🔍 Testing Brevo Email Configuration...\n');

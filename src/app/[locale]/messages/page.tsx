@@ -7,8 +7,6 @@ import { useAuth } from "@/contexts/AuthContext";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import {
   HeroSection,
-  EmptyState,
-  LoadingIndicator,
   ConversationList,
   Chat,
 } from "@/components";

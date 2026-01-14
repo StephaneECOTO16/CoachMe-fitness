@@ -2,31 +2,27 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { Link } from "@/i18n/routing";
+import { Link, useRouter } from "@/i18n/routing";
 import { useAuth } from "@/contexts/AuthContext";
 import Button from "@/components/ui/Button";
 import {
   MediaGallery,
   TabNavigation,
-  StatusBadge,
   EmptyState,
   LoadingIndicator,
 } from "@/components";
 import toast from "@/lib/toast";
 import {
-  Star,
   MapPin,
   Clock,
   Award,
   CheckCircle,
-  Share2,
   Instagram,
   Facebook,
   Twitter,
   Youtube,
-  Video as VideoIcon,
 } from "lucide-react";
 import styles from "./page.module.css";
 
@@ -146,19 +142,6 @@ export default function CoachProfilePage() {
     }
   };
 
-  const handleShare = () => {
-    if (navigator.share) {
-      navigator.share({
-        title: `${coach?.user.name || "Coach"} - ${coach?.discipline.name}`,
-        text: coach?.bio || "",
-        url: window.location.href,
-      });
-    } else {
-      navigator.clipboard.writeText(window.location.href);
-      toast.success(t("linkCopied"));
-    }
-  };
-
   if (loading) {
     return (
       <div className={styles.container}>
@@ -188,7 +171,7 @@ export default function CoachProfilePage() {
   const videos = coach.media.filter((m) => m.type === "VIDEO");
   const mediaItems = [...videos, ...images].map((m) => ({
     id: String(m.id),
-    type: m.type === "VIDEO" ? "video" : "image",
+    type: (m.type === "VIDEO" ? "video" : "image") as "video" | "image",
     url: m.url,
     caption: m.description || undefined,
   }));

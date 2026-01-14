@@ -61,27 +61,13 @@ const CoachCard: React.FC<CoachCardProps> = ({
     // Some fallback translations/logic since 'coaches' namespace might differ from 'browse.coaches'
     // Ideally we unify namespaces.
 
-    const getAvatarUrl = () => {
-        if (coach.avatar) return coach.avatar;
-        // Fallback if no avatar but media exists? (Handled by parent usually, but here we stick to avatar field or placeholder)
-        return undefined;
-    };
-
     const truncateBio = (bio: string, maxLength?: number) => {
         if (!maxLength) return bio;
         return bio.length > maxLength ? `${bio.substring(0, maxLength)}...` : bio;
     };
 
-    const formatRate = (amount?: number, type?: "HOUR" | "WEEK" | "MONTH") => {
+    const formatRate = (amount?: number) => {
         if (!amount) return null;
-        // Map rate types to short labels
-        const suffix = type === "WEEK" ? "wk" : type === "MONTH" ? "mo" : "hr";
-        // Check if we have currency context, assuming USD or XAF based on app context. 
-        // The reference used XAF explicit formatting.
-        // "new Intl.NumberFormat("fr-FR").format(Number(coach.rateAmount))} XAF"
-
-        // For now, keep generic or attempt XAF if consistent
-        // Since this is a shared card, let's try to be consistent with what was seen in the page.
         return `${new Intl.NumberFormat(locale === 'fr' ? 'fr-FR' : 'en-US').format(amount)} XAF`;
     };
 
@@ -106,7 +92,7 @@ const CoachCard: React.FC<CoachCardProps> = ({
     const renderSocialLinks = () => {
         if (!showSocialLinks || !coach.socialMedia) return null;
 
-        const platforms = Object.entries(coach.socialMedia).filter(([_, url]) => url);
+        const platforms = Object.entries(coach.socialMedia).filter(([, url]) => url);
         if (platforms.length === 0) return null;
 
         return (
@@ -154,7 +140,7 @@ const CoachCard: React.FC<CoachCardProps> = ({
     if (variant === "list") {
         // Determine rate to show
         const rate = coach.rateAmount ?? coach.hourlyRate;
-        const rateString = formatRate(rate, coach.rateType);
+        const rateString = formatRate(rate);
 
         return (
             <div className={`${styles.card} ${styles.cardList} ${className}`}>
@@ -216,15 +202,15 @@ const CoachCard: React.FC<CoachCardProps> = ({
 
                     <div className={styles.footer}>
                         {renderSocialLinks()}
-                        <Button
-                            variant="primary"
-                            size="md"
-                            onClick={onViewProfile}
-                            as={Link}
-                            href={`/${locale}/coaches/${coach._id}`}
-                        >
-                            {t('viewProfile')}
-                        </Button>
+                        <Link href={`/${locale}/coaches/${coach._id}`}>
+                            <Button
+                                variant="primary"
+                                size="md"
+                                onClick={onViewProfile}
+                            >
+                                {t('viewProfile')}
+                            </Button>
+                        </Link>
                     </div>
                 </div>
             </div>
@@ -260,16 +246,16 @@ const CoachCard: React.FC<CoachCardProps> = ({
 
                 {/* Badges often skipped in compact grid, or minimal */}
 
-                <Button
-                    variant="primary"
-                    size="sm"
-                    onClick={onViewProfile}
-                    as={Link}
-                    href={`/${locale}/coaches/${coach._id}`}
-                    fullWidth
-                >
-                    {t('viewProfile')}
-                </Button>
+                <Link href={`/${locale}/coaches/${coach._id}`} style={{ width: '100%' }}>
+                    <Button
+                        variant="primary"
+                        size="sm"
+                        onClick={onViewProfile}
+                        fullWidth
+                    >
+                        {t('viewProfile')}
+                    </Button>
+                </Link>
             </div>
         );
     }

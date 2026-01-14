@@ -11,8 +11,14 @@ const Portal: React.FC<PortalProps> = ({ children }) => {
     const [mounted, setMounted] = useState(false);
 
     useEffect(() => {
-        setMounted(true);
-        return () => setMounted(false);
+        // Use requestAnimationFrame to defer state update and avoid cascading renders
+        const id = requestAnimationFrame(() => {
+            setMounted(true);
+        });
+        return () => {
+            cancelAnimationFrame(id);
+            setMounted(false);
+        };
     }, []);
 
     return mounted ? createPortal(children, document.body) : null;

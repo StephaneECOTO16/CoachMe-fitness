@@ -9,3 +9,49 @@
     margin-bottom: var(--space-8);
     font-size: var(--text-3xl);
 }
+
+.actionIconBtn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border: none;
+    background: transparent;
+    border-radius: 8px;
+    cursor: pointer;
+    color: #6b7280;
+    transition: all 0.2s ease;
+}
+
+.actionIconBtn:hover {
+    background: #f3f4f6;
+    color: #111827;
+}
+
+.actionIconBtn:active {
+    transform: scale(0.95);
+}
+
+.actionIconBtnDanger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border: none;
+    background: transparent;
+    border-radius: 8px;
+    cursor: pointer;
+    color: #dc2626;
+    transition: all 0.2s ease;
+}
+
+.actionIconBtnDanger:hover {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.actionIconBtnDanger:active {
+    transform: scale(0.95);
+}

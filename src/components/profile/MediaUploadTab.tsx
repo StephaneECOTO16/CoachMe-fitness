@@ -177,7 +177,7 @@ export default function MediaUploadTab() {
 
       toast.success(t('success.fileUploaded', { fileName: processedFile.name }));
       fetchMediaFiles(); // Refresh list
-    } catch (error) {
+    } catch {
       toast.error(t('error.fileUploadFailed', { fileName: file.name }));
     } finally {
       // Remove from uploading state
@@ -373,7 +373,7 @@ function FileList({
   files: MediaFile[];
   onDelete: (id: number, name: string) => void;
   showPreview?: boolean;
-  tMedia: (key: string, values?: any) => string;
+  tMedia: (key: string, values?: Record<string, unknown>) => string;
 }) {
   if (files.length === 0) {
     return (
