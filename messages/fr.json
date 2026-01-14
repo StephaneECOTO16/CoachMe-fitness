@@ -38,7 +38,7 @@
   },
   "auth": {
     "back": "Retour",
-    "loginTitle": "Bon Retour",
+    "loginTitle": "Bienvenue",
     "loginSubtitle": "Connectez-vous à votre compte",
     "registerTitle": "Rejoignez CoachMe",
     "registerSubtitle": "Commencez votre parcours sport aujourd'hui",

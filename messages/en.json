@@ -38,7 +38,7 @@
   },
   "auth": {
     "back": "Back",
-    "loginTitle": "Welcome Back",
+    "loginTitle": "Welcome",
     "loginSubtitle": "Sign in to your account",
     "registerTitle": "Join CoachMe",
     "registerSubtitle": "Start your sport journey today",
@@ -577,7 +577,7 @@
   "admin": {
     "dashboard": {
       "title": "Admin Dashboard",
-      "welcome": "Welcome back, {name}! Manage users, review coaches, and monitor platform activity.",
+      "welcome": "Welcome, {name}! Manage users, review coaches, and monitor platform activity.",
       "platformStats": "Platform Statistics",
       "pendingCoaches": "Pending Coach Applications",
       "totalUsers": "Total Users",
@@ -807,7 +807,7 @@
   },
   "coachDashboard": {
     "title": "Coach Dashboard",
-    "welcomeBackCoach": "WELCOME BACK COACH",
+    "welcomeBackCoach": "WELCOME COACH",
     "greetingMorning": "Good Morning",
     "greetingAfternoon": "Good Afternoon",
     "greetingEvening": "Good Evening",
