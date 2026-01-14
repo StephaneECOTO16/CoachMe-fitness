@@ -17,8 +17,11 @@ interface SendMailParams {
 
 export async function sendMail({ to, subject, html }: SendMailParams) {
   try {
+    const fromName = process.env.MAIL_FROM_NAME || 'CoachMe';
+    const fromAddress = process.env.MAIL_FROM_ADDRESS || 'noreply@coachme.cm';
+
     const info = await transporter.sendMail({
-      from: '"CoachMe" <noreply@coachme.cm>',
+      from: `"${fromName}" <${fromAddress}>`,
       to,
       subject,
       html,
