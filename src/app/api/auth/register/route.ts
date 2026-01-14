@@ -122,7 +122,7 @@ export async function POST(req: Request) {
 
             // Send Admin Alert (Non-blocking)
             sendMail({
-                to: "admin@coachme.cm",
+                to: process.env.ADMIN_EMAIL || "infos@ecotofitness.com",
                 subject: "New Coach Application Pending",
                 html: getAdminNewCoachAlertTemplate(name, email),
             });

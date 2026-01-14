@@ -90,7 +90,7 @@ export async function POST(req: Request) {
 
             // Notify Admin (Non-blocking)
             sendMail({
-                to: "admin@coachme.cm",
+                to: process.env.ADMIN_EMAIL || "infos@ecotofitness.com",
                 subject: "New Chat Session Started",
                 html: getAdminNewChatAlertTemplate(chat.client.user.name || "Client", chat.coach.user.name || "Coach"),
             });

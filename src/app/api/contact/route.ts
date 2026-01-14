@@ -18,7 +18,7 @@ export async function POST(request: Request) {
         // Note: In a production serverless environment, you might want to await this
         // or offload it to a background queue to ensure it completes.
         await sendMail({
-            to: "admin@coachme.cm",
+            to: process.env.ADMIN_EMAIL || "infos@ecotofitness.com",
             subject: `New Contact Inquiry: ${subject}`,
             html: getContactInquiryTemplate(name, email, subject, message),
         });
