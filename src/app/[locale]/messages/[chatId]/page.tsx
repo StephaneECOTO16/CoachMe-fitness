@@ -10,6 +10,7 @@ import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import Button from "@/components/ui/Button";
 import { ChatBubble, LoadingIndicator } from "@/components";
 import UserAvatar from "@/components/ui/UserAvatar/UserAvatar";
+import toast from "@/lib/toast";
 import styles from "./page.module.css";
 
 interface Message {
@@ -405,7 +406,7 @@ export default function ConversationPage() {
                         : participant?.name || "User",
                       avatar: isOwnMessage ? user?.avatar || undefined : message.sender.avatar || undefined,
                     },
-                    status: undefined as any,
+                    status: undefined as 'sending' | 'sent' | 'delivered' | 'read' | undefined,
                   };
                   return (
                     <ChatBubble

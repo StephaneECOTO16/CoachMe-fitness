@@ -2,7 +2,7 @@
 
 import React from 'react';
 import ChatCard from '@/components/cards/ChatCard';
-import EmptyState, { EmptyStateAction } from '@/components/ui/EmptyState';
+import EmptyState from '@/components/ui/EmptyState';
 import LoadingIndicator, { LoadingIndicatorSize } from '@/components/loading/LoadingIndicator';
 import { Chat } from '../types';
 import { ChatParticipant } from '@/components/cards/ChatCard';
@@ -10,7 +10,6 @@ import styles from './ConversationList.module.css';
 
 interface ConversationListProps {
     chats: Chat[];
-    userId?: number;
     userRole?: string;
     isLoading?: boolean;
     loadingSize?: LoadingIndicatorSize;
@@ -28,7 +27,6 @@ interface ConversationListProps {
 
 const ConversationList: React.FC<ConversationListProps> = ({
     chats,
-    userId,
     userRole,
     isLoading = false,
     loadingSize = 'lg',

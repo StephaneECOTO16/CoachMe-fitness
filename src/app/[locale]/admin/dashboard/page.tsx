@@ -7,7 +7,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import Button from '@/components/ui/Button';
 import { HeroSection, StatsGrid, LoadingIndicator, PendingApprovalsList, DisciplinesList, Modal, UserAvatar, StatusBadge, ChatCard } from '@/components';
-import { Users, UserCheck, MessageSquare, Upload, X, Image as ImageIcon } from 'lucide-react';
+import { Users, UserCheck, MessageSquare, X, Image as ImageIcon } from 'lucide-react';
 import toast from '@/lib/toast';
 import styles from './page.module.css';
 import type { DisciplineStat } from '@/components/admin/DisciplinesList/DisciplinesList';
@@ -107,7 +107,7 @@ export default function AdminDashboard() {
       });
       const chatsData = await chatsRes.json();
       if (chatsData.success) {
-        setRecentChats(chatsData.chats.map((chat: any) => ({
+        setRecentChats(chatsData.chats.map((chat: { id: number; coach: { user: unknown }; client: { user: unknown }; lastMessage: string; updatedAt: string }) => ({
           id: chat.id,
           participant: chat.coach.user, // Primary: Coach
           secondaryParticipant: chat.client.user, // Secondary: Client
@@ -128,6 +128,7 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     fetchDashboardData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleChatClick = (chatId: string) => {
@@ -166,7 +167,7 @@ export default function AdminDashboard() {
     setRejectModalOpen(true);
   };
 
-  const handleOpenView = (coach: any) => {
+  const handleOpenView = (coach: PendingCoach) => {
     setSelectedCoach(coach);
     setIsViewModalOpen(true);
   };
@@ -430,6 +431,7 @@ export default function AdminDashboard() {
                     </label>
                     {newDisciplineImage ? (
                       <div className={styles.previewContainer}>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
                           src={newDisciplineImage.preview}
                           alt="Preview"

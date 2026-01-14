@@ -1,4 +1,4 @@
-import jwt, { SignOptions } from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
 import { NextRequest } from 'next/server';
 import bcrypt from 'bcrypt';
 import { cookies } from 'next/headers';
@@ -13,14 +13,14 @@ function getJwtSecret(): string {
 }
 
 export function signJwt(payload: object, expiresIn: string | number = '7d'): string {
-    return jwt.sign(payload, getJwtSecret(), { expiresIn: expiresIn as any });
+    return jwt.sign(payload, getJwtSecret(), { expiresIn: expiresIn as jwt.SignOptions['expiresIn'] });
 }
 
-export function verifyJwt(token?: string) {
+export function verifyJwt(token?: string): { userId: number; role: string } | null {
     if (!token) return null;
     try {
-        return jwt.verify(token, getJwtSecret()) as any;
-    } catch (e) {
+        return jwt.verify(token, getJwtSecret()) as { userId: number; role: string };
+    } catch {
         return null;
     }
 }
@@ -47,7 +47,7 @@ export async function getTokenFromHeader(req: Request | NextRequest) {
         if (tokenCookie) {
             return tokenCookie.value;
         }
-    } catch (error) {
+    } catch {
         // cookies() can only be called in server components/route handlers
         // If it fails, fall back to reading from request headers
         const cookieHeader = req.headers.get('cookie');

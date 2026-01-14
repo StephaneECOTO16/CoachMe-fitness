@@ -48,7 +48,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     };
 
     return (
-      <Component ref={ref as any} {...baseProps}>
+      <Component ref={ref as React.Ref<HTMLButtonElement | HTMLAnchorElement>} {...baseProps}>
         <span className={styles.content}>
           {leftIcon && <span className={styles.icon}>{leftIcon}</span>}
           {children}

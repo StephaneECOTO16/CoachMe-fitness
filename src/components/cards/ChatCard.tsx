@@ -1,7 +1,6 @@
 'use client';
 
 import React from 'react';
-import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import styles from './ChatCard.module.css';
 import UserAvatar from '../ui/UserAvatar/UserAvatar';
@@ -59,19 +58,6 @@ const ChatCard: React.FC<ChatCardProps> = ({
     } else if (days < 7) {
       return `${days}d ago`;
     } else {
-      return date.toLocaleDateString();
-    }
-  };
-
-  const formatDate = (timestamp: string) => {
-    const date = new Date(timestamp);
-    try {
-      return date.toLocaleDateString(locale, {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-      });
-    } catch {
       return date.toLocaleDateString();
     }
   };

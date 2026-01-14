@@ -46,6 +46,7 @@ const Dropdown: React.FC<DropdownProps> = ({ trigger, items, align = 'right' }) 
             window.removeEventListener('scroll', updateCoords, true);
             window.removeEventListener('resize', updateCoords);
         };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isOpen, align]);
 
     useEffect(() => {

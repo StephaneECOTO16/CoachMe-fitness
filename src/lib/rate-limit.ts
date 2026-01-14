@@ -33,6 +33,7 @@ try {
  * @param windowMs - Time window in milliseconds (ignored in this simple wrapper, uses default sliding window)
  * @returns Promise<boolean> - true if allowed, false if rate-limited
  */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export async function checkRateLimit(key: string, _limit: number = 10, _windowMs: number = 60000): Promise<boolean> {
     if (!ratelimit) {
         // Fail open if Redis is not configured, to avoid blocking users

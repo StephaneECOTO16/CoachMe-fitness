@@ -14,7 +14,9 @@ export interface Filter {
   name: string;
   label: string;
   type: "select" | "input" | "range" | "checkbox";
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   value: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onChange: (value: any) => void;
   options?: FilterOption[];
   placeholder?: string;

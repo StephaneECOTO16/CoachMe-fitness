@@ -3,9 +3,8 @@
 import { useTranslations } from "next-intl";
 import Image from "next/image";
 import Link from "next/link";
-import { CheckCircle2, MessageSquare, Globe, Star, Users, Share2, Play } from "lucide-react";
+import { CheckCircle2, MessageSquare, Globe, Users, Share2, Play } from "lucide-react";
 import styles from "./Hero.module.css";
-import React from 'react';
 
 export default function HomeHero() {
     const t = useTranslations("home.hero");

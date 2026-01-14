@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-import Image from "next/image";
 import { Link, useRouter } from "@/i18n/routing";
 import { useAuth } from "@/contexts/AuthContext";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
@@ -12,7 +11,6 @@ import {
   StatsGrid,
   DashboardSection,
   ConversationList,
-  EmptyState,
   QuickActionsSection,
   Chat,
 } from "@/components";
@@ -35,7 +33,8 @@ interface CoachProfile {
   status: "PENDING" | "APPROVED" | "REJECTED";
 }
 
-interface ProfileData {
+interface ProfileResponse {
+  success: boolean;
   user: {
     id: number;
     name: string | null;
@@ -51,7 +50,6 @@ export default function CoachDashboard() {
   const tErrors = useTranslations("errors");
   const { user, token } = useAuth();
   const router = useRouter();
-  const [profileData, setProfileData] = useState<ProfileData | null>(null);
   const [profile, setProfile] = useState<CoachProfile | null>(null);
   const [chats, setChats] = useState<Chat[]>([]);
   const [loading, setLoading] = useState(true);
@@ -81,7 +79,6 @@ export default function CoachDashboard() {
         });
         const profileResponse = await profileRes.json();
         if (profileResponse.success) {
-          setProfileData(profileResponse);
           if (profileResponse.profile) {
             setProfile(profileResponse.profile);
 

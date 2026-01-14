@@ -43,7 +43,7 @@ export const toast = {
     }: {
       loading: string;
       success: string | ((data: T) => string);
-      error: string | ((error: any) => string);
+      error: string | ((error: Error) => string);
     }
   ) => {
     return sonnerToast.promise(promise, {

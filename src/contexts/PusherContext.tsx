@@ -94,7 +94,7 @@ export function PusherProvider({ children }: { children: React.ReactNode }) {
       setIsConnected(false);
     });
 
-    pusherClient.connection.bind("error", (error: any) => {
+    pusherClient.connection.bind("error", (error: { message?: string; type?: string; error?: unknown; status?: number; data?: { code?: string; message?: string } }) => {
       console.error("[Pusher] Connection error details:", {
         message: error?.message,
         type: error?.type,
@@ -116,8 +116,8 @@ export function PusherProvider({ children }: { children: React.ReactNode }) {
     // Cleanup on unmount or token change
     return () => {
       pusherClient.disconnect();
-      channelsRef.current.clear();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated, token]);
 
   /**
