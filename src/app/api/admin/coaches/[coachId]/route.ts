@@ -39,6 +39,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ coachId:
                     }
                 },
                 media: true,
+                discipline: true,
                 chatsAsCoach: {
                     include: {
                         client: {
@@ -64,6 +65,11 @@ export async function GET(req: Request, { params }: { params: Promise<{ coachId:
                 ...coach.user,
                 avatar: coach.user.avatar ? getPublicUrl(coach.user.avatar) : null,
             },
+            media: coach.media.map(m => ({
+                ...m,
+                url: getPublicUrl(m.url)
+            })),
+            discipline: coach.discipline.name,
         };
 
         return NextResponse.json({ success: true, coach: coachWithUrls });
@@ -99,7 +105,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ coachI
     }
 
     try {
-        const { status, reason } = await req.json();
+        const { status } = await req.json();
 
         if (!status || !['APPROVED', 'REJECTED', 'PENDING'].includes(status)) {
             return NextResponse.json({

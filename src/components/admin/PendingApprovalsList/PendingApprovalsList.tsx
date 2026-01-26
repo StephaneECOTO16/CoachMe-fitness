@@ -12,13 +12,17 @@ import { ColumnConfig } from '@/components/ui/DataTable/DataTable';
 interface PendingCoach {
     id: number;
     userId: number;
+    bio: string | null;
     discipline: string;
+    portfolio: string | null;
     status: string;
     createdAt: string;
     user: {
+        id: number;
         name: string | null;
         email: string;
         avatar: string | null;
+        createdAt: string;
     };
 }
 

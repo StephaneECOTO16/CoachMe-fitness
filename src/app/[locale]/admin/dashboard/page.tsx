@@ -6,7 +6,7 @@ import { Link } from '@/i18n/routing';
 import { useAuth } from '@/contexts/AuthContext';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import Button from '@/components/ui/Button';
-import { HeroSection, StatsGrid, LoadingIndicator, PendingApprovalsList, DisciplinesList, Modal, UserAvatar, StatusBadge, ChatCard } from '@/components';
+import { HeroSection, StatsGrid, LoadingIndicator, PendingApprovalsList, DisciplinesList, Modal, ChatCard, CoachDetailsModal } from '@/components';
 import { Users, UserCheck, MessageSquare, X, Image as ImageIcon } from 'lucide-react';
 import toast from '@/lib/toast';
 import styles from './page.module.css';
@@ -58,7 +58,6 @@ export default function AdminDashboard() {
   const [rejectModalOpen, setRejectModalOpen] = useState(false);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [selectedCoachId, setSelectedCoachId] = useState<number | null>(null);
-  const [selectedCoach, setSelectedCoach] = useState<PendingCoach | null>(null);
   const [rejectionReason, setRejectionReason] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
 
@@ -168,7 +167,7 @@ export default function AdminDashboard() {
   };
 
   const handleOpenView = (coach: PendingCoach) => {
-    setSelectedCoach(coach);
+    setSelectedCoachId(coach.id);
     setIsViewModalOpen(true);
   };
 
@@ -480,71 +479,19 @@ export default function AdminDashboard() {
               </Modal>
 
               {/* View Coach Modal */}
-              <Modal
+              <CoachDetailsModal
                 isOpen={isViewModalOpen}
                 onClose={() => setIsViewModalOpen(false)}
-                title={t('users.detailsTitle', { role: 'COACH' })}
-                size="md"
-              >
-                {selectedCoach && (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                      <UserAvatar user={selectedCoach.user} size="xl" />
-                      <div>
-                        <h2 style={{ margin: 0 }}>{selectedCoach.user.name}</h2>
-                        <p style={{ color: '#6b7280', margin: 0 }}>{selectedCoach.user.email}</p>
-                        <div className="mt-2">
-                          <span style={{
-                            background: '#eff6ff',
-                            color: '#1e40af',
-                            padding: '4px 12px',
-                            borderRadius: '20px',
-                            fontSize: '0.75rem',
-                            fontWeight: 700
-                          }}>
-                            COACH
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
-                      <div>
-                        <h4 style={{ margin: '0 0 8px 0', color: '#6b7280', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{t('users.joinedDate')}</h4>
-                        <p style={{ margin: 0, fontWeight: 500 }}>{new Date(selectedCoach.createdAt).toLocaleDateString()}</p>
-                      </div>
-
-                      <div>
-                        <h4 style={{ margin: '0 0 8px 0', color: '#6b7280', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{t('users.specialty')}</h4>
-                        <p style={{ margin: 0, fontWeight: 500 }}>{selectedCoach.discipline || t('users.notSpecified')}</p>
-                      </div>
-                      <div>
-                        <h4 style={{ margin: '0 0 8px 0', color: '#6b7280', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{t('users.status')}</h4>
-                        <StatusBadge status={selectedCoach.status || 'PENDING'} />
-                      </div>
-                      <div>
-                        <h4 style={{ margin: '0 0 8px 0', color: '#6b7280', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{t('users.portfolio')}</h4>
-                        <p style={{ margin: 0, fontWeight: 500 }}>
-                          {selectedCoach.portfolio ? (
-                            <a href={selectedCoach.portfolio} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--primary)', textDecoration: 'underline' }}>
-                              View Portfolio
-                            </a>
-                          ) : t('users.notSpecified')}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div style={{ padding: '16px', background: '#f9fafb', borderRadius: '12px' }}>
-                      <h4 style={{ margin: '0 0 8px 0', color: '#6b7280', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{t('users.bio')}</h4>
-                      <p style={{ margin: 0, lineHeight: 1.6 }}>{selectedCoach.bio || 'No bio provided.'}</p>
-                    </div>
-
-                    <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '8px' }}>
-                      <Button variant="outline" onClick={() => setIsViewModalOpen(false)}>{tCommon('close')}</Button>
-                    </div>
-                  </div>
-                )}
-              </Modal>
+                coachId={selectedCoachId}
+                onApprove={async (id) => {
+                  await handleApprove(id);
+                }}
+                onReject={(id) => {
+                  setSelectedCoachId(id);
+                  setRejectModalOpen(true);
+                  setIsViewModalOpen(false);
+                }}
+              />
 
               {/* Reject Modal */}
               <Modal
