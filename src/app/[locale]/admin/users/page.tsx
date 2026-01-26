@@ -3,7 +3,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { Eye, CheckCircle, XCircle, MoreVertical, Trash2 } from 'lucide-react';
-import { DataTable, StatusBadge, ColumnConfig, Modal, Dropdown } from '@/components';
+import { DataTable, StatusBadge, ColumnConfig, Modal, Dropdown, CoachDetailsModal } from '@/components';
 import UserAvatar from '@/components/ui/UserAvatar/UserAvatar';
 import DeleteConfirmModal from '@/components/ui/DeleteConfirmModal';
 import toast from '@/lib/toast';
@@ -330,73 +330,72 @@ export default function AdminUsersPage() {
             />
 
             {/* View User Modal */}
-            <Modal
-                isOpen={isViewModalOpen}
-                onClose={() => setIsViewModalOpen(false)}
-                title={tUsers('detailsTitle', { role: selectedUser?.role || '' })}
-                size="md"
-            >
-                {selectedUser && (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                            <UserAvatar user={{ name: selectedUser.name, avatar: selectedUser.avatar }} size="xl" />
-                            <div>
-                                <h2 style={{ margin: 0 }}>{selectedUser.name}</h2>
-                                <p style={{ color: '#6b7280', margin: 0 }}>{selectedUser.email}</p>
-                                <div className="mt-2">
-                                    <span style={{
-                                        background: selectedUser.role === 'COACH' ? '#eff6ff' : '#f5f3ff',
-                                        color: selectedUser.role === 'COACH' ? '#1e40af' : '#5b21b6',
-                                        padding: '4px 12px',
-                                        borderRadius: '20px',
-                                        fontSize: '0.75rem',
-                                        fontWeight: 700
-                                    }}>
-                                        {selectedUser.role}
-                                    </span>
+            {selectedUser?.role === 'COACH' ? (
+                <CoachDetailsModal
+                    isOpen={isViewModalOpen}
+                    onClose={() => setIsViewModalOpen(false)}
+                    coachId={selectedUser.coachId}
+                    onApprove={async (id) => {
+                        await handleApprove(id);
+                    }}
+                    onReject={(id) => {
+                        // For simplicity on this page, we close and open the reject confirm
+                        setIsViewModalOpen(false);
+                        setIsRejectModalOpen(true);
+                    }}
+                />
+            ) : (
+                <Modal
+                    isOpen={isViewModalOpen}
+                    onClose={() => setIsViewModalOpen(false)}
+                    title={tUsers('detailsTitle', { role: selectedUser?.role || '' })}
+                    size="md"
+                >
+                    {selectedUser && (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                                <UserAvatar user={{ name: selectedUser.name, avatar: selectedUser.avatar }} size="xl" />
+                                <div>
+                                    <h2 style={{ margin: 0 }}>{selectedUser.name}</h2>
+                                    <p style={{ color: '#6b7280', margin: 0 }}>{selectedUser.email}</p>
+                                    <div className="mt-2">
+                                        <span style={{
+                                            background: selectedUser.role === 'COACH' ? '#eff6ff' : '#f5f3ff',
+                                            color: selectedUser.role === 'COACH' ? '#1e40af' : '#5b21b6',
+                                            padding: '4px 12px',
+                                            borderRadius: '20px',
+                                            fontSize: '0.75rem',
+                                            fontWeight: 700
+                                        }}>
+                                            {selectedUser.role}
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
 
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
-                            <div>
-                                <h4 style={{ margin: '0 0 8px 0', color: '#6b7280', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{tUsers('joinedDate')}</h4>
-                                <p style={{ margin: 0, fontWeight: 500 }}>{new Date(selectedUser.createdAt).toLocaleDateString()}</p>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+                                <div>
+                                    <h4 style={{ margin: '0 0 8px 0', color: '#6b7280', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{tUsers('joinedDate')}</h4>
+                                    <p style={{ margin: 0, fontWeight: 500 }}>{new Date(selectedUser.createdAt).toLocaleDateString()}</p>
+                                </div>
+
+                                {selectedUser.role === 'PROSPECT' && (
+                                    <div style={{ gridColumn: 'span 2' }}>
+                                        <h4 style={{ margin: '0 0 8px 0', color: '#6b7280', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{tUsers('sportGoals')}</h4>
+                                        <p style={{ margin: 0, padding: '16px', background: '#f9fafb', borderRadius: '12px', lineHeight: 1.6 }}>
+                                            {selectedUser.goals || tUsers('noGoalsDetailed')}
+                                        </p>
+                                    </div>
+                                )}
                             </div>
 
-                            {selectedUser.role === 'COACH' && (
-                                <>
-                                    <div>
-                                        <h4 style={{ margin: '0 0 8px 0', color: '#6b7280', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{tUsers('specialty')}</h4>
-                                        <p style={{ margin: 0, fontWeight: 500 }}>{selectedUser.specialty || tUsers('notSpecified')}</p>
-                                    </div>
-                                    <div>
-                                        <h4 style={{ margin: '0 0 8px 0', color: '#6b7280', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{tUsers('status')}</h4>
-                                        <StatusBadge status={selectedUser.status || 'PENDING'} />
-                                    </div>
-                                    <div>
-                                        <h4 style={{ margin: '0 0 8px 0', color: '#6b7280', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{tUsers('experience')}</h4>
-                                        <p style={{ margin: 0, fontWeight: 500 }}>{selectedUser.coachProfile?.experienceYears || 0} {tUsers('years')}</p>
-                                    </div>
-                                </>
-                            )}
-
-                            {selectedUser.role === 'PROSPECT' && (
-                                <div style={{ gridColumn: 'span 2' }}>
-                                    <h4 style={{ margin: '0 0 8px 0', color: '#6b7280', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{tUsers('sportGoals')}</h4>
-                                    <p style={{ margin: 0, padding: '16px', background: '#f9fafb', borderRadius: '12px', lineHeight: 1.6 }}>
-                                        {selectedUser.goals || tUsers('noGoalsDetailed')}
-                                    </p>
-                                </div>
-                            )}
+                            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '8px' }}>
+                                <Button variant="outline" onClick={() => setIsViewModalOpen(false)}>{tCommon('close')}</Button>
+                            </div>
                         </div>
-
-                        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '8px' }}>
-                            <Button variant="outline" onClick={() => setIsViewModalOpen(false)}>{tCommon('close')}</Button>
-                        </div>
-                    </div>
-                )}
-            </Modal>
+                    )}
+                </Modal>
+            )}
 
             {/* Reject Reason Modal */}
             <Modal

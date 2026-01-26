@@ -47,6 +47,7 @@ export { default as MediaUploadTab } from './profile/MediaUploadTab';
 // Admin Components
 export { default as PendingApprovalsList } from './admin/PendingApprovalsList/PendingApprovalsList';
 export { default as DisciplinesList } from './admin/DisciplinesList/DisciplinesList';
+export { default as CoachDetailsModal } from './admin/CoachDetailsModal/CoachDetailsModal';
 
 // Type exports
 export type { CoachData, CoachCardProps } from './coach/CoachCard/CoachCard';
