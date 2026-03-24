@@ -64,7 +64,7 @@ export default function ConversationPage() {
   const params = useParams();
   const t = useTranslations("messages.conversation");
   const tErrors = useTranslations("errors");
-  const { user, token } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   const { subscribeToChat, isConnected } = usePusher();
   const [chat, setChat] = useState<Chat | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -79,13 +79,11 @@ export default function ConversationPage() {
   // Fetch initial chat data and messages
   useEffect(() => {
     const fetchChat = async () => {
-      if (!token || !chatId) return;
+      if (!isAuthenticated || !chatId) return;
 
       try {
         const response = await fetch(`/api/chat/${chatId}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          credentials: "include",
         });
         const data = await response.json();
 
@@ -104,7 +102,7 @@ export default function ConversationPage() {
     };
 
     fetchChat();
-  }, [token, chatId, t, tErrors]);
+  }, [isAuthenticated, chatId, t, tErrors]);
 
   /**
    * Handle incoming real-time messages from Pusher.
@@ -163,7 +161,7 @@ export default function ConversationPage() {
 
   const handleSendMessage = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
-    if (!newMessage.trim() || !token || !chatId || sending) return;
+    if (!newMessage.trim() || !isAuthenticated || !chatId || sending) return;
 
     setSending(true);
     const messageContent = newMessage.trim();
@@ -179,8 +177,8 @@ export default function ConversationPage() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
+        credentials: "include",
         body: JSON.stringify({
           content: messageContent,
         }),
@@ -395,7 +393,7 @@ export default function ConversationPage() {
             ) : (
               <div className={styles.messagesList}>
                 {messages.map((message) => {
-                  const isOwnMessage = message.senderId === user?.id;
+                  const isOwnMessage = String(message.senderId) === String(user?.id);
                   const bubbleMessage = {
                     id: String(message.id),
                     content: message.content,

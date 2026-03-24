@@ -60,18 +60,20 @@ interface Coach {
 export default function ClientDashboard() {
   const t = useTranslations("client.dashboard");
   const locale = useLocale();
-  const { user, token } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   const [coaches, setCoaches] = useState<Coach[]>([]);
   const [chats, setChats] = useState<Chat[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchDashboardData = async () => {
-      if (!token) return;
+      if (!isAuthenticated) return;
 
       try {
         // Fetch coaches
-        const coachesRes = await fetch("/api/coaches?limit=4");
+        const coachesRes = await fetch("/api/coaches?limit=4", {
+          credentials: "include",
+        });
         const coachesData = await coachesRes.json();
         if (coachesData.success) {
           // Enforce limit strictly on client side as well
@@ -80,9 +82,7 @@ export default function ClientDashboard() {
 
         // Fetch user's chats
         const chatsRes = await fetch("/api/chat", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          credentials: "include",
         });
         const chatsData = await chatsRes.json();
         if (chatsData.success) {
@@ -97,7 +97,7 @@ export default function ClientDashboard() {
     };
 
     fetchDashboardData();
-  }, [token]);
+  }, [isAuthenticated]);
 
   // Transform Coach data to CoachData format
   // Transform Coach data to CoachData format

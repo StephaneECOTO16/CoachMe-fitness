@@ -10,7 +10,8 @@ import {
     Award, 
     Dumbbell,
     Briefcase,
-    Layout
+    Layout,
+    Phone
 } from 'lucide-react';
 import UserAvatar from '@/components/ui/UserAvatar/UserAvatar';
 import StatusBadge from '@/components/ui/StatusBadge';
@@ -30,7 +31,7 @@ interface Media {
 
 interface CoachDetails {
     id: number;
-    userId: number;
+    userId: string;
     bio: string | null;
     discipline: string;
     portfolio: string | null;
@@ -41,9 +42,10 @@ interface CoachDetails {
     country: string | null;
     createdAt: string;
     user: {
-        id: number;
+        id: string;
         name: string | null;
         email: string;
+        phone: string | null;
         avatar: string | null;
         createdAt: string;
     };
@@ -53,15 +55,15 @@ interface CoachDetails {
 interface CoachDetailsModalProps {
     isOpen: boolean;
     onClose: () => void;
-    coachId: number | null;
-    onApprove: (id: number) => Promise<void>;
-    onReject: (id: number) => void;
+    userId: string | null;
+    onApprove: (id: string) => Promise<void>;
+    onReject: (id: string) => void;
 }
 
 const CoachDetailsModal: React.FC<CoachDetailsModalProps> = ({
     isOpen,
     onClose,
-    coachId,
+    userId,
     onApprove,
     onReject
 }) => {
@@ -73,11 +75,8 @@ const CoachDetailsModal: React.FC<CoachDetailsModalProps> = ({
     const fetchCoachDetails = React.useCallback(async () => {
         setLoading(true);
         try {
-            const token = localStorage.getItem('token');
-            const res = await fetch(`/api/admin/coaches/${coachId}`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
+            const res = await fetch(`/api/admin/coaches/${userId}`, {
+                credentials: 'include'
             });
             const data = await res.json();
             if (data.success) {
@@ -88,21 +87,21 @@ const CoachDetailsModal: React.FC<CoachDetailsModalProps> = ({
         } finally {
             setLoading(false);
         }
-    }, [coachId]);
+    }, [userId]);
 
     useEffect(() => {
-        if (isOpen && coachId) {
+        if (isOpen && userId) {
             fetchCoachDetails();
         } else {
             setCoach(null);
         }
-    }, [isOpen, coachId, fetchCoachDetails]);
+    }, [isOpen, userId, fetchCoachDetails]);
 
     const handleApprove = async () => {
         if (!coach) return;
         setIsProcessing(true);
         try {
-            await onApprove(coach.id);
+            await onApprove(coach.user.id);
             onClose();
         } finally {
             setIsProcessing(false);
@@ -149,6 +148,12 @@ const CoachDetailsModal: React.FC<CoachDetailsModalProps> = ({
                                         <a href={`mailto:${coach.user.email}`} className={styles.coachEmail}>
                                             {coach.user.email}
                                         </a>
+                                        {coach.user.phone && (
+                                            <div className={styles.coachContactItem}>
+                                                <Phone size={14} className={styles.contactIcon} />
+                                                <span className={styles.coachPhone}>{coach.user.phone}</span>
+                                            </div>
+                                        )}
                                         <span className={styles.appliedDate}>
                                             Applied: {new Date(coach.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
                                         </span>
@@ -258,7 +263,7 @@ const CoachDetailsModal: React.FC<CoachDetailsModalProps> = ({
                             <button 
                                 className={styles.rejectBtn} 
                                 onClick={() => {
-                                    onReject(coach.id);
+                                    onReject(coach.user.id);
                                     // Optionally don't close here so the reason modal can handle it
                                 }}
                                 disabled={isProcessing}

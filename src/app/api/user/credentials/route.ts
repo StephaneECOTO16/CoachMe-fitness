@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { prisma } from '@/lib/db';
 import { requireAuth } from '@/lib/auth';
 import { UpdateCredentialsRequestSchema, parseRequestBody } from '@/lib/schemas';
 
 export async function PATCH(req: NextRequest) {
-    const authPayload = await requireAuth(req, undefined, { checkCoachStatus: false });
+    const authPayload = await requireAuth(req, { checkCoachStatus: false });
     if (!authPayload) {
         return NextResponse.json({
             success: false,

@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { prisma } from '@/lib/db';
 import { requireAuth } from '@/lib/auth';
 import { z } from 'zod';
 import { parseRequestBody } from '@/lib/schemas';
@@ -11,14 +11,14 @@ const RejectCoachBodySchema = z.object({
 });
 
 /**
- * POST /api/admin/coaches/:coachId/reject
+ * POST /api/admin/coaches/:userId/reject
  * Admin endpoint to reject a coach profile.
  * Requires a rejection reason in the body.
  * Creates an AdminReview record for audit trail.
  */
-export async function POST(req: Request, { params }: { params: Promise<{ coachId: string }> }) {
+export async function POST(req: Request, { params }: { params: Promise<{ userId: string }> }) {
     // Validate authentication
-    const payload = await requireAuth(req, ['ADMIN']);
+    const payload = await requireAuth(req, { allowedRoles: ['ADMIN'] });
     if (!payload) {
         return NextResponse.json({
             success: false,
@@ -26,15 +26,8 @@ export async function POST(req: Request, { params }: { params: Promise<{ coachId
         }, { status: 401 });
     }
 
-    // Validate coach ID parameter
-    const { coachId: coachIdParam } = await params;
-    const coachId = parseInt(coachIdParam);
-    if (isNaN(coachId)) {
-        return NextResponse.json({
-            success: false,
-            error: { code: 'INVALID_INPUT', message: 'Invalid coach ID' }
-        }, { status: 400 });
-    }
+    // Validate User UUID parameter
+    const { userId } = await params;
 
     // Validate request body using Zod schema
     const { data, error } = await parseRequestBody(req, RejectCoachBodySchema);
@@ -50,21 +43,21 @@ export async function POST(req: Request, { params }: { params: Promise<{ coachId
 
     try {
         const coach = await prisma.coachProfile.findUnique({
-            where: { id: coachId },
-            include: { user: true } // Include user for email
+            where: { userId: userId }, // Query by unique User UUID
+            include: { user: true }
         });
         if (!coach) return NextResponse.json({ success: false, error: { code: 'NOT_FOUND' } }, { status: 404 });
 
         // Update coach status to REJECTED and store the reason
         const updated = await prisma.coachProfile.update({
-            where: { id: coachId },
+            where: { id: coach.id }, // Use internal ID for update
             data: { status: 'REJECTED', statusReason: reason },
         });
 
         // Create audit record
         await prisma.adminReview.create({
             data: {
-                coachId,
+                coachId: coach.id,
                 adminId: payload.userId,
                 action: 'REJECTED',
                 comment: reason,
@@ -82,7 +75,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ coachId
 
         return NextResponse.json({ success: true, coach: updated });
     } catch (err) {
-        console.error('[POST /api/admin/coaches/:coachId/reject]', err);
+        console.error('[POST /api/admin/coaches/:userId/reject]', err);
         return NextResponse.json({ success: false, error: { code: 'INTERNAL_ERROR' } }, { status: 500 });
     }
 }

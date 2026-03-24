@@ -43,8 +43,7 @@ export const RegisterRequestSchema = z.discriminatedUnion('accountType', [
       .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
       .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
       .regex(/\d/, 'Password must contain at least one digit'),
-    name: z.string().min(2, 'Name must be at least 2 characters'),
-    // Prospect-specific fields
+    phone: z.string().optional().or(z.literal('')),
     ageRange: z.string().optional(),
     heightCm: z.coerce.number().positive('Height must be positive').optional(),
     weightKg: z.coerce.number().positive('Weight must be positive').optional(),
@@ -59,8 +58,7 @@ export const RegisterRequestSchema = z.discriminatedUnion('accountType', [
       .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
       .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
       .regex(/\d/, 'Password must contain at least one digit'),
-    name: z.string().min(2, 'Name must be at least 2 characters'),
-    // Coach-specific fields
+    phone: z.string().regex(/^\+[1-9]\d{6,14}$/, 'Phone must be in E.164 format, e.g. +237659037423'),
     discipline: z.string().min(2, 'Discipline is required'),
     bio: z.string().optional(),
     portfolio: z.string().url('Portfolio must be a valid URL').optional().or(z.literal('')),
@@ -109,6 +107,7 @@ const baseRegisterSchema = z.object({
     .refine((val) => val === true, {
       message: 'You must accept the terms and conditions',
     }),
+  phone: z.string().optional().or(z.literal('')),
   // Prospect fields
   ageRange: z.string().optional(),
   heightCm: z.string().optional(),
@@ -135,6 +134,18 @@ export const registerSchema = baseRegisterSchema
     {
       message: 'Discipline is required for coach accounts',
       path: ['discipline'],
+    }
+  )
+  .refine(
+    (data) => {
+      if (data.accountType === 'COACH') {
+        return !!data.phone && data.phone.length >= 7;
+      }
+      return true;
+    },
+    {
+      message: 'Phone number is required for coach accounts',
+      path: ['phone'],
     }
   );
 

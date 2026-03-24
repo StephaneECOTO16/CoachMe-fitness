@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { prisma } from '@/lib/db';
 import { requireAuth } from '@/lib/auth';
-import { deleteMediaFromS3 } from '@/lib/aws-s3';
+import { deleteFromStorage } from '@/lib/storage';
 
 /**
  * DELETE /api/coach/media/[mediaId]
@@ -11,7 +11,7 @@ export async function DELETE(
     req: Request,
     { params }: { params: Promise<{ mediaId: string }> }
 ) {
-    const payload = await requireAuth(req, ['COACH']);
+    const payload = await requireAuth(req, { allowedRoles: ['COACH'] });
     if (!payload) {
         return NextResponse.json(
             { success: false, error: { code: 'UNAUTHORIZED' } },
@@ -68,7 +68,7 @@ export async function DELETE(
 
         // 2. Physical Deletion from S3/R2
         if (media.url) {
-            await deleteMediaFromS3(media.url);
+            await deleteFromStorage(media.url);
         }
 
         return NextResponse.json({ success: true });

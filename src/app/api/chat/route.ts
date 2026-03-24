@@ -1,282 +1,53 @@
-import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
-import { requireAuth } from '@/lib/auth';
-import { parseRequestBody, InitiateChatRequestSchema } from '@/lib/schemas';
-import { getPublicUrl } from '@/lib/aws-s3';
-import { sendMail, getAdminNewChatAlertTemplate } from '@/lib/mail';
+import { NextResponse } from "next/server";
+import { requireAuth } from "@/lib/auth";
+import {
+  getOrCreateChat,
+  getCoachChats,
+  getClientChats,
+  getAllChats,
+} from "@/services/chat.service";
+import { parseRequestBody, InitiateChatSchema } from "@/lib/validation/schemas";
 
-/**
- * POST /api/chat
- * Initiate a new 1:1 chat between a prospect and a coach.
- * Creates a Chat record if not already exists.
- */
 export async function POST(req: Request) {
-    // Validate authentication
-    const payload = await requireAuth(req, ['PROSPECT']);
-    if (!payload) {
-        return NextResponse.json({
-            success: false,
-            error: { code: 'UNAUTHORIZED', message: 'Authentication required' }
-        }, { status: 401 });
-    }
+  const payload = await requireAuth(req, { allowedRoles: ["PROSPECT"] });
+  if (!payload) return NextResponse.json({ success: false }, { status: 401 });
 
-    // Validate request body using Zod schema
-    const { data, error } = await parseRequestBody(req, InitiateChatRequestSchema);
-    if (error) {
-        return NextResponse.json({ success: false, error }, { status: 400 });
-    }
+  const { data, error } = await parseRequestBody(req, InitiateChatSchema);
+  if (error) return NextResponse.json({ success: false, error }, { status: 400 });
 
-    if (!data) {
-        return NextResponse.json({ success: false, error: { code: "INVALID_REQUEST" } }, { status: 400 });
-    }
-
-    const { coachId } = data;
-
-    try {
-        // Get prospect profile
-        const clientProfile = await prisma.clientProfile.findUnique({
-            where: { userId: payload.userId }
-        });
-
-        if (!clientProfile) {
-            return NextResponse.json({
-                success: false,
-                error: { code: 'NOT_FOUND', message: 'Prospect profile not found' }
-            }, { status: 404 });
-        }
-
-        // Verify coach exists and is approved
-        const coach = await prisma.coachProfile.findUnique({
-            where: { id: coachId }
-        });
-
-        if (!coach) {
-            return NextResponse.json({
-                success: false,
-                error: { code: 'NOT_FOUND', message: 'Coach not found' }
-            }, { status: 404 });
-        }
-
-        if (coach.status !== 'APPROVED') {
-            return NextResponse.json({
-                success: false,
-                error: { code: 'FORBIDDEN', message: 'Coach not available' }
-            }, { status: 403 });
-        }
-
-        // Find or create chat
-        let chat = await prisma.chat.findFirst({
-            where: {
-                coachId,
-                clientId: clientProfile.id,
-            },
-            include: {
-                coach: { include: { user: true } },
-                client: { include: { user: true } },
-            }
-        });
-
-        if (!chat) {
-            chat = await prisma.chat.create({
-                data: {
-                    coachId,
-                    clientId: clientProfile.id,
-                },
-                include: {
-                    coach: { include: { user: true } },
-                    client: { include: { user: true } },
-                }
-            });
-
-            // Notify Admin (Non-blocking)
-            sendMail({
-                to: process.env.ADMIN_EMAIL || "infos@ecotofitness.com",
-                subject: "New Chat Session Started",
-                html: getAdminNewChatAlertTemplate(chat.client.user.name || "Client", chat.coach.user.name || "Coach"),
-            });
-        }
-
-        return NextResponse.json({ success: true, chat });
-    } catch (err: unknown) {
-        console.error('[POST /api/chat]', err);
-        return NextResponse.json({
-            success: false,
-            error: { code: 'INTERNAL_ERROR' }
-        }, { status: 500 });
-    }
+  try {
+    const chat = await getOrCreateChat(payload.userId, data!.coachId);
+    return NextResponse.json({ success: true, chat });
+  } catch (err: any) {
+    return NextResponse.json(
+      { success: false, error: { code: err.code ?? "INTERNAL_ERROR", message: err.message } },
+      { status: err.status ?? 500 }
+    );
+  }
 }
 
-/**
- * GET /api/chat
- * List all chats for the authenticated user.
- * Shows coach chats if user is a coach, prospect chats if prospect.
- */
 export async function GET(req: Request) {
-    const payload = await requireAuth(req);
-    if (!payload) {
-        return NextResponse.json({
-            success: false,
-            error: { code: 'UNAUTHORIZED' }
-        }, { status: 401 });
-    }
+  const payload = await requireAuth(req, { checkCoachStatus: false });
+  if (!payload) return NextResponse.json({ success: false }, { status: 401 });
 
-    try {
-        let chats: any[] = [];
+  const url = new URL(req.url);
 
-        if (payload.role === 'COACH') {
-            const coachProfile = await prisma.coachProfile.findUnique({
-                where: { userId: payload.userId }
-            });
+  if (payload.role === "COACH") {
+    const chats = await getCoachChats(payload.userId);
+    return NextResponse.json({ success: true, chats });
+  }
 
-            if (!coachProfile) {
-                return NextResponse.json({ success: true, chats: [] });
-            }
+  if (payload.role === "PROSPECT") {
+    const chats = await getClientChats(payload.userId);
+    return NextResponse.json({ success: true, chats });
+  }
 
-            chats = await prisma.chat.findMany({
-                where: { coachId: coachProfile.id },
-                include: {
-                    client: {
-                        include: {
-                            user: {
-                                select: { id: true, name: true, email: true, avatar: true }
-                            }
-                        }
-                    },
-                    coach: {
-                        include: {
-                            user: {
-                                select: { id: true, name: true, email: true, avatar: true }
-                            },
-                            discipline: {
-                                select: { id: true, name: true }
-                            }
-                        }
-                    },
-                    _count: { select: { messages: true } }
-                },
-                orderBy: { updatedAt: 'desc' },
-            });
-            chats = chats.map((chat) => ({
-                ...chat,
-                client: {
-                    ...chat.client,
-                    user: {
-                        ...chat.client.user,
-                        avatar: chat.client.user.avatar ? getPublicUrl(chat.client.user.avatar) : null,
-                    },
-                },
-                coach: {
-                    ...chat.coach,
-                    user: {
-                        ...chat.coach.user,
-                        avatar: chat.coach.user.avatar ? getPublicUrl(chat.coach.user.avatar) : null,
-                    },
-                },
-            }));
+  if (payload.role === "ADMIN") {
+    const limit = Math.min(parseInt(url.searchParams.get("limit") ?? "50"), 100);
+    const offset = parseInt(url.searchParams.get("offset") ?? "0");
+    const result = await getAllChats(limit, offset);
+    return NextResponse.json({ success: true, ...result });
+  }
 
-        } else if (payload.role === 'PROSPECT') {
-            const clientProfile = await prisma.clientProfile.findUnique({
-                where: { userId: payload.userId }
-            });
-
-            if (!clientProfile) {
-                return NextResponse.json({ success: true, chats: [] });
-            }
-
-            chats = await prisma.chat.findMany({
-                where: { clientId: clientProfile.id },
-                include: {
-                    coach: {
-                        include: {
-                            user: {
-                                select: { id: true, name: true, email: true, avatar: true }
-                            },
-                            discipline: {
-                                select: { id: true, name: true }
-                            }
-                        }
-                    },
-                    _count: { select: { messages: true } }
-                },
-                orderBy: { updatedAt: 'desc' },
-            });
-            chats = chats.map((chat) => ({
-                ...chat,
-                coach: {
-                    ...chat.coach,
-                    user: {
-                        ...chat.coach.user,
-                        avatar: chat.coach.user.avatar ? getPublicUrl(chat.coach.user.avatar) : null,
-                    },
-                },
-            }));
-
-        } else if (payload.role === 'ADMIN') {
-            // Admin can see all chats
-            const url = new URL(req.url);
-            const limit = url.searchParams.get('limit');
-            const take = limit ? parseInt(limit, 10) : undefined;
-
-            chats = await prisma.chat.findMany({
-                include: {
-                    client: {
-                        include: {
-                            user: {
-                                select: { id: true, name: true, email: true, avatar: true }
-                            }
-                        }
-                    },
-                    coach: {
-                        include: {
-                            user: {
-                                select: { id: true, name: true, email: true, avatar: true }
-                            },
-                            discipline: {
-                                select: { id: true, name: true }
-                            }
-                        }
-                    },
-                    messages: {
-                        orderBy: { createdAt: 'desc' },
-                        take: 1,
-                        select: {
-                            content: true,
-                            createdAt: true,
-                        }
-                    },
-                    _count: { select: { messages: true } }
-                },
-                orderBy: { updatedAt: 'desc' },
-                take,
-            });
-            chats = chats.map((chat) => ({
-                ...chat,
-                lastMessage: chat.messages[0]?.content || null,
-                client: {
-                    ...chat.client,
-                    user: {
-                        ...chat.client.user,
-                        avatar: chat.client.user.avatar ? getPublicUrl(chat.client.user.avatar) : null,
-                    },
-                },
-                coach: {
-                    ...chat.coach,
-                    user: {
-                        ...chat.coach.user,
-                        avatar: chat.coach.user.avatar ? getPublicUrl(chat.coach.user.avatar) : null,
-                    },
-                },
-            }));
-        } else {
-            chats = [];
-        }
-
-        return NextResponse.json({ success: true, chats });
-    } catch (err: unknown) {
-        console.error('[GET /api/chat]', err);
-        return NextResponse.json({
-            success: false,
-            error: { code: 'INTERNAL_ERROR' }
-        }, { status: 500 });
-    }
+  return NextResponse.json({ success: true, chats: [] });
 }

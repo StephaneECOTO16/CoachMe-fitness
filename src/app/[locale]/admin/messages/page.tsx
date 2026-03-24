@@ -31,7 +31,7 @@ import styles from './page.module.css';
 
 export default function AdminMessagesPage() {
     const t = useTranslations('admin.messages');
-    const { token } = useAuth();
+    const { isAuthenticated } = useAuth();
     const { subscribeToChat, isConnected } = usePusher();
     const searchParams = useSearchParams();
 
@@ -56,11 +56,11 @@ export default function AdminMessagesPage() {
 
     // Fetch all conversations
     const fetchChats = useCallback(async () => {
-        if (!token) return;
+        if (!isAuthenticated) return;
         try {
             setIsLoadingChats(true);
             const res = await fetch('/api/chat', {
-                headers: { 'Authorization': `Bearer ${token}` }
+                credentials: 'include'
             });
             const data = await res.json();
 
@@ -75,15 +75,15 @@ export default function AdminMessagesPage() {
         } finally {
             setIsLoadingChats(false);
         }
-    }, [token]);
+    }, [isAuthenticated]);
 
     // Fetch messages for selected chat
     const fetchMessages = useCallback(async (chatId: string) => {
-        if (!token) return;
+        if (!isAuthenticated) return;
         try {
             setIsLoadingMessages(true);
             const res = await fetch(`/api/chat/${chatId}/messages`, {
-                headers: { 'Authorization': `Bearer ${token}` }
+                credentials: 'include'
             });
             const data = await res.json();
 
@@ -113,13 +113,13 @@ export default function AdminMessagesPage() {
         } finally {
             setIsLoadingMessages(false);
         }
-    }, [token]);
+    }, [isAuthenticated]);
 
     useEffect(() => {
-        if (token) {
+        if (isAuthenticated) {
             fetchChats();
         }
-    }, [token, fetchChats]);
+    }, [isAuthenticated, fetchChats]);
 
     const handleChatClick = (chatId: string) => {
         setSelectedChatId(chatId);
@@ -131,12 +131,12 @@ export default function AdminMessagesPage() {
         [chats, selectedChatId]);
 
     useEffect(() => {
-        if (selectedChatId && token) {
+        if (selectedChatId && isAuthenticated) {
             fetchMessages(selectedChatId);
         } else {
             setMessages([]);
         }
-    }, [selectedChatId, token, fetchMessages]);
+    }, [selectedChatId, isAuthenticated, fetchMessages]);
 
     // Handle incoming real-time messages
     const handleIncomingMessage = useCallback((newMessage: Message) => {

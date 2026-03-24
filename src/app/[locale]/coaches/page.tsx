@@ -31,7 +31,7 @@ interface Coach {
   youtube: string | null;
   status: string;
   user: {
-    id: number;
+    id: string;
     name: string | null;
     email: string;
     avatar: string | null;
@@ -151,7 +151,7 @@ export default function CoachesPage() {
   };
 
   const transformCoachData = (coach: Coach): CoachData => ({
-    _id: coach.id.toString(),
+    _id: coach.user.id,
     firstName: coach.user.name?.split(" ")[0] || "Coach",
     lastName: coach.user.name?.split(" ").slice(1).join(" ") || "",
     email: coach.user.email,

@@ -10,7 +10,7 @@ import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
 import { registerSchema, type RegisterInput } from "@/lib/schemas";
-import { useAuth } from "@/contexts/AuthContext";
+  
 import PublicRoute from "@/components/auth/PublicRoute";
 import toast from "@/lib/toast";
 import styles from "./page.module.css";
@@ -24,7 +24,6 @@ interface Discipline {
 export default function RegisterPage() {
   const t = useTranslations("auth");
   const router = useRouter();
-  const { login } = useAuth();
   const [disciplines, setDisciplines] = useState<Discipline[]>([]);
   const [loadingDisciplines, setLoadingDisciplines] = useState(true);
 
@@ -41,6 +40,7 @@ export default function RegisterPage() {
       email: "",
       password: "",
       confirmPassword: "",
+      phone: "",
       termsAccepted: false,
       ageRange: "",
       heightCm: "",
@@ -81,8 +81,9 @@ export default function RegisterPage() {
         name: data.name,
         email: data.email,
         password: data.password,
+        phone: data.phone,
       };
-
+ 
       if (data.accountType === "PROSPECT") {
         if (data.ageRange) payload.ageRange = data.ageRange;
         if (data.heightCm) payload.heightCm = parseFloat(data.heightCm);
@@ -93,7 +94,7 @@ export default function RegisterPage() {
         if (data.bio) payload.bio = data.bio;
         if (data.portfolio) payload.portfolio = data.portfolio;
       }
-
+ 
       const response = await fetch("/api/auth/register", {
         method: "POST",
         headers: {
@@ -101,53 +102,25 @@ export default function RegisterPage() {
         },
         body: JSON.stringify(payload),
       });
-
+ 
       const result = await response.json();
-
+ 
       if (!response.ok) {
         throw new Error(result.error?.message || "Registration failed");
       }
-
+ 
       // Show success toast
       toast.success(
         t("registerSuccess"),
         data.accountType === "COACH"
-          ? "Your coach account is pending approval"
-          : "Logging you in..."
+          ? "Your coach account is pending approval. Please log in to continue."
+          : "Registration successful! Please log in to continue."
       );
-
-      // Auto-login by fetching token
-      const loginResponse = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email: data.email,
-          password: data.password,
-        }),
-      });
-
-      const loginResult = await loginResponse.json();
-
-      if (loginResult.token) {
-        login(loginResult.token);
-
-        // Redirect based on account type
-        setTimeout(() => {
-          if (data.accountType === "COACH") {
-            router.push("/coach/dashboard");
-          } else {
-            router.push("/dashboard");
-          }
-        }, 500);
-      } else {
-        // If auto-login fails, redirect to login page
-        toast.info("Please log in to continue");
-        setTimeout(() => {
-          router.push("/login");
-        }, 1500);
-      }
+ 
+      // Redirect to login page after a short delay
+      setTimeout(() => {
+        router.push("/login");
+      }, 2000);
     } catch (err) {
       const errorMessage =
         err instanceof Error ? err.message : "An error occurred";
@@ -220,6 +193,16 @@ export default function RegisterPage() {
                   placeholder="name@example.com"
                   error={errors.email?.message}
                   {...register("email")}
+                />
+
+                <Input
+                  type="tel"
+                  label={t("phoneNumber")}
+                  placeholder="+237659037423"
+                  required={accountType === "COACH"}
+                  error={errors.phone?.message}
+                  helperText={accountType === "COACH" ? "" : undefined}
+                  {...register("phone")}
                 />
 
                 <Input

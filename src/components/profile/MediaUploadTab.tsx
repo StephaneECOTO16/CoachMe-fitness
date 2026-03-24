@@ -33,18 +33,18 @@ export default function MediaUploadTab() {
   const tCommon = useTranslations('common');
   const tMedia = useTranslations('coachDashboard.settingsModal.media');
   const tVal = useTranslations('validation');
-  const { token } = useAuth();
+  const { isAuthenticated } = useAuth();
   const [mediaFiles, setMediaFiles] = useState<MediaFile[]>([]);
   const [uploadingFiles, setUploadingFiles] = useState<Record<string, UploadingFile>>({});
   const [loading, setLoading] = useState(true);
 
   // Fetch existing media files
   const fetchMediaFiles = useCallback(async () => {
-    if (!token) return;
+    if (!isAuthenticated) return;
 
     try {
       const response = await fetch('/api/coach/media', {
-        headers: { Authorization: `Bearer ${token}` },
+        credentials: 'include',
       });
       const data = await response.json();
 
@@ -57,7 +57,7 @@ export default function MediaUploadTab() {
     } finally {
       setLoading(false);
     }
-  }, [token, t]);
+  }, [isAuthenticated, t]);
 
   useEffect(() => {
     fetchMediaFiles();
@@ -113,8 +113,8 @@ export default function MediaUploadTab() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
         },
+        credentials: 'include',
         body: JSON.stringify({
           fileName: processedFile.name,
           mimeType: processedFile.type,
@@ -125,7 +125,7 @@ export default function MediaUploadTab() {
       const presignedData = await presignedResponse.json();
       if (!presignedData.success) throw new Error('Failed to get upload URL');
 
-      const { url: uploadUrl, key } = presignedData.presignedUrl;
+      const { uploadUrl, key } = presignedData.presignedUrl;
 
       // Step 2: Upload to R2 with progress tracking
       await new Promise<void>((resolve, reject) => {
@@ -161,8 +161,8 @@ export default function MediaUploadTab() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
         },
+        credentials: 'include',
         body: JSON.stringify({
           s3Key: key,
           mimeType: processedFile.type,
@@ -190,7 +190,7 @@ export default function MediaUploadTab() {
         return updated;
       });
     }
-  }, [token, t, compressImage, fetchMediaFiles]);
+  }, [isAuthenticated, t, compressImage, fetchMediaFiles]);
 
   // Handle file drop
   const handleDrop = useCallback((acceptedFiles: File[], type: 'CERTIFICATE' | 'IMAGE' | 'VIDEO') => {
@@ -204,7 +204,7 @@ export default function MediaUploadTab() {
     try {
       const response = await fetch(`/api/coach/media/${mediaId}`, {
         method: 'DELETE',
-        headers: { Authorization: `Bearer ${token}` },
+        credentials: 'include',
       });
 
       const data = await response.json();
@@ -373,7 +373,7 @@ function FileList({
   files: MediaFile[];
   onDelete: (id: number, name: string) => void;
   showPreview?: boolean;
-  tMedia: (key: string, values?: Record<string, unknown>) => string;
+  tMedia: (key: string, values?: any) => string;
 }) {
   if (files.length === 0) {
     return (

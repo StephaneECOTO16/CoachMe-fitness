@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { prisma } from '@/lib/db';
 import { requireAuth } from '@/lib/auth';
-import { generatePresignedUrl, getPublicUrl } from '@/lib/aws-s3';
+import { generateCoachMediaPresignedUrl, getPublicUrl } from '@/lib/storage';
 
 /**
  * POST /api/coach/media/presigned-url
@@ -10,7 +10,7 @@ import { generatePresignedUrl, getPublicUrl } from '@/lib/aws-s3';
  * Only authenticated COACH users can request presigned URLs.
  */
 export async function POST(req: Request) {
-    const payload = await requireAuth(req, ['COACH'], { checkCoachStatus: false });
+    const payload = await requireAuth(req, { allowedRoles: ['COACH'], checkCoachStatus: false });
     if (!payload) return NextResponse.json({ success: false, error: { code: 'UNAUTHORIZED' } }, { status: 401 });
 
     try {
@@ -29,7 +29,7 @@ export async function POST(req: Request) {
         }
 
         // Generate presigned URL
-        const presigned = await generatePresignedUrl(fileName, mimeType, coachProfile.id, fileSize);
+        const presigned = await generateCoachMediaPresignedUrl(coachProfile.id, fileName, mimeType, fileSize);
 
         return NextResponse.json({ success: true, presignedUrl: presigned });
     } catch (err: any) {

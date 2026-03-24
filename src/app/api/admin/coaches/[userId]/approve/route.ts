@@ -1,39 +1,37 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { prisma } from '@/lib/db';
 import { requireAuth } from '@/lib/auth';
 import { sendMail, getCoachApprovedTemplate } from "@/lib/mail";
 
 /**
- * POST /api/admin/coaches/:coachId/approve
+ * POST /api/admin/coaches/:userId/approve
  * Admin endpoint to approve a coach profile and make them visible.
  * Creates an AdminReview record for audit trail.
  */
-export async function POST(req: Request, { params }: { params: Promise<{ coachId: string }> }) {
-    const payload = await requireAuth(req, ['ADMIN']);
+export async function POST(req: Request, { params }: { params: Promise<{ userId: string }> }) {
+    const payload = await requireAuth(req, { allowedRoles: ['ADMIN'] });
     if (!payload) return NextResponse.json({ success: false, error: { code: 'UNAUTHORIZED' } }, { status: 401 });
 
-    const { coachId: coachIdParam } = await params;
-    const coachId = parseInt(coachIdParam);
-    if (isNaN(coachId)) return NextResponse.json({ success: false, error: { code: 'INVALID_INPUT' } }, { status: 400 });
+    const { userId } = await params;
 
     try {
         const coach = await prisma.coachProfile.findUnique({
-            where: { id: coachId },
-            include: { user: true } // Include user to get email
+            where: { userId: userId }, // Query by unique User UUID
+            include: { user: true }
         });
         if (!coach) return NextResponse.json({ success: false, error: { code: 'NOT_FOUND' } }, { status: 404 });
 
         // Update coach status to APPROVED
         const updated = await prisma.coachProfile.update({
-            where: { id: coachId },
+            where: { id: coach.id }, // Use internal ID for update
             data: { status: 'APPROVED' },
         });
 
         // Create audit record
         await prisma.adminReview.create({
             data: {
-                coachId,
-                adminId: payload.userId,
+                coachId: coach.id,
+                adminId: payload.userId, // This is the admin's UUID
                 action: 'APPROVED',
                 comment: req.headers.get('x-comment') || undefined,
             },
@@ -50,7 +48,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ coachId
 
         return NextResponse.json({ success: true, coach: updated });
     } catch (err) {
-        console.error('[POST /api/admin/coaches/:coachId/approve]', err);
+        console.error('[POST /api/admin/coaches/:userId/approve]', err);
         return NextResponse.json({ success: false, error: { code: 'INTERNAL_ERROR' } }, { status: 500 });
     }
 }

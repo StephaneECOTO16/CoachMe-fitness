@@ -20,19 +20,17 @@ export default function MessagesPage() {
   const t = useTranslations("messages");
   const tErrors = useTranslations("errors");
   const locale = useLocale();
-  const { user, token } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   const [chats, setChats] = useState<Chat[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchChats = async () => {
-      if (!token) return;
+      if (!isAuthenticated) return;
 
       try {
         const response = await fetch("/api/chat", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          credentials: "include",
         });
         const data = await response.json();
         if (data.success) {
@@ -49,7 +47,7 @@ export default function MessagesPage() {
     };
 
     fetchChats();
-  }, [token, tErrors]);
+  }, [isAuthenticated, tErrors]);
 
 
 

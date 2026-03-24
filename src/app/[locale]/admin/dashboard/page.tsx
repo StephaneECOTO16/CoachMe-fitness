@@ -30,14 +30,14 @@ interface Stats {
 
 interface PendingCoach {
   id: number;
-  userId: number;
+  userId: string;
   bio: string | null;
   discipline: string;
   portfolio: string | null;
   status: string;
   createdAt: string;
   user: {
-    id: number;
+    id: string;
     name: string | null;
     email: string;
     avatar: string | null;
@@ -57,7 +57,7 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true);
   const [rejectModalOpen, setRejectModalOpen] = useState(false);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
-  const [selectedCoachId, setSelectedCoachId] = useState<number | null>(null);
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const [rejectionReason, setRejectionReason] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
 
@@ -69,13 +69,9 @@ export default function AdminDashboard() {
 
   const fetchDashboardData = async () => {
     try {
-      const token = localStorage.getItem('token');
-
       // Fetch stats
       const statsRes = await fetch('/api/admin/stats', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
+        credentials: 'include',
       });
       const statsData = await statsRes.json();
       if (statsData.success) {
@@ -87,9 +83,7 @@ export default function AdminDashboard() {
 
       // Fetch pending coaches
       const coachesRes = await fetch('/api/admin/coaches?status=PENDING&limit=5', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
+        credentials: 'include',
       });
       const coachesData = await coachesRes.json();
       if (coachesData.success) {
@@ -100,9 +94,7 @@ export default function AdminDashboard() {
 
       // Fetch recent chats
       const chatsRes = await fetch('/api/chat?limit=5', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
+        credentials: 'include',
       });
       const chatsData = await chatsRes.json();
       if (chatsData.success) {
@@ -134,19 +126,16 @@ export default function AdminDashboard() {
     router.push(`/admin/messages?chatId=${chatId}`);
   };
 
-  const handleApprove = async (coachId: number) => {
+  const handleApprove = async (userId: string) => {
     try {
-      const token = localStorage.getItem('token');
-      const res = await fetch(`/api/admin/coaches/${coachId}/approve`, {
+      const res = await fetch(`/api/admin/coaches/${userId}/approve`, {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
+        credentials: 'include',
       });
 
       if (res.ok) {
         toast.success(t('messages.approveSuccess'));
-        setPendingCoaches((prev) => prev.filter((c) => c.id !== coachId));
+        setPendingCoaches((prev) => prev.filter((c) => c.user.id !== userId));
         // Optionally decrement pending stats count locally
         setStats(prev => prev ? { ...prev, pendingCoaches: prev.pendingCoaches - 1, approvedCoaches: prev.approvedCoaches + 1 } : null);
       } else {
@@ -158,21 +147,19 @@ export default function AdminDashboard() {
     }
   };
 
-  const openRejectModal = (coachId: number) => {
-    setSelectedCoachId(coachId);
-    const coach = pendingCoaches.find(c => c.id === coachId);
-    if (coach) setSelectedCoach(coach);
+  const openRejectModal = (userId: string) => {
+    setSelectedUserId(userId);
     setRejectionReason('');
     setRejectModalOpen(true);
   };
 
   const handleOpenView = (coach: PendingCoach) => {
-    setSelectedCoachId(coach.id);
+    setSelectedUserId(coach.user.id);
     setIsViewModalOpen(true);
   };
 
   const handleReject = async () => {
-    if (!selectedCoachId || !rejectionReason.trim()) {
+    if (!selectedUserId || !rejectionReason.trim()) {
       toast.error(t('messages.provideReason'));
       return;
     }
@@ -184,19 +171,18 @@ export default function AdminDashboard() {
 
     setIsProcessing(true);
     try {
-      const token = localStorage.getItem('token');
-      const res = await fetch(`/api/admin/coaches/${selectedCoachId}/reject`, {
+      const res = await fetch(`/api/admin/coaches/${selectedUserId}/reject`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({ reason: rejectionReason }),
       });
 
       if (res.ok) {
         toast.success(t('messages.rejectSuccess'));
-        setPendingCoaches((prev) => prev.filter((c) => c.id !== selectedCoachId));
+        setPendingCoaches((prev) => prev.filter((c) => c.user.id !== selectedUserId));
         // Optionally update stats locally
         setStats(prev => prev ? { ...prev, pendingCoaches: prev.pendingCoaches - 1, rejectedCoaches: prev.rejectedCoaches + 1 } : null);
         setRejectModalOpen(false);
@@ -262,15 +248,13 @@ export default function AdminDashboard() {
 
     setIsCreatingDiscipline(true);
     try {
-      const token = localStorage.getItem('token');
-
       // 1. Upload Image
       const presignedResponse = await fetch('/api/admin/media/presigned-url', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
         },
+        credentials: 'include',
         body: JSON.stringify({
           fileName: newDisciplineImage.file.name,
           mimeType: newDisciplineImage.file.type,
@@ -280,7 +264,7 @@ export default function AdminDashboard() {
 
       const presignedData = await presignedResponse.json();
       if (!presignedData.success) throw new Error('Failed to get upload URL');
-      const { url: uploadUrl, key } = presignedData.presignedUrl;
+      const { uploadUrl, key } = presignedData.presignedUrl;
 
       await fetch(uploadUrl, {
         method: 'PUT',
@@ -293,8 +277,8 @@ export default function AdminDashboard() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
         },
+        credentials: 'include',
         body: JSON.stringify({
           name: newDisciplineName,
           imageKey: key,
@@ -482,13 +466,12 @@ export default function AdminDashboard() {
               <CoachDetailsModal
                 isOpen={isViewModalOpen}
                 onClose={() => setIsViewModalOpen(false)}
-                coachId={selectedCoachId}
+                userId={selectedUserId}
                 onApprove={async (id) => {
                   await handleApprove(id);
                 }}
                 onReject={(id) => {
-                  setSelectedCoachId(id);
-                  setRejectModalOpen(true);
+                  openRejectModal(id);
                   setIsViewModalOpen(false);
                 }}
               />

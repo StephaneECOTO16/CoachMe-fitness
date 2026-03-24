@@ -1,162 +1,25 @@
+//
+// Key changes from previous version:
+//  1. User.id: Int @default(autoincrement()) → String @id @default(uuid())
+//     All foreign keys that reference User.id are updated to String.
+//  2. User.phone: new optional field (E.164 format recommended)
+//  3. All other model IDs remain Int — they are never exposed in URLs
+//     and the sequential nature aids query performance on joins.
+//
+// Migration strategy (data-preserving):
+//  See migration file 20250321_uuid_phone for the step-by-step SQL.
+
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("POSTGRES_PRISMA_URL") // pooled (PgBouncer) for runtime
+  directUrl = env("DATABASE_URL")         // direct connection for migrations
 }
 
-model User {
-  id                  Int                  @id @default(autoincrement())
-  email               String               @unique
-  password            String
-  role                UserRole             @default(PROSPECT)
-  name                String?
-  avatar              String?
-  createdAt           DateTime             @default(now())
-  updatedAt           DateTime             @updatedAt
-  adminReviews        AdminReview[]
-  clientProfile       ClientProfile?
-  coachProfile        CoachProfile?
-  medias              Media[]
-  messagesSent        Message[]            @relation("senderMessages")
-  passwordResetTokens PasswordResetToken[]
-}
-
-model CoachProfile {
-  id              Int             @id @default(autoincrement())
-  userId          Int             @unique
-  bio             String?
-  disciplineId    Int
-  discipline      Discipline      @relation(fields: [disciplineId], references: [id])
-  portfolio       String?
-  rateAmount      Decimal?        @db.Decimal(10, 2)
-  rateType        RateType        @default(HOUR)
-  address         String?
-  city            String?
-  country         String?         @default("Cameroon")
-  minRating       Float?          @default(0)
-  experienceYears Int?            @default(0)
-  instagram       String?
-  facebook        String?
-  tiktok          String?
-  twitter         String?
-  youtube         String?
-  status          ApprovalStatus  @default(PENDING)
-  statusReason    String?
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime        @updatedAt
-  adminReviews    AdminReview[]
-  chatsAsCoach    Chat[]          @relation("coachChats")
-  user            User            @relation(fields: [userId], references: [id], onDelete: Cascade)
-  commissionLogs  CommissionLog[]
-  media           Media[]
-
-  @@index([disciplineId])
-}
-
-model ClientProfile {
-  id        Int      @id @default(autoincrement())
-  userId    Int      @unique
-  ageRange  String?
-  heightCm  Int?
-  weightKg  Int?
-  goals     String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  chats     Chat[]   @relation("clientChats")
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-}
-
-model Media {
-  id          Int           @id @default(autoincrement())
-  ownerId     Int?
-  coachId     Int?
-  url         String
-  type        MediaType
-  mimeType    String
-  sizeBytes   Int?
-  description String?
-  createdAt   DateTime      @default(now())
-  coach       CoachProfile? @relation(fields: [coachId], references: [id], onDelete: Cascade)
-  owner       User?         @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-
-  @@index([ownerId])
-  @@index([coachId])
-}
-
-model Chat {
-  id        Int           @id @default(autoincrement())
-  coachId   Int
-  clientId  Int
-  createdAt DateTime      @default(now())
-  updatedAt DateTime      @updatedAt
-  client    ClientProfile @relation("clientChats", fields: [clientId], references: [id], onDelete: Cascade)
-  coach     CoachProfile  @relation("coachChats", fields: [coachId], references: [id], onDelete: Cascade)
-  messages  Message[]
-
-  @@index([coachId])
-  @@index([clientId])
-}
-
-model Message {
-  id        Int      @id @default(autoincrement())
-  chatId    Int
-  senderId  Int
-  content   String
-  isRead    Boolean  @default(false)
-  createdAt DateTime @default(now())
-  chat      Chat     @relation(fields: [chatId], references: [id], onDelete: Cascade)
-  sender    User     @relation("senderMessages", fields: [senderId], references: [id], onDelete: Cascade)
-
-  @@index([chatId])
-  @@index([senderId])
-}
-
-model AdminReview {
-  id        Int          @id @default(autoincrement())
-  coachId   Int
-  adminId   Int
-  action    ReviewAction
-  comment   String?
-  createdAt DateTime     @default(now())
-  admin     User         @relation(fields: [adminId], references: [id], onDelete: Cascade)
-  coach     CoachProfile @relation(fields: [coachId], references: [id], onDelete: Cascade)
-}
-
-model Discipline {
-  id        Int            @id @default(autoincrement())
-  name      String         @unique
-  imageUrl  String?
-  createdAt DateTime       @default(now())
-  updatedAt DateTime       @updatedAt
-  coaches   CoachProfile[]
-}
-
-model CommissionLog {
-  id        Int          @id @default(autoincrement())
-  coachId   Int
-  amount    Decimal      @db.Decimal(10, 2)
-  reference String?
-  note      String?
-  createdAt DateTime     @default(now())
-  coach     CoachProfile @relation(fields: [coachId], references: [id], onDelete: Cascade)
-}
-
-/// Stores password reset tokens for secure password recovery.
-/// Tokens expire after 1 hour and are single-use.
-model PasswordResetToken {
-  id        Int      @id @default(autoincrement())
-  userId    Int
-  token     String   @unique
-  expiresAt DateTime
-  used      Boolean  @default(false)
-  createdAt DateTime @default(now())
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
-}
+// ─── Enums ────────────────────────────────────────────────────────────────────
 
 enum UserRole {
   PROSPECT
@@ -189,4 +52,199 @@ enum RateType {
   MONTH
 }
 
+// ─── Models ───────────────────────────────────────────────────────────────────
 
+model User {
+  /// UUID primary key — prevents sequential ID enumeration attacks
+  id        String   @id @default(uuid()) @db.Uuid
+  email     String   @unique
+  password  String
+
+  role      UserRole @default(PROSPECT)
+  name      String?
+
+  /// Optional phone number in E.164 format, e.g. +237659037423
+  /// Collected at registration and displayed in admin user detail view.
+  phone     String?
+
+  avatar    String?  // R2 object key (resolved to URL at read time)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  coachProfile        CoachProfile?
+  clientProfile       ClientProfile?
+  medias              Media[]
+  messagesSent        Message[]            @relation("senderMessages")
+  adminReviews        AdminReview[]        @relation("adminReviewer")
+  passwordResetTokens PasswordResetToken[]
+}
+
+model CoachProfile {
+  id              Int            @id @default(autoincrement())
+
+  /// FK to User — String to match User.id UUID type
+  userId          String         @unique @db.Uuid
+  user            User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  bio             String?
+  disciplineId    Int
+  discipline      Discipline     @relation(fields: [disciplineId], references: [id])
+  portfolio       String?
+
+  rateAmount      Decimal?       @db.Decimal(10, 2)
+  rateType        RateType       @default(HOUR)
+
+  address         String?
+  city            String?
+  country         String?        @default("Cameroon")
+  minRating       Float?         @default(0)
+  experienceYears Int?           @default(0)
+
+  instagram       String?
+  facebook        String?
+  tiktok          String?
+  twitter         String?
+  youtube         String?
+
+  status          ApprovalStatus @default(PENDING)
+  statusReason    String?
+
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  // Relations
+  adminReviews   AdminReview[]
+  chatsAsCoach   Chat[]          @relation("coachChats")
+  commissionLogs CommissionLog[]
+  media          Media[]
+
+  @@index([disciplineId])
+  @@index([status])                    // Frequently filtered in admin queries
+  @@index([status, createdAt])         // Pagination of pending coaches by date
+}
+
+model ClientProfile {
+  id        Int      @id @default(autoincrement())
+
+  /// FK to User — String to match User.id UUID type
+  userId    String   @unique @db.Uuid
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  ageRange  String?
+  heightCm  Int?
+  weightKg  Int?
+  goals     String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  chats Chat[] @relation("clientChats")
+}
+
+model Media {
+  id          Int           @id @default(autoincrement())
+
+  /// Owner FK — String to match User.id UUID type
+  ownerId     String?       @db.Uuid
+  owner       User?         @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+
+  coachId     Int?
+  coach       CoachProfile? @relation(fields: [coachId], references: [id], onDelete: Cascade)
+
+  url         String        // R2 object key
+  type        MediaType
+  mimeType    String
+  sizeBytes   Int?
+  description String?
+
+  createdAt   DateTime      @default(now())
+
+  @@index([ownerId])
+  @@index([coachId])
+  @@index([coachId, type])  // Queried frequently to split certificate/image/video
+}
+
+model Chat {
+  id        Int           @id @default(autoincrement())
+  coachId   Int
+  clientId  Int
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  coach     CoachProfile  @relation("coachChats", fields: [coachId], references: [id], onDelete: Cascade)
+  client    ClientProfile @relation("clientChats", fields: [clientId], references: [id], onDelete: Cascade)
+  messages  Message[]
+
+  @@index([coachId])
+  @@index([clientId])
+  @@unique([coachId, clientId]) // One chat per coach-client pair
+}
+
+model Message {
+  id        Int      @id @default(autoincrement())
+  chatId    Int
+  senderId  String   @db.Uuid  // FK to User.id (UUID)
+  content   String
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  chat   Chat @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  sender User @relation("senderMessages", fields: [senderId], references: [id], onDelete: Cascade)
+
+  @@index([chatId])
+  @@index([senderId])
+}
+
+model AdminReview {
+  id        Int          @id @default(autoincrement())
+  coachId   Int
+  adminId   String       @db.Uuid  // FK to User.id (UUID)
+  action    ReviewAction
+  comment   String?
+  createdAt DateTime     @default(now())
+
+  coach CoachProfile @relation(fields: [coachId], references: [id], onDelete: Cascade)
+  admin User         @relation("adminReviewer", fields: [adminId], references: [id], onDelete: Cascade)
+}
+
+model Discipline {
+  id        Int            @id @default(autoincrement())
+  name      String         @unique
+  imageUrl  String?        // R2 object key
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+
+  coaches   CoachProfile[]
+}
+
+model CommissionLog {
+  id        Int          @id @default(autoincrement())
+  coachId   Int
+  amount    Decimal      @db.Decimal(10, 2)
+  reference String?
+  note      String?
+  createdAt DateTime     @default(now())
+
+  coach CoachProfile @relation(fields: [coachId], references: [id], onDelete: Cascade)
+}
+
+/// Stores single-use password reset tokens.
+/// Tokens expire after 1 hour and are invalidated immediately after use
+/// or when the user changes their password via the settings page.
+model PasswordResetToken {
+  id        Int      @id @default(autoincrement())
+
+  /// FK to User — String to match User.id UUID type
+  userId    String   @db.Uuid
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  token     String   @unique
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([token])
+}

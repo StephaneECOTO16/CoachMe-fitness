@@ -46,6 +46,7 @@
     "password": "Password",
     "confirmPassword": "Confirm Password",
     "fullName": "Full Name",
+    "phoneNumber": "Phone Number",
     "forgotPassword": "Forgot Password?",
     "rememberMe": "Remember me",
     "noAccount": "Don't have an account?",
@@ -57,8 +58,9 @@
     "registerButton": "Create Account",
     "loggingIn": "Signing in...",
     "registering": "Creating account...",
-    "loginSuccess": "Login successful! Redirecting...",
-    "registerSuccess": "Account created successfully! Redirecting...",
+    "loginSuccess": "Login successful!",
+    "registerSuccess": "Account created successfully!",
+    "redirecting": "Redirecting...",
     "acceptTerms": "I accept the",
     "termsConditions": "Terms and Conditions",
     "accountType": "Account Type",
@@ -489,6 +491,7 @@
     "location": "Location",
     "address": "Address",
     "socialMedia": "Social Media",
+    "notSet": "Not set",
     "notFound": {
       "title": "Profile Not Found",
       "message": "Unable to load your profile data."
@@ -498,6 +501,7 @@
       "editProfile": "Edit Profile",
       "name": "Name",
       "email": "Email",
+      "phone": "Phone Number",
       "role": "Role",
       "memberSince": "Member Since",
       "coachProfile": "Coach Profile",
@@ -539,7 +543,8 @@
       "disciplineRequired": "Discipline is required",
       "invalidUrl": "Must be a valid URL",
       "ratePositive": "Rate must be positive",
-      "experienceNonNegative": "Experience years must be 0 or more"
+      "experienceNonNegative": "Experience years must be 0 or more",
+      "invalidPhone": "Phone must be in E.164 format, e.g. +2376XXXXXXXXX"
     },
     "tabs": {
       "profile": "Profile",

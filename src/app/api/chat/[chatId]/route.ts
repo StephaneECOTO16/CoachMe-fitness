@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { prisma } from '@/lib/db';
 import { requireAuth } from '@/lib/auth';
-import { getPublicUrl } from '@/lib/aws-s3';
+import { getPublicUrl } from '@/lib/storage';
 
 /**
  * GET /api/chat/[chatId]

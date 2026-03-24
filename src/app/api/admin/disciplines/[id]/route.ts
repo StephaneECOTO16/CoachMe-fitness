@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { prisma } from '@/lib/db';
 import { requireAuth } from '@/lib/auth';
 import { z } from 'zod';
 import { parseRequestBody } from '@/lib/schemas';
-import { deleteMediaFromS3 } from '@/lib/aws-s3';
+import { deleteFromStorage } from '@/lib/storage';
 
 const UpdateDisciplineSchema = z.object({
     name: z.string().min(2).optional(),
@@ -18,7 +18,7 @@ export async function PATCH(
     req: Request,
     { params }: { params: Promise<{ id: string }> }
 ) {
-    const payload = await requireAuth(req, ['ADMIN']);
+    const payload = await requireAuth(req, { allowedRoles: ['ADMIN'] });
     if (!payload) {
         return NextResponse.json({ success: false, error: { code: 'UNAUTHORIZED' } }, { status: 401 });
     }
@@ -36,7 +36,7 @@ export async function PATCH(
     }
 
     try {
-        const updateData: Record<string, any> = {};
+        const updateData: Record<string, unknown> = {};
         if (data?.name) updateData.name = data.name;
 
         if (data?.imageKey) {
@@ -50,7 +50,7 @@ export async function PATCH(
 
             // Delete old image from S3 if it exists and is different
             if (oldDiscipline?.imageUrl && oldDiscipline.imageUrl !== data.imageKey) {
-                await deleteMediaFromS3(oldDiscipline.imageUrl);
+                await deleteFromStorage(oldDiscipline.imageUrl);
             }
         }
 
@@ -60,9 +60,10 @@ export async function PATCH(
         });
 
         return NextResponse.json({ success: true, discipline });
-    } catch (err: any) {
+    } catch (err: unknown) {
+        const error = err as { code?: string; message?: string };
         console.error(`[PATCH /api/admin/disciplines/${id}]`, err);
-        if (err.code === 'P2025') {
+        if (error.code === 'P2025') {
             return NextResponse.json({ success: false, error: { code: 'NOT_FOUND', message: 'Discipline not found' } }, { status: 404 });
         }
         return NextResponse.json({ success: false, error: { code: 'INTERNAL_ERROR' } }, { status: 500 });
@@ -77,7 +78,7 @@ export async function DELETE(
     req: Request,
     { params }: { params: Promise<{ id: string }> }
 ) {
-    const payload = await requireAuth(req, ['ADMIN']);
+    const payload = await requireAuth(req, { allowedRoles: ['ADMIN'] });
     if (!payload) {
         return NextResponse.json({ success: false, error: { code: 'UNAUTHORIZED' } }, { status: 401 });
     }
@@ -117,13 +118,14 @@ export async function DELETE(
 
         // Delete image from S3 if it exists
         if (discipline?.imageUrl) {
-            await deleteMediaFromS3(discipline.imageUrl);
+            await deleteFromStorage(discipline.imageUrl);
         }
 
         return NextResponse.json({ success: true });
-    } catch (err: any) {
+    } catch (err: unknown) {
+        const error = err as { code?: string; message?: string };
         console.error(`[DELETE /api/admin/disciplines/${id}]`, err);
-        if (err.code === 'P2025') {
+        if (error.code === 'P2025') {
             return NextResponse.json({ success: false, error: { code: 'NOT_FOUND', message: 'Discipline not found' } }, { status: 404 });
         }
         return NextResponse.json({ success: false, error: { code: 'INTERNAL_ERROR' } }, { status: 500 });

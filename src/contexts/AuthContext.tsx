@@ -1,3 +1,15 @@
+/**
+ * Authentication context — provides user identity to all client components.
+ *
+ * Token storage: HttpOnly cookie only (set by the server on login).
+ * The client never reads or stores the JWT — it calls /api/auth/me
+ * and receives the user's public claims. This eliminates the XSS
+ * token theft vector completely.
+ *
+ * The cookie is sent automatically on every same-origin request,
+ * so API calls do not need to manually attach Authorization headers.
+ */
+
 "use client";
 
 import React, {
@@ -6,151 +18,125 @@ import React, {
   useState,
   useEffect,
   useCallback,
+  useRef,
 } from "react";
 import { useRouter } from "@/i18n/routing";
+import { logger } from "@/lib/logger";
 
-interface User {
-  id: number;
-  userId: number;
+// ─── Types ────────────────────────────────────────────────────────────────────
+
+export interface AuthUser {
+  id: string;         // UUID
+  email: string;
+  name: string | null;
   role: "PROSPECT" | "COACH" | "ADMIN";
-  email?: string;
-  name?: string;
-  avatar?: string | null;
+  phone: string | null;
+  avatar: string | null;
 }
 
 interface AuthContextType {
-  user: User | null;
-  token: string | null;
+  user: AuthUser | null;
+  isAuthenticated: boolean;
   isLoading: boolean;
   isLoggingOut: boolean;
-  login: (token: string) => void;
-  updateUser: (updates: Partial<User>) => void;
-  logout: () => void;
-  isAuthenticated: boolean;
-  hasRole: (roles: string[]) => boolean;
+  /** Call after login to sync user state without a page reload. */
+  refreshUser: () => Promise<void>;
+  /** Call to refresh user state after a successful login API call. */
+  login: () => Promise<void>;
+  logout: () => Promise<void>;
+  hasRole: (roles: AuthUser["role"][]) => boolean;
 }
+
+// ─── Context ──────────────────────────────────────────────────────────────────
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [token, setToken] = useState<string | null>(null);
+  const [user, setUser] = useState<AuthUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const router = useRouter();
+  // Prevents double-fetch on React StrictMode double-invoke
+  const hydrated = useRef(false);
 
-  // Decode JWT token to get user info
-  const decodeToken = useCallback((token: string): User | null => {
+  /**
+   * Fetches the current user from /api/auth/me.
+   * The browser sends the session cookie automatically — no manual token needed.
+   */
+  const refreshUser = useCallback(async (): Promise<void> => {
     try {
-      const base64Url = token.split(".")[1];
-      const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
-      const jsonPayload = decodeURIComponent(
-        atob(base64)
-          .split("")
-          .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
-          .join("")
-      );
-      const payload = JSON.parse(jsonPayload);
+      const res = await fetch("/api/auth/me", {
+        // Always send cookies, even from client components
+        credentials: "include",
+        // Prevent browser from caching this — always want fresh data
+        headers: { "Cache-Control": "no-cache" },
+      });
 
-      // Check if token is expired
-      if (payload.exp && payload.exp * 1000 < Date.now()) {
-        return null;
+      if (!res.ok) {
+        setUser(null);
+        return;
       }
 
-      return {
-        id: payload.userId,
-        userId: payload.userId,
-        role: payload.role,
-        email: payload.email,
-        name: payload.name,
-        avatar: payload.avatar ?? null,
-      };
-    } catch (error) {
-      console.error("Error decoding token:", error);
-      return null;
+      const data = await res.json();
+      setUser(data.user ?? null);
+    } catch (err) {
+      // Network error — don't crash the app, just clear user
+      setUser(null);
     }
   }, []);
 
-  // Load token from localStorage on mount
+  // Hydrate on mount — single fetch, not polled
   useEffect(() => {
-    const storedToken = localStorage.getItem("token");
-    if (storedToken) {
-      const userData = decodeToken(storedToken);
-      if (userData) {
-        setToken(storedToken);
-        setUser(userData);
-      } else {
-        // Token is invalid or expired
-        localStorage.removeItem("token");
-      }
-    }
-    setIsLoading(false);
-  }, [decodeToken]);
+    if (hydrated.current) return;
+    hydrated.current = true;
 
-  const login = useCallback(
-    (newToken: string) => {
-      const userData = decodeToken(newToken);
-      if (userData) {
-        localStorage.setItem("token", newToken);
-        setToken(newToken);
-        setUser(userData);
-      }
-    },
-    [decodeToken]
-  );
+    refreshUser().finally(() => setIsLoading(false));
+  }, [refreshUser]);
 
-  const updateUser = useCallback((updates: Partial<User>) => {
-    setUser((prev) => (prev ? { ...prev, ...updates } : prev));
-  }, []);
-
-  const logout = useCallback(() => {
+  const logout = useCallback(async (): Promise<void> => {
     setIsLoggingOut(true);
-    const tokenToRevoke = localStorage.getItem("token");
-    localStorage.removeItem("token");
-    setToken(null);
-    setUser(null);
-
-    (async () => {
-      try {
-        await fetch("/api/auth/logout", {
-          method: "POST",
-          headers: tokenToRevoke ? { Authorization: `Bearer ${tokenToRevoke}` } : undefined,
-        });
-      } catch (error) {
-        void error;
-      } finally {
-        setIsLoggingOut(false);
-        router.push("/");
-      }
-    })();
+    try {
+      // Server clears the HttpOnly cookie
+      await fetch("/api/auth/logout", {
+        method: "POST",
+        credentials: "include",
+      });
+    } catch {
+      // Ignore network errors — we clear client state regardless
+    } finally {
+      setUser(null);
+      setIsLoggingOut(false);
+      router.push("/");
+    }
   }, [router]);
 
   const hasRole = useCallback(
-    (roles: string[]) => {
+    (roles: AuthUser["role"][]): boolean => {
       return user ? roles.includes(user.role) : false;
     },
     [user]
   );
 
-  const value: AuthContextType = {
-    user,
-    token,
-    isLoading,
-    isLoggingOut,
-    login,
-    updateUser,
-    logout,
-    isAuthenticated: !!user && !!token,
-    hasRole,
-  };
-
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider
+      value={{
+        user,
+        isAuthenticated: user !== null,
+        isLoading,
+        isLoggingOut,
+        refreshUser,
+        login: refreshUser, // login is an alias for refreshing after cookie is set
+        logout,
+        hasRole,
+      }}
+    >
+      {children}
+    </AuthContext.Provider>
+  );
 }
 
-export function useAuth() {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error("useAuth must be used within an AuthProvider");
-  }
-  return context;
+export function useAuth(): AuthContextType {
+  const ctx = useContext(AuthContext);
+  if (!ctx) throw new Error("useAuth must be used within AuthProvider");
+  return ctx;
 }

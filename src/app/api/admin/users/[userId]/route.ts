@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { prisma } from '@/lib/db';
 import { verifyJwt } from '@/lib/auth';
 
 /**
@@ -29,12 +29,11 @@ export async function DELETE(
             }, { status: 403 });
         }
 
-        const { userId: userIdParam } = await params;
-        const userId = parseInt(userIdParam);
-        if (isNaN(userId)) {
+        const { userId } = await params;
+        if (!userId) {
             return NextResponse.json({
                 success: false,
-                error: { code: 'INVALID_ID', message: 'Invalid user ID' }
+                error: { code: 'INVALID_ID', message: 'User ID is required' }
             }, { status: 400 });
         }
 
@@ -73,11 +72,12 @@ export async function DELETE(
             message: 'User deleted successfully'
         }, { status: 200 });
 
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error('[DELETE /api/admin/users/[userId]]', error);
 
         // Handle Prisma foreign key constraint errors
-        if (error.code === 'P2003') {
+        const err = error as { code?: string };
+        if (err.code === 'P2003') {
             return NextResponse.json({
                 success: false,
                 error: {

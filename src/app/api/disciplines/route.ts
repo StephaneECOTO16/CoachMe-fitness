@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
-import { getPublicUrl } from '@/lib/aws-s3';
+import { prisma } from '@/lib/db';
+import { getPublicUrl } from '@/lib/storage';
 
 /**
  * GET /api/disciplines
