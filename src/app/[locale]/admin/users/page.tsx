@@ -11,7 +11,7 @@ import Button from '@/components/ui/Button';
 import styles from './page.module.css';
 
 interface UserData {
-    id: number;
+    id: string;
     name: string | null;
     email: string;
     role: 'PROSPECT' | 'COACH';
@@ -48,9 +48,8 @@ export default function AdminUsersPage() {
     const fetchUsers = async () => {
         try {
             setLoading(true);
-            const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
             const res = await fetch('/api/admin/users', {
-                headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+                credentials: 'include'
             });
             const data = await res.json();
             if (data.success) {
@@ -71,16 +70,15 @@ export default function AdminUsersPage() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    const handleApprove = async (coachId: number) => {
+    const handleApprove = async (userId: string) => {
         if (!confirm(tCoaches('confirmApprove'))) return;
 
         try {
             setIsActionLoading(true);
-            const token = localStorage.getItem('token');
-            const res = await fetch(`/api/admin/coaches/${coachId}/approve`, {
+            const res = await fetch(`/api/admin/coaches/${userId}/approve`, {
                 method: 'POST',
+                credentials: 'include',
                 headers: {
-                    'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
                 }
             });
@@ -112,11 +110,10 @@ export default function AdminUsersPage() {
 
         setIsActionLoading(true);
         try {
-            const token = localStorage.getItem('token');
-            const res = await fetch(`/api/admin/coaches/${selectedUser.coachId}/reject`, {
+            const res = await fetch(`/api/admin/coaches/${selectedUser.id}/reject`, {
                 method: 'POST',
+                credentials: 'include',
                 headers: {
-                    'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({ reason: rejectionReason })
@@ -142,11 +139,10 @@ export default function AdminUsersPage() {
 
         setIsActionLoading(true);
         try {
-            const token = localStorage.getItem('token');
             const res = await fetch(`/api/admin/users/${selectedUser.id}`, {
                 method: 'DELETE',
+                credentials: 'include',
                 headers: {
-                    'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
                 }
             });
@@ -244,7 +240,7 @@ export default function AdminUsersPage() {
                 dropdownItems.push({
                     label: tUsers('approveCoach'),
                     icon: <CheckCircle size={16} />,
-                    onClick: () => handleApprove(user.coachId!)
+                    onClick: () => handleApprove(user.id)
                 });
             }
             if (user.status !== 'REJECTED') {
@@ -334,11 +330,11 @@ export default function AdminUsersPage() {
                 <CoachDetailsModal
                     isOpen={isViewModalOpen}
                     onClose={() => setIsViewModalOpen(false)}
-                    coachId={selectedUser.coachId}
+                    userId={selectedUser.id}
                     onApprove={async (id) => {
                         await handleApprove(id);
                     }}
-                    onReject={(id) => {
+                    onReject={() => {
                         // For simplicity on this page, we close and open the reject confirm
                         setIsViewModalOpen(false);
                         setIsRejectModalOpen(true);
@@ -360,8 +356,8 @@ export default function AdminUsersPage() {
                                     <p style={{ color: '#6b7280', margin: 0 }}>{selectedUser.email}</p>
                                     <div className="mt-2">
                                         <span style={{
-                                            background: selectedUser.role === 'COACH' ? '#eff6ff' : '#f5f3ff',
-                                            color: selectedUser.role === 'COACH' ? '#1e40af' : '#5b21b6',
+                                            background: (selectedUser.role as string) === 'COACH' ? '#eff6ff' : '#f5f3ff',
+                                            color: (selectedUser.role as string) === 'COACH' ? '#1e40af' : '#5b21b6',
                                             padding: '4px 12px',
                                             borderRadius: '20px',
                                             fontSize: '0.75rem',

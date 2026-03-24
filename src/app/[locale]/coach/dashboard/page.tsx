@@ -48,7 +48,7 @@ interface ProfileResponse {
 export default function CoachDashboard() {
   const t = useTranslations("coachDashboard");
   const tErrors = useTranslations("errors");
-  const { user, token } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   const router = useRouter();
   const [profile, setProfile] = useState<CoachProfile | null>(null);
   const [chats, setChats] = useState<Chat[]>([]);
@@ -68,14 +68,12 @@ export default function CoachDashboard() {
 
   useEffect(() => {
     const fetchDashboardData = async () => {
-      if (!token) return;
+      if (!isAuthenticated) return;
 
       try {
         // Fetch coach profile
         const profileRes = await fetch("/api/profile", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          credentials: "include",
         });
         const profileResponse = await profileRes.json();
         if (profileResponse.success) {
@@ -102,9 +100,7 @@ export default function CoachDashboard() {
 
         // Fetch coach's chats
         const chatsRes = await fetch("/api/chat", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          credentials: "include",
         });
         const chatsData = await chatsRes.json();
         if (chatsData.success) {
@@ -119,7 +115,7 @@ export default function CoachDashboard() {
     };
 
     fetchDashboardData();
-  }, [token, tErrors]);
+  }, [isAuthenticated, tErrors]);
 
   const handleCompleteProfile = () => {
     setShowWelcomePrompt(false);

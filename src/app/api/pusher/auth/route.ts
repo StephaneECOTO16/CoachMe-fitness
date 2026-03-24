@@ -7,7 +7,7 @@
 import { NextResponse } from "next/server";
 import { pusher } from "@/lib/pusher";
 import { requireAuth } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@/lib/db";
 
 export async function POST(req: Request) {
   // Verify user is authenticated

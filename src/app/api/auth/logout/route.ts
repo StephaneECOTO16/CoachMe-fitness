@@ -1,20 +1,13 @@
-import { NextResponse } from 'next/server';
-
 /**
  * POST /api/auth/logout
- * Clear the HTTP-only authentication cookie
+ * Clears the session cookie.
  */
+
+
+import { NextResponse } from "next/server";
+import { clearSessionCookie } from "@/lib/auth/index";
+
 export async function POST() {
-    const response = NextResponse.json({ success: true, message: 'Logged out successfully' });
-
-    // Clear the token cookie
-    response.cookies.set('token', '', {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        maxAge: 0, // Expire immediately
-        path: '/',
-    });
-
-    return response;
+  await clearSessionCookie();
+  return NextResponse.json({ success: true });
 }

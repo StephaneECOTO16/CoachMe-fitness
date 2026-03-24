@@ -53,9 +53,8 @@ export default function AdminDisciplinesPage() {
     const fetchDisciplines = useCallback(async () => {
         try {
             setLoading(true);
-            const token = localStorage.getItem('token');
             const res = await fetch('/api/admin/disciplines', {
-                headers: { 'Authorization': `Bearer ${token}` }
+                credentials: 'include'
             });
             const data = await res.json();
             if (data.success) {
@@ -176,7 +175,6 @@ export default function AdminDisciplinesPage() {
 
         setIsSubmitting(true);
         try {
-            const token = localStorage.getItem('token');
             let imageKey: string | undefined = undefined;
 
             // 1. Upload new image if provided
@@ -185,8 +183,8 @@ export default function AdminDisciplinesPage() {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
                     },
+                    credentials: 'include',
                     body: JSON.stringify({
                         fileName: image.file.name,
                         mimeType: image.file.type,
@@ -196,7 +194,7 @@ export default function AdminDisciplinesPage() {
                 const presignedData = await presignedRes.json();
                 if (!presignedData.success) throw new Error('Failed to get upload URL');
 
-                await fetch(presignedData.presignedUrl.url, {
+                await fetch(presignedData.presignedUrl.uploadUrl, {
                     method: 'PUT',
                     body: image.file,
                     headers: { 'Content-Type': image.file.type }
@@ -217,8 +215,8 @@ export default function AdminDisciplinesPage() {
                 method,
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
                 },
+                credentials: 'include',
                 body: JSON.stringify(body)
             });
             const data = await res.json();
@@ -248,10 +246,9 @@ export default function AdminDisciplinesPage() {
 
         setIsDeleting(true);
         try {
-            const token = localStorage.getItem('token');
             const res = await fetch(`/api/admin/disciplines/${disciplineToDelete.id}`, {
                 method: 'DELETE',
-                headers: { 'Authorization': `Bearer ${token}` }
+                credentials: 'include'
             });
             const data = await res.json();
 
@@ -289,7 +286,7 @@ export default function AdminDisciplinesPage() {
                         </div>
                     </div>
                     <div className={styles.headerRight}>
-                        <Button onClick={() => handleOpenModal()} icon={<Plus size={20} />}>
+                        <Button onClick={() => handleOpenModal()} leftIcon={<Plus size={20} />}>
                             {t('addDiscipline')}
                         </Button>
                     </div>
@@ -306,7 +303,7 @@ export default function AdminDisciplinesPage() {
                                 paginatedDisciplines.map((discipline) => (
                                     <div
                                         key={discipline.id}
-                                        ref={(el) => disciplineRefs.current[discipline.id] = el}
+                                        ref={(el) => { disciplineRefs.current[discipline.id] = el; }}
                                         className={`${styles.disciplineCard} ${highlightedId === discipline.id ? styles.highlighted : ''}`}
                                     >
                                         <div className={styles.imageWrapper}>
@@ -442,7 +439,7 @@ export default function AdminDisciplinesPage() {
                     size="sm"
                 >
                     <div className={styles.deleteConfirmContent}>
-                        <p>{tDash('deleteDiscipline.confirm', { name: disciplineToDelete?.name })}</p>
+                        <p>{tDash('deleteDiscipline.confirm', { name: disciplineToDelete?.name || '' })}</p>
                         <p className={styles.deleteWarning}>{tCommon('actionIrreversible') || 'This action cannot be undone.'}</p>
                         <div className={styles.modalFooter}>
                             <Button variant="outline" onClick={() => setIsDeleteModalOpen(false)} disabled={isDeleting}>

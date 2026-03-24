@@ -44,11 +44,18 @@ async function main() {
     if (coachesWithoutProfile.length > 0) {
         console.log(`\nFound ${coachesWithoutProfile.length} COACH users without CoachProfile`);
 
+        // Find a fallback discipline to connect to (relation field, not a string)
+        const fallbackDiscipline = await prisma.discipline.findFirst();
+        if (!fallbackDiscipline) {
+            console.error('❌ No disciplines found — cannot create CoachProfiles. Please seed disciplines first.');
+            return;
+        }
+
         for (const user of coachesWithoutProfile) {
             await prisma.coachProfile.create({
                 data: {
                     userId: user.id,
-                    discipline: 'General Fitness',
+                    disciplineId: fallbackDiscipline.id,
                     status: 'APPROVED',
                 },
             });

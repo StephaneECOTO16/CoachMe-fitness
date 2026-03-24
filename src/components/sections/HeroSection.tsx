@@ -41,7 +41,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
     if (useAnimatedName && userName) {
       return (
         <h1 className={styles.title}>
-          <AnimatedName name={userName} />
+          <AnimatedName prefix={typeof title === "string" ? title : ""} name={userName} />
         </h1>
       );
     }

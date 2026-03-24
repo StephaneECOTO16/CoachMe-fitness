@@ -1,256 +1,117 @@
-import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
-import { requireAuth, signJwt } from '@/lib/auth';
-import { getPublicUrl, deleteMediaFromS3 } from '@/lib/aws-s3';
-
 /**
- * GET /api/profile
- * Fetch the authenticated user's profile.
- * Returns prospect or coach profile based on user role.
+ * GET  /api/profile  → fetch own profile
+ * PATCH /api/profile  → update own profile (basic info, coach, client, or avatar)
+ *
+ * The PATCH body is discriminated by which fields are present.
+ * We use separate Zod schemas for each update type so validation
+ * is precise rather than a single permissive schema.
  */
+
+import { NextResponse } from "next/server";
+import { requireAuth } from "@/lib/auth";
+import {
+  getUserProfile,
+  updateBasicInfo,
+  updateCoachProfile,
+  updateClientProfile,
+  updateAvatar,
+} from "@/services/user.service";
+import {
+  UpdateBasicInfoSchema,
+  UpdateCoachProfileSchema,
+  UpdateClientProfileSchema,
+  UpdateAvatarSchema,
+} from "@/lib/validation/schemas";
+
 export async function GET(req: Request) {
-    const payload = await requireAuth(req, undefined, { checkCoachStatus: false });
-    if (!payload) return NextResponse.json({ success: false, error: { code: 'UNAUTHORIZED' } }, { status: 401 });
+  const payload = await requireAuth(req, { checkCoachStatus: false });
+  if (!payload) return NextResponse.json({ success: false }, { status: 401 });
 
-    try {
-        const user = await prisma.user.findUnique({
-            where: { id: payload.userId },
-        });
+  const result = await getUserProfile(payload.userId);
+  if (!result) return NextResponse.json({ success: false }, { status: 404 });
 
-        if (!user) return NextResponse.json({ success: false, error: { code: 'NOT_FOUND' } }, { status: 404 });
-
-
-        const response: Record<string, any> = {
-            user: { id: user.id, email: user.email, name: user.name, role: user.role, createdAt: user.createdAt, avatar: user.avatar ? getPublicUrl(user.avatar) : null }
-        };
-
-        if (user.role === 'COACH') {
-            const coachProfile = await prisma.coachProfile.findUnique({
-                where: { userId: user.id },
-                include: { media: true, discipline: true, },
-            });
-            response.profile = coachProfile || undefined;
-        } else if (user.role === 'PROSPECT') {
-            const clientProfile = await prisma.clientProfile.findUnique({
-                where: { userId: user.id },
-            });
-            response.profile = clientProfile || undefined;
-        }
-
-        return NextResponse.json({ success: true, ...response });
-    } catch (err: unknown) {
-        console.error('[GET /api/profile]', err);
-        return NextResponse.json({ success: false, error: { code: 'INTERNAL_ERROR' } }, { status: 500 });
-    }
+  const { coachProfile, clientProfile, ...user } = result;
+  return NextResponse.json({ 
+    success: true, 
+    user, 
+    profile: coachProfile || clientProfile 
+  });
 }
 
-/**
- * PUT /api/profile
- * Update the authenticated user's profile.
- * Updates user name and role-specific profile fields.
- */
-async function updateProfile(req: Request) {
-    const payload = await requireAuth(req, undefined, { checkCoachStatus: false });
-    if (!payload) {
-        return NextResponse.json({
-            success: false,
-            error: { code: 'UNAUTHORIZED', message: 'Authentication required' }
-        }, { status: 401 });
+export async function PATCH(req: Request) {
+  const payload = await requireAuth(req, { checkCoachStatus: false });
+  if (!payload) return NextResponse.json({ success: false }, { status: 401 });
+
+  let body: Record<string, unknown>;
+  try {
+    body = await req.json();
+  } catch {
+    return NextResponse.json(
+      { success: false, error: { code: "INVALID_JSON" } },
+      { status: 400 }
+    );
+  }
+
+  try {
+    // Discriminate by which fields are present in the body
+    if ("avatar" in body) {
+      // Avatar update (null = remove)
+      const result = UpdateAvatarSchema.safeParse(body);
+      if (!result.success) {
+        return NextResponse.json(
+          { success: false, error: { code: "VALIDATION_ERROR", message: result.error.errors[0]?.message } },
+          { status: 400 }
+        );
+      }
+      await updateAvatar(payload.userId, result.data.avatar);
+    } else if ("discipline" in body && payload.role === "COACH") {
+      // Coach profile update
+      const result = UpdateCoachProfileSchema.safeParse(body);
+      if (!result.success) {
+        return NextResponse.json(
+          { success: false, error: { code: "VALIDATION_ERROR", message: result.error.errors[0]?.message } },
+          { status: 400 }
+        );
+      }
+      await updateCoachProfile(payload.userId, result.data);
+    } else if (payload.role === "PROSPECT" && ("ageRange" in body || "goals" in body)) {
+      // Client profile update
+      const result = UpdateClientProfileSchema.safeParse(body);
+      if (!result.success) {
+        return NextResponse.json(
+          { success: false, error: { code: "VALIDATION_ERROR", message: result.error.errors[0]?.message } },
+          { status: 400 }
+        );
+      }
+      await updateClientProfile(payload.userId, result.data);
+    } else {
+      // Default: basic info (name + phone)
+      const result = UpdateBasicInfoSchema.safeParse(body);
+      if (!result.success) {
+        return NextResponse.json(
+          { success: false, error: { code: "VALIDATION_ERROR", message: result.error.errors[0]?.message } },
+          { status: 400 }
+        );
+      }
+      await updateBasicInfo(payload.userId, result.data);
     }
 
-    try {
-        const body = await req.json();
-        const {
-            name,
-            avatar,
-            ageRange,
-            heightCm,
-            weightKg,
-            bio,
-            discipline,
-            portfolio,
-            rateAmount,
-            rateType,
-            hourlyRate,
-            address,
-            city,
-            country,
-            experienceYears,
-            instagram,
-            facebook,
-            tiktok,
-            twitter,
-            youtube
-        } = body;
+    // Always return full profile after any successful update
+    const profileResult = await getUserProfile(payload.userId);
+    if (!profileResult) return NextResponse.json({ success: false }, { status: 404 });
 
-        if (avatar !== undefined && avatar !== null && typeof avatar !== 'string') {
-            return NextResponse.json({
-                success: false,
-                error: { code: 'VALIDATION_ERROR', message: 'avatar must be a string or null' }
-            }, { status: 400 });
-        }
+    const { coachProfile, clientProfile, ...user } = profileResult;
+    return NextResponse.json({
+      success: true,
+      user,
+      profile: coachProfile || clientProfile
+    });
 
-        // Validate numeric fields if provided
-        if (heightCm !== undefined && heightCm !== null && (typeof heightCm !== 'number' || heightCm <= 0)) {
-            return NextResponse.json({
-                success: false,
-                error: { code: 'VALIDATION_ERROR', message: 'heightCm must be a positive number' }
-            }, { status: 400 });
-        }
-        if (weightKg !== undefined && weightKg !== null && (typeof weightKg !== 'number' || weightKg <= 0)) {
-            return NextResponse.json({
-                success: false,
-                error: { code: 'VALIDATION_ERROR', message: 'weightKg must be a positive number' }
-            }, { status: 400 });
-        }
-        if (rateAmount !== undefined && rateAmount !== null && (typeof rateAmount !== 'number' || rateAmount <= 0)) {
-            return NextResponse.json({
-                success: false,
-                error: { code: 'VALIDATION_ERROR', message: 'rateAmount must be a positive number' }
-            }, { status: 400 });
-        }
-        if (hourlyRate !== undefined && hourlyRate !== null && (typeof hourlyRate !== 'number' || hourlyRate <= 0)) {
-            return NextResponse.json({
-                success: false,
-                error: { code: 'VALIDATION_ERROR', message: 'hourlyRate must be a positive number' }
-            }, { status: 400 });
-        }
-        if (
-            rateType !== undefined &&
-            rateType !== null &&
-            (typeof rateType !== 'string' || !['HOUR', 'WEEK', 'MONTH'].includes(rateType.toUpperCase()))
-        ) {
-            return NextResponse.json({
-                success: false,
-                error: { code: 'VALIDATION_ERROR', message: 'rateType must be one of HOUR, WEEK, MONTH' }
-            }, { status: 400 });
-        }
-        if (experienceYears !== undefined && experienceYears !== null && (typeof experienceYears !== 'number' || experienceYears < 0)) {
-            return NextResponse.json({
-                success: false,
-                error: { code: 'VALIDATION_ERROR', message: 'experienceYears must be 0 or more' }
-            }, { status: 400 });
-        }
-
-        // Update user base fields
-        const avatarValue =
-            avatar === undefined ? undefined :
-                avatar === null ? null :
-                    avatar.trim().length === 0 ? null :
-                        avatar;
-
-        // If avatar is being updated, get the old one to delete from storage
-        if (avatarValue !== undefined) {
-            const oldUser = await prisma.user.findUnique({
-                where: { id: payload.userId },
-                select: { avatar: true }
-            });
-
-            if (oldUser?.avatar && oldUser.avatar !== avatarValue) {
-                await deleteMediaFromS3(oldUser.avatar);
-            }
-        }
-
-        const user = await prisma.user.update({
-            where: { id: payload.userId },
-            data: { name: name || undefined, avatar: avatarValue },
-            select: { id: true, email: true, name: true, role: true, createdAt: true, avatar: true },
-        });
-
-
-        const avatarUrl = user.avatar ? getPublicUrl(user.avatar) : null;
-        const response: Record<string, any> = { user: { ...user, avatar: avatarUrl } };
-
-        // Update role-specific profile
-        if (user.role === 'COACH') {
-            let disciplineId: number | undefined;
-            if (discipline !== undefined) {
-                if (typeof discipline !== 'string' || discipline.trim().length === 0) {
-                    return NextResponse.json({
-                        success: false,
-                        error: { code: 'VALIDATION_ERROR', message: 'discipline must be a non-empty string' }
-                    }, { status: 400 });
-                }
-
-                const disciplineRecord = await prisma.discipline.findUnique({
-                    where: { name: discipline },
-                });
-                if (!disciplineRecord) {
-                    return NextResponse.json({
-                        success: false,
-                        error: { code: 'VALIDATION_ERROR', message: 'Invalid discipline' }
-                    }, { status: 400 });
-                }
-
-                disciplineId = disciplineRecord.id;
-            }
-
-            const legacyHourlyRateProvided = hourlyRate !== undefined;
-            const effectiveRateAmount = rateAmount !== undefined ? rateAmount : hourlyRate;
-            const effectiveRateType =
-                rateType !== undefined
-                    ? rateType.toUpperCase()
-                    : legacyHourlyRateProvided
-                        ? 'HOUR'
-                        : undefined;
-
-            const coachProfile = await prisma.coachProfile.update({
-                where: { userId: user.id },
-                data: {
-                    bio: bio !== undefined ? bio : undefined,
-                    disciplineId: disciplineId !== undefined ? disciplineId : undefined,
-                    portfolio: portfolio !== undefined ? portfolio : undefined,
-                    rateAmount: effectiveRateAmount !== undefined ? effectiveRateAmount : undefined,
-                    rateType: effectiveRateType !== undefined ? effectiveRateType : undefined,
-                    address: address !== undefined ? address : undefined,
-                    city: city !== undefined ? city : undefined,
-                    country: country !== undefined ? country : undefined,
-                    experienceYears: experienceYears !== undefined ? experienceYears : undefined,
-                    instagram: instagram !== undefined ? instagram : undefined,
-                    facebook: facebook !== undefined ? facebook : undefined,
-                    tiktok: tiktok !== undefined ? tiktok : undefined,
-                    twitter: twitter !== undefined ? twitter : undefined,
-                    youtube: youtube !== undefined ? youtube : undefined,
-                },
-                include: { media: true, discipline: true },
-            });
-            response.profile = coachProfile;
-        } else if (user.role === 'PROSPECT') {
-            const clientProfile = await prisma.clientProfile.update({
-                where: { userId: user.id },
-                data: {
-                    ageRange: ageRange !== undefined ? ageRange : undefined,
-                    heightCm: heightCm !== undefined ? heightCm : undefined,
-                    weightKg: weightKg !== undefined ? weightKg : undefined,
-                    goals: body.goals !== undefined ? body.goals : undefined,
-                },
-            });
-            response.profile = clientProfile;
-        }
-
-        const token = signJwt({
-            userId: user.id,
-            role: user.role,
-            email: user.email,
-            name: user.name,
-            avatar: avatarUrl,
-        });
-
-        const apiResponse = NextResponse.json({ success: true, token, ...response });
-        apiResponse.cookies.set('token', token, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'lax',
-            maxAge: 60 * 60 * 24 * 7,
-            path: '/',
-        });
-
-        return apiResponse;
-    } catch (err: unknown) {
-        console.error('[PUT /api/profile]', err);
-        return NextResponse.json({ success: false, error: { code: 'INTERNAL_ERROR' } }, { status: 500 });
-    }
+  } catch (err: unknown) {
+    const error = err as { code?: string; message?: string; status?: number };
+    return NextResponse.json(
+      { success: false, error: { code: error.code ?? "INTERNAL_ERROR", message: error.message } },
+      { status: error.status ?? 500 }
+    );
+  }
 }
-
-export const PUT = updateProfile;
-export const PATCH = updateProfile;

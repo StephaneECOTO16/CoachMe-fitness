@@ -6,7 +6,7 @@
  */
 
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@/lib/db";
 import { z } from "zod";
 import { parseRequestBody } from "@/lib/schemas";
 import { randomBytes } from "crypto";
@@ -38,7 +38,7 @@ export async function POST(req: Request) {
 
   // Apply rate limiting: 3 requests per email per 15 minutes
   const rateLimitKey = `forgot-password:${normalizedEmail}`;
-  const isAllowed = await checkRateLimit(rateLimitKey, 3, 15 * 60 * 1000);
+  const isAllowed = await checkRateLimit(rateLimitKey, "password-reset");
 
   if (!isAllowed) {
     // Still return success to prevent enumeration

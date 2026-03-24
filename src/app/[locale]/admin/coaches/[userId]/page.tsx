@@ -20,14 +20,14 @@ interface Media {
 
 interface Coach {
   id: number;
-  userId: number;
+  userId: string;
   bio: string | null;
   discipline: string;
   portfolio: string | null;
   status: 'PENDING' | 'APPROVED' | 'REJECTED';
   createdAt: string;
   user: {
-    id: number;
+    id: string;
     name: string | null;
     email: string;
     avatar: string | null;
@@ -38,7 +38,7 @@ interface Coach {
     id: number;
     client: {
       user: {
-        id: number;
+        id: string;
         name: string | null;
         email: string;
       };
@@ -54,16 +54,15 @@ export default function AdminCoachReviewPage() {
   const [submitting, setSubmitting] = useState(false);
   const [reason, setReason] = useState('');
 
-  const coachId = params?.coachId as string;
+  const userId = params?.userId as string;
 
   useEffect(() => {
+    if (!userId) return;
+    
     const fetchCoach = async () => {
       try {
-        const token = localStorage.getItem('token');
-        const response = await fetch(`/api/admin/coaches/${coachId}`, {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-          },
+        const response = await fetch(`/api/admin/coaches/${userId}`, {
+          credentials: 'include'
         });
         const data = await response.json();
 
@@ -81,7 +80,7 @@ export default function AdminCoachReviewPage() {
     };
 
     fetchCoach();
-  }, [coachId]);
+  }, [userId]);
 
   const handleStatusUpdate = async (status: 'APPROVED' | 'REJECTED' | 'PENDING') => {
     if (submitting) return;
@@ -97,13 +96,12 @@ export default function AdminCoachReviewPage() {
     setSubmitting(true);
 
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`/api/admin/coaches/${coachId}`, {
+      const response = await fetch(`/api/admin/coaches/${userId}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
         },
+        credentials: 'include',
         body: JSON.stringify({ status, reason: reason || undefined }),
       });
 
@@ -158,7 +156,7 @@ export default function AdminCoachReviewPage() {
   const videos = coach.media.filter((m) => m.type === 'VIDEO');
   const mediaItems = [...videos, ...images].map((m) => ({
     id: String(m.id),
-    type: m.type === 'VIDEO' ? 'video' : 'image',
+    type: (m.type === 'VIDEO' ? 'video' : 'image') as 'video' | 'image',
     url: m.url,
     caption: m.description || undefined,
   }));
@@ -205,7 +203,7 @@ export default function AdminCoachReviewPage() {
 
               <div className={styles.infoGrid}>
                 <div className={styles.infoItem}>
-                  <span className={styles.infoLabel}>User ID:</span>
+                  <span className={styles.infoLabel}>User UUID:</span>
                   <span className={styles.infoValue}>{coach.userId}</span>
                 </div>
                 <div className={styles.infoItem}>

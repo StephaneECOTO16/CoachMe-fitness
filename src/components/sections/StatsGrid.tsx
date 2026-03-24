@@ -5,8 +5,9 @@ import styles from './StatsGrid.module.css';
 
 export interface StatItem {
   icon: string | ReactNode;
-  value: number | string;
+  value: number | string | ReactNode;
   label: string;
+  isCustomValue?: boolean;
   trend?: {
     value: number;
     direction: 'up' | 'down';

@@ -27,6 +27,7 @@ interface Discipline {
 // Schema factories for localized validation
 const createEditProfileSchema = (t: (key: string) => string) => z.object({
   name: z.string().min(2, t('validation.nameMinLength')),
+  phone: z.string().regex(/^\+[1-9]\d{6,14}$/, t('validation.invalidPhone')).or(z.literal('')).optional().nullable(),
 });
 
 const createEditCoachSchema = (t: (key: string) => string) => z.object({
@@ -56,9 +57,10 @@ const createEditClientSchema = (_t: (key: string) => string) => z.object({
 
 interface ProfileData {
   user: {
-    id: number;
+    id: string;
     name: string | null;
     email: string;
+    phone: string | null;
     role: string;
     createdAt: string;
     avatar?: string | null;
@@ -91,7 +93,7 @@ export default function ProfilePage() {
   const t = useTranslations('profile');
   const tToast = useTranslations('toast');
   const tCommon = useTranslations('common');
-  const { token, login } = useAuth();
+  const { login, isAuthenticated } = useAuth();
   const searchParams = useSearchParams();
   const router = useRouter();
   const [profileData, setProfileData] = useState<ProfileData | null>(null);
@@ -178,20 +180,21 @@ export default function ProfilePage() {
 
   useEffect(() => {
     const fetchProfile = async () => {
-      if (!token) return;
+      if (!isAuthenticated) return;
 
       try {
         const response = await fetch('/api/profile', {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-          },
+          credentials: 'include',
         });
         const data = await response.json();
 
         if (data.success) {
           setProfileData(data);
           // Reset forms with current data
-          resetUser({ name: data.user.name || '' });
+          resetUser({ 
+            name: data.user.name || '',
+            phone: data.user.phone || '',
+          });
           if (data.user.role === 'COACH' && data.profile) {
             resetCoach({
               discipline: getDisciplineName(data.profile.discipline),
@@ -226,7 +229,7 @@ export default function ProfilePage() {
     };
 
     fetchProfile();
-  }, [token, resetUser, resetCoach, resetClient]);
+  }, [isAuthenticated, resetUser, resetCoach, resetClient]);
 
   const compressAvatar = async (file: File): Promise<File> => {
     if (!file.type.startsWith('image/')) return file;
@@ -247,8 +250,8 @@ export default function ProfilePage() {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
       },
+      credentials: 'include',
       body: JSON.stringify({ avatar: avatarValue }),
     });
 
@@ -256,12 +259,10 @@ export default function ProfilePage() {
     if (!result.success) throw new Error(result.error?.message || 'Failed to update avatar');
 
     setProfileData(result);
-    if (result.token) login(result.token);
+    if (result.success) login();
   };
 
   const uploadAvatarFile = async (file: File) => {
-    if (!token) return;
-
     setIsUploadingAvatar(true);
     try {
       const processed = await compressAvatar(file);
@@ -270,8 +271,8 @@ export default function ProfilePage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
         },
+        credentials: 'include',
         body: JSON.stringify({
           fileName: processed.name,
           mimeType: processed.type,
@@ -284,7 +285,7 @@ export default function ProfilePage() {
         throw new Error(presignedData.error?.message || 'Failed to get upload URL');
       }
 
-      const { url: uploadUrl, key } = presignedData.presignedUrl as { url: string; key: string };
+      const { uploadUrl, key } = presignedData.presignedUrl as { uploadUrl: string; key: string };
 
       const uploadRes = await fetch(uploadUrl, {
         method: 'PUT',
@@ -308,7 +309,6 @@ export default function ProfilePage() {
   };
 
   const handleRemoveAvatar = async () => {
-    if (!token) return;
 
     setIsUploadingAvatar(true);
     try {
@@ -335,7 +335,7 @@ export default function ProfilePage() {
     disabled: isUploadingAvatar,
   });
 
-  const onSubmitUser = async (data: { name: string }) => {
+  const onSubmitUser = async (data: { name: string; phone?: string | null }) => {
     setIsEditingProfile(true);
 
     try {
@@ -343,9 +343,12 @@ export default function ProfilePage() {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify({ name: data.name }),
+        credentials: 'include',
+        body: JSON.stringify({ 
+          name: data.name,
+          phone: data.phone || null,
+        }),
       });
 
       const result = await response.json();
@@ -353,7 +356,9 @@ export default function ProfilePage() {
       if (result.success) {
         toast.success(tToast('success.profileUpdated'));
         setProfileData(result);
-        if (result.token) login(result.token);
+        if (result.success) {
+          login();
+        }
         setIsEditModalOpen(false);
       } else {
         toast.error(tToast('error.profileUpdateFailed'));
@@ -374,8 +379,8 @@ export default function ProfilePage() {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
         },
+        credentials: 'include',
         body: JSON.stringify({
           discipline: data.discipline,
           bio: data.bio || null,
@@ -399,7 +404,7 @@ export default function ProfilePage() {
       if (result.success) {
         toast.success(tToast('success.coachProfileUpdated'));
         setProfileData(result);
-        if (result.token) login(result.token);
+        login();
         setIsEditModalOpen(false);
       } else {
         toast.error(tToast('error.profileUpdateFailed'));
@@ -420,8 +425,8 @@ export default function ProfilePage() {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
         },
+        credentials: 'include',
         body: JSON.stringify({
           ageRange: data.ageRange || null,
           heightCm: data.heightCm || null,
@@ -435,7 +440,7 @@ export default function ProfilePage() {
       if (result.success) {
         toast.success(tToast('success.profileUpdated'));
         setProfileData(result);
-        if (result.token) login(result.token);
+        login();
         setIsEditModalOpen(false);
       } else {
         toast.error(tToast('error.profileUpdateFailed'));
@@ -522,6 +527,12 @@ export default function ProfilePage() {
                 <div className={styles.infoItem}>
                   <span className={styles.infoLabel}>{t("labels.email")}:</span>
                   <span className={styles.infoValue}>{profileData.user.email}</span>
+                </div>
+                <div className={styles.infoItem}>
+                  <span className={styles.infoLabel}>{t("labels.phone")}:</span>
+                  <span className={styles.infoValue}>
+                    {profileData.user.phone || t("notSet")}
+                  </span>
                 </div>
                 <div className={styles.infoItem}>
                   <span className={styles.infoLabel}>{t("labels.role")}:</span>
@@ -1155,6 +1166,22 @@ export default function ProfilePage() {
                   />
                   {errorsUser.name && (
                     <span className={styles.error}>{errorsUser.name.message as string}</span>
+                  )}
+                </div>
+
+                <div className={styles.formGroup}>
+                  <label htmlFor="phone" className={styles.label}>
+                    {t('labels.phone')}
+                  </label>
+                  <input
+                    {...registerUser('phone')}
+                    type="tel"
+                    id="phone"
+                    className={styles.input}
+                    placeholder="+2376XXXXXXXXX"
+                  />
+                  {errorsUser.phone && (
+                    <span className={styles.error}>{errorsUser.phone.message as string}</span>
                   )}
                 </div>
 

@@ -1,76 +1,104 @@
-import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
-import { signJwt, comparePassword } from '@/lib/auth';
-import { parseRequestBody, LoginRequestSchema } from '@/lib/schemas';
-import { checkRateLimit } from '@/lib/rate-limit';
-import { getPublicUrl } from '@/lib/aws-s3';
+/**
+ * Authenticates a user and opens a session via HttpOnly cookie.
+ *
+ * Security decisions:
+ *  - The JWT is placed in an HttpOnly cookie ONLY. It is never included
+ *    in the JSON response body, so client-side JS (and therefore XSS)
+ *    cannot access it.
+ *  - We return the user's public claims so the client can hydrate state
+ *    without a second /api/auth/me request on login.
+ *  - Rate limiting uses the real IP from Vercel's x-forwarded-for,
+ *    verified against x-real-ip to prevent header spoofing.
+ */
+
+import { NextResponse } from "next/server";
+import { prisma } from "@/lib/db";
+import {
+  comparePassword,
+  signJwt,
+  setSessionCookie,
+  type JwtPayload,
+} from "@/lib/auth";
+import { parseRequestBody, LoginRequestSchema } from "@/lib/validation/schemas";
+import { checkRateLimit, getRealIp } from "@/lib/rate-limit";
+import { getPublicUrl } from "@/lib/storage";
+import { logger } from "@/lib/logger";
 
 export async function POST(req: Request) {
-    // Rate limiting: 5 login attempts per minute per IP
-    const clientIp = req.headers.get('x-forwarded-for')?.split(',')[0] || req.headers.get('x-real-ip') || 'unknown';
-    const rateLimitKey = `login:${clientIp}`;
+  // ── Rate limiting ──────────────────────────────────────────────────────────
+  const ip = getRealIp(req);
+  const allowed = await checkRateLimit(`login:${ip}`, "auth");
+  if (!allowed) {
+    return NextResponse.json(
+      {
+        success: false,
+        error: {
+          code: "RATE_LIMIT_EXCEEDED",
+          message: "Too many login attempts. Please try again in a minute.",
+        },
+      },
+      { status: 429 }
+    );
+  }
 
-    if (!await checkRateLimit(rateLimitKey, 5, 60000)) {
-        return NextResponse.json({
-            success: false,
-            error: { code: 'RATE_LIMIT_EXCEEDED', message: 'Too many login attempts. Please try again later.' }
-        }, { status: 429 });
-    }
+  // ── Input validation ───────────────────────────────────────────────────────
+  const { data, error } = await parseRequestBody(req, LoginRequestSchema);
+  if (error) {
+    return NextResponse.json({ success: false, error }, { status: 400 });
+  }
 
-    // Validate request body using Zod schema
-    const { data, error } = await parseRequestBody(req, LoginRequestSchema);
-    if (error) {
-        return NextResponse.json({ success: false, error }, { status: 400 });
-    }
+  const { email, password } = data!;
 
-    if (!data) {
-        return NextResponse.json({ success: false, error: { code: "INVALID_REQUEST" } }, { status: 400 });
-    }
+  // ── Credential check ───────────────────────────────────────────────────────
+  const user = await prisma.user.findUnique({
+    where: { email: email.toLowerCase().trim() },
+  });
 
-    const { email, password } = data;
+  // Use a constant-time comparison path to prevent timing attacks:
+  // always call comparePassword even if user doesn't exist
+  const passwordMatch = user
+    ? await comparePassword(password, user.password)
+    : await comparePassword(password, "$2b$12$invalidhashfortimingattackprevention");
 
-    // Find user by email
-    const user = await prisma.user.findUnique({ where: { email } });
-    if (!user) {
-        return NextResponse.json({
-            success: false,
-            error: { code: 'UNAUTHORIZED', message: 'Invalid credentials' }
-        }, { status: 401 });
-    }
+  if (!user || !passwordMatch) {
+    // Vague message — don't reveal whether the email exists
+    return NextResponse.json(
+      {
+        success: false,
+        error: { code: "INVALID_CREDENTIALS", message: "Invalid email or password" },
+      },
+      { status: 401 }
+    );
+  }
 
-    // Verify password
-    const isValidPassword = await comparePassword(password, user.password);
-    if (!isValidPassword) {
-        return NextResponse.json({
-            success: false,
-            error: { code: 'UNAUTHORIZED', message: 'Invalid credentials' }
-        }, { status: 401 });
-    }
+  // ── Sign JWT + set cookie ──────────────────────────────────────────────────
+  const avatarUrl = user.avatar ? getPublicUrl(user.avatar) : null;
 
-    // Generate JWT token with user info
-    const avatar = user.avatar ? getPublicUrl(user.avatar) : null;
-    const token = signJwt({
-        userId: user.id,
-        role: user.role,
-        email: user.email,
-        name: user.name,
-        avatar,
-    });
+  const jwtPayload: JwtPayload = {
+    userId: user.id,
+    role: user.role,
+    email: user.email,
+    name: user.name,
+    avatar: avatarUrl,
+  };
 
-    // Set HTTP-only cookie
-    const response = NextResponse.json({
-        success: true,
-        token,
-        user: { id: user.id, email: user.email, name: user.name, role: user.role, avatar }
-    });
+  const token = signJwt(jwtPayload);
 
-    response.cookies.set('token', token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        maxAge: 60 * 60 * 24 * 7, // 7 days
-        path: '/',
-    });
+  // Cookie is set on the response — the token never appears in the body
+  await setSessionCookie(token);
 
-    return response;
+  logger.info({ userId: user.id, role: user.role }, "User logged in");
+
+  // Return public user data only (no token, no password hash)
+  return NextResponse.json({
+    success: true,
+    user: {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      role: user.role,
+      phone: user.phone,
+      avatar: avatarUrl,
+    },
+  });
 }

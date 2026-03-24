@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslations } from "next-intl";
-import { Link, useRouter } from "@/i18n/routing";
+import { Link } from "@/i18n/routing";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import PublicRoute from "@/components/auth/PublicRoute";
@@ -15,7 +15,7 @@ import styles from "./page.module.css";
 
 export default function LoginPage() {
   const t = useTranslations("auth");
-  const router = useRouter();
+  
   const { login } = useAuth();
 
   const {
@@ -50,18 +50,10 @@ export default function LoginPage() {
         throw new Error(result.error?.message || "Login failed");
       }
 
-      // Use auth context to login
-      if (result.token) {
-        login(result.token);
-      }
+      // Sync user state from the HttpOnly cookie set by the server
+      await login();
 
-      // Show success toast
-      toast.success(t("loginSuccess"), "Redirecting to dashboard...");
-
-      // Auth context will handle redirect based on user role
-      setTimeout(() => {
-        router.push("/dashboard");
-      }, 500);
+      toast.success(t("loginSuccess"), "Redirecting...");
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "An error occurred";
       toast.error("Login Failed", errorMessage);

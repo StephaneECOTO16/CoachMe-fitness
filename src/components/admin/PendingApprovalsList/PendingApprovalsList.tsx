@@ -3,7 +3,7 @@
 import React from 'react';
 import { Link } from '@/i18n/routing';
 import UserAvatar from '@/components/ui/UserAvatar/UserAvatar';
-import { Check, X, Eye, MoreVertical, CheckCircle, XCircle } from 'lucide-react';
+import { Eye, MoreVertical, CheckCircle, XCircle } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import styles from './PendingApprovalsList.module.css';
 import { DataTable, StatusBadge, Dropdown } from '@/components';
@@ -11,14 +11,14 @@ import { ColumnConfig } from '@/components/ui/DataTable/DataTable';
 
 interface PendingCoach {
     id: number;
-    userId: number;
+    userId: string;
     bio: string | null;
     discipline: string;
     portfolio: string | null;
     status: string;
     createdAt: string;
     user: {
-        id: number;
+        id: string;
         name: string | null;
         email: string;
         avatar: string | null;
@@ -28,8 +28,8 @@ interface PendingCoach {
 
 interface PendingApprovalsListProps {
     coaches: PendingCoach[];
-    onApprove?: (id: number) => void;
-    onReject?: (id: number) => void;
+    onApprove?: (id: string) => void;
+    onReject?: (id: string) => void;
     onView?: (coach: PendingCoach) => void;
 }
 
@@ -76,7 +76,7 @@ const PendingApprovalsList: React.FC<PendingApprovalsListProps> = ({
             dropdownItems.push({
                 label: t('actions.approve'),
                 icon: <CheckCircle size={16} />,
-                onClick: () => onApprove(coach.id)
+                onClick: () => onApprove(coach.user.id)
             });
         }
 
@@ -85,7 +85,7 @@ const PendingApprovalsList: React.FC<PendingApprovalsListProps> = ({
                 label: t('actions.reject'),
                 icon: <XCircle size={16} />,
                 variant: 'danger',
-                onClick: () => onReject(coach.id)
+                onClick: () => onReject(coach.user.id)
             });
         }
 

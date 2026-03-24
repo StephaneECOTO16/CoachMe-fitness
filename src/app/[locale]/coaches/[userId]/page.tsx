@@ -35,7 +35,7 @@ interface Media {
 
 interface CoachProfile {
   id: number;
-  userId: number;
+  userId: string;
   bio: string | null;
   discipline: {
     id: number;
@@ -57,7 +57,7 @@ interface CoachProfile {
   twitter: string | null;
   youtube: string | null;
   user: {
-    id: number;
+    id: string;
     name: string | null;
     avatar: string | null;
   };
@@ -78,14 +78,14 @@ export default function CoachProfilePage() {
     "overview"
   );
 
-  const coachId = params?.coachId as string;
+  const userId = params?.userId as string;
 
   useEffect(() => {
-    if (!coachId) return;
+    if (!userId) return;
 
     const fetchCoach = async () => {
       try {
-        const response = await fetch(`/api/coaches/${coachId}`);
+        const response = await fetch(`/api/coaches/${userId}`);
         const data = await response.json();
 
         if (data.success) {
@@ -104,7 +104,7 @@ export default function CoachProfilePage() {
     };
 
     fetchCoach();
-  }, [coachId, tErrors]);
+  }, [userId, tErrors]);
 
   const handleContactCoach = async () => {
     if (!isAuthenticated) {
@@ -122,10 +122,10 @@ export default function CoachProfilePage() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
+        credentials: "include",
         body: JSON.stringify({
-          coachId: parseInt(coachId),
+          coachId: coach?.id, // Use profile internal ID for relationships
         }),
       });
 

@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { prisma } from '@/lib/db';
 import { requireAuth } from '@/lib/auth';
-import { getPublicUrl } from '@/lib/aws-s3';
+import { getPublicUrl } from '@/lib/storage';
 
 /**
  * GET /api/admin/coaches
@@ -9,7 +9,7 @@ import { getPublicUrl } from '@/lib/aws-s3';
  * Query params: status (PENDING, APPROVED, REJECTED)
  */
 export async function GET(req: Request) {
-    const payload = await requireAuth(req, ['ADMIN']);
+    const payload = await requireAuth(req, { allowedRoles: ['ADMIN'] });
     if (!payload) {
         return NextResponse.json({
             success: false,

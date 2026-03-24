@@ -46,6 +46,7 @@
     "password": "Mot de Passe",
     "confirmPassword": "Confirmer le Mot de Passe",
     "fullName": "Nom Complet",
+    "phoneNumber": "Numéro de téléphone",
     "forgotPassword": "Mot de passe oublié?",
     "rememberMe": "Se souvenir de moi",
     "noAccount": "Vous n'avez pas de compte?",
@@ -57,8 +58,9 @@
     "registerButton": "Créer un Compte",
     "loggingIn": "Connexion...",
     "registering": "Création du compte...",
-    "loginSuccess": "Connexion réussie! Redirection...",
-    "registerSuccess": "Compte créé avec succès! Redirection...",
+    "loginSuccess": "Connexion réussie !",
+    "registerSuccess": "Compte créé avec succès !",
+    "redirecting": "Redirection...",
     "acceptTerms": "J'accepte les",
     "termsConditions": "Conditions Générales",
     "accountType": "Type de Compte",
@@ -503,6 +505,7 @@
     "location": "Localisation",
     "address": "Adresse",
     "socialMedia": "Réseaux sociaux",
+    "notSet": "Non défini",
     "notFound": {
       "title": "Profil Non Trouvé",
       "message": "Impossible de charger les données de votre profil."
@@ -512,6 +515,7 @@
       "editProfile": "Modifier le Profil",
       "name": "Nom",
       "email": "Email",
+      "phone": "Numéro de téléphone",
       "role": "Rôle",
       "memberSince": "Membre Depuis",
       "coachProfile": "Profil Coach",
@@ -553,7 +557,8 @@
       "disciplineRequired": "La discipline est requise",
       "invalidUrl": "Doit être une URL valide",
       "ratePositive": "Le tarif doit être positif",
-      "experienceNonNegative": "L'expérience doit être de 0 an ou plus"
+      "experienceNonNegative": "L'expérience doit être de 0 an ou plus",
+      "invalidPhone": "Le téléphone doit être au format E.164, ex: +2376XXXXXXXXX"
     },
     "tabs": {
       "profile": "Profil",

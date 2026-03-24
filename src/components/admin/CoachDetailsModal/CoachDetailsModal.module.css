@@ -85,6 +85,22 @@
   color: var(--primary);
 }
 
+.coachContactItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.contactIcon {
+  color: #9ca3af;
+}
+
+.coachPhone {
+  font-weight: 500;
+}
+
 .appliedDate {
   font-size: 14px;
   color: #6b7280;

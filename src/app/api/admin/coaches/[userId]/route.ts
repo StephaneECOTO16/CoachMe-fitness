@@ -1,14 +1,14 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { prisma } from '@/lib/db';
 import { requireAuth } from '@/lib/auth';
-import { getPublicUrl } from '@/lib/aws-s3';
+import { getPublicUrl } from '@/lib/storage';
 
 /**
- * GET /api/admin/coaches/[coachId]
+ * GET /api/admin/coaches/[userId]
  * Get detailed information about a specific coach (admin only).
  */
-export async function GET(req: Request, { params }: { params: Promise<{ coachId: string }> }) {
-    const payload = await requireAuth(req, ['ADMIN']);
+export async function GET(req: Request, { params }: { params: Promise<{ userId: string }> }) {
+    const payload = await requireAuth(req, { allowedRoles: ['ADMIN'] });
     if (!payload) {
         return NextResponse.json({
             success: false,
@@ -16,24 +16,18 @@ export async function GET(req: Request, { params }: { params: Promise<{ coachId:
         }, { status: 401 });
     }
 
-    const { coachId: coachIdParam } = await params;
-    const coachId = parseInt(coachIdParam);
-    if (isNaN(coachId)) {
-        return NextResponse.json({
-            success: false,
-            error: { code: 'INVALID_INPUT' }
-        }, { status: 400 });
-    }
+    const { userId } = await params;
 
     try {
         const coach = await prisma.coachProfile.findUnique({
-            where: { id: coachId },
+            where: { userId: userId }, // Query by unique User UUID
             include: {
                 user: {
                     select: {
                         id: true,
                         name: true,
                         email: true,
+                        phone: true,
                         avatar: true,
                         createdAt: true,
                     }
@@ -74,7 +68,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ coachId:
 
         return NextResponse.json({ success: true, coach: coachWithUrls });
     } catch (err: unknown) {
-        console.error('[GET /api/admin/coaches/:coachId]', err);
+        console.error('[GET /api/admin/coaches/:userId]', err);
         return NextResponse.json({
             success: false,
             error: { code: 'INTERNAL_ERROR' }
@@ -83,11 +77,11 @@ export async function GET(req: Request, { params }: { params: Promise<{ coachId:
 }
 
 /**
- * PATCH /api/admin/coaches/[coachId]
+ * PATCH /api/admin/coaches/[userId]
  * Update coach status (approve/reject) (admin only).
  */
-export async function PATCH(req: Request, { params }: { params: Promise<{ coachId: string }> }) {
-    const payload = await requireAuth(req, ['ADMIN']);
+export async function PATCH(req: Request, { params }: { params: Promise<{ userId: string }> }) {
+    const payload = await requireAuth(req, { allowedRoles: ['ADMIN'] });
     if (!payload) {
         return NextResponse.json({
             success: false,
@@ -95,14 +89,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ coachI
         }, { status: 401 });
     }
 
-    const { coachId: coachIdParam } = await params;
-    const coachId = parseInt(coachIdParam);
-    if (isNaN(coachId)) {
-        return NextResponse.json({
-            success: false,
-            error: { code: 'INVALID_INPUT' }
-        }, { status: 400 });
-    }
+    const { userId } = await params;
 
     try {
         const { status } = await req.json();
@@ -115,7 +102,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ coachI
         }
 
         const coach = await prisma.coachProfile.update({
-            where: { id: coachId },
+            where: { userId: userId }, // Update by unique User UUID
             data: { status },
             include: {
                 user: {
@@ -128,16 +115,9 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ coachI
             }
         });
 
-        // TODO: Send email notification to coach about status change
-        // if (status === 'APPROVED') {
-        //   await sendApprovalEmail(coach.user.email, coach.user.name);
-        // } else if (status === 'REJECTED') {
-        //   await sendRejectionEmail(coach.user.email, coach.user.name, reason);
-        // }
-
         return NextResponse.json({ success: true, coach });
     } catch (err: unknown) {
-        console.error('[PATCH /api/admin/coaches/:coachId]', err);
+        console.error('[PATCH /api/admin/coaches/:userId]', err);
         return NextResponse.json({
             success: false,
             error: { code: 'INTERNAL_ERROR' }

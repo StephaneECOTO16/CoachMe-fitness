@@ -48,14 +48,14 @@ interface Message {
 const PusherContext = createContext<PusherContextType | undefined>(undefined);
 
 export function PusherProvider({ children }: { children: React.ReactNode }) {
-  const { token, isAuthenticated } = useAuth();
+  const { isAuthenticated } = useAuth();
   const [pusher, setPusher] = useState<Pusher | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const channelsRef = useRef<Map<string, Channel>>(new Map());
 
   // Initialize Pusher connection when authenticated
   useEffect(() => {
-    if (!isAuthenticated || !token) {
+    if (!isAuthenticated) {
       // Cleanup existing connection if user logs out
       if (pusher) {
         pusher.disconnect();
@@ -78,11 +78,6 @@ export function PusherProvider({ children }: { children: React.ReactNode }) {
     const pusherClient = new Pusher(pusherKey, {
       cluster: pusherCluster,
       authEndpoint: "/api/pusher/auth",
-      auth: {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      },
     });
 
     // Handle connection state changes
@@ -113,12 +108,12 @@ export function PusherProvider({ children }: { children: React.ReactNode }) {
 
     setPusher(pusherClient);
 
-    // Cleanup on unmount or token change
+    // Cleanup on unmount
     return () => {
       pusherClient.disconnect();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isAuthenticated, token]);
+  }, [isAuthenticated]);
 
   /**
    * Subscribe to a chat channel for real-time messages.

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { requireAuth } from '@/lib/auth';
-import { generateDisciplinePresignedUrl } from '@/lib/aws-s3';
+import { generateDisciplineImagePresignedUrl } from '@/lib/storage';
 
 /**
  * POST /api/admin/media/presigned-url
@@ -8,7 +8,7 @@ import { generateDisciplinePresignedUrl } from '@/lib/aws-s3';
  * Only authenticated ADMIN users can request these presigned URLs.
  */
 export async function POST(req: Request) {
-    const payload = await requireAuth(req, ['ADMIN']);
+    const payload = await requireAuth(req, { allowedRoles: ['ADMIN'] });
     if (!payload) {
         return NextResponse.json({ success: false, error: { code: 'UNAUTHORIZED' } }, { status: 401 });
     }
@@ -26,14 +26,15 @@ export async function POST(req: Request) {
         }
 
         // Generate presigned URL for administrative media
-        const presigned = await generateDisciplinePresignedUrl(fileName, mimeType, fileSize);
+        const presigned = await generateDisciplineImagePresignedUrl(fileName, mimeType, fileSize);
 
         return NextResponse.json({ success: true, presignedUrl: presigned });
-    } catch (err: any) {
+    } catch (err: unknown) {
+        const error = err as Error;
         console.error('[POST /api/admin/media/presigned-url]', err);
         return NextResponse.json({
             success: false,
-            error: { code: 'INTERNAL_ERROR', message: err.message }
+            error: { code: 'INTERNAL_ERROR', message: error.message }
         }, { status: 500 });
     }
 }
