@@ -69,11 +69,16 @@ export type RegisterRequest = z.infer<typeof RegisterRequestSchema>;
 
 // ============ Client-Side Form Schemas ============
 
+/**
+ * Login schema that accepts either email or phone number as identifier.
+ * The identifier field can be:
+ *  - An email address (e.g., user@example.com)
+ *  - A phone number in E.164 format (e.g., +237659037423)
+ */
 export const loginSchema = z.object({
-  email: z
+  identifier: z
     .string()
-    .min(1, 'Email is required')
-    .email('Invalid email address'),
+    .min(1, 'Email or phone number is required'),
   password: z
     .string()
     .min(1, 'Password is required'),

@@ -9,6 +9,7 @@
  *    without a second /api/auth/me request on login.
  *  - Rate limiting uses the real IP from Vercel's x-forwarded-for,
  *    verified against x-real-ip to prevent header spoofing.
+ *  - Login accepts either email OR phone number as identifier.
  */
 
 import { NextResponse } from "next/server";
@@ -24,6 +25,35 @@ import { checkRateLimit, getRealIp } from "@/lib/rate-limit";
 import { getPublicUrl } from "@/lib/storage";
 import { logger } from "@/lib/logger";
 
+/**
+ * Detects whether the identifier is an email or phone number.
+ *
+ * @param identifier - The user input (email or phone)
+ * @returns "email" | "phone"
+ */
+function detectIdentifierType(identifier: string): "email" | "phone" {
+  const trimmed = identifier.trim();
+
+  // Email if it clearly contains @
+  if (trimmed.includes("@")) return "email";
+
+  // Accept strict E.164 (+237...) and tolerant variant without leading + (237...)
+  // to handle clients that accidentally strip '+' in transport.
+  const compact = trimmed.replace(/\s+/g, "");
+  const phonePattern = /^\+?[1-9]\d{6,14}$/;
+  if (phonePattern.test(compact)) {
+    return "phone";
+  }
+
+  return "email";
+}
+
+function normalizePhoneIdentifier(identifier: string): string {
+  const compact = identifier.trim().replace(/\s+/g, "");
+  if (!compact) return compact;
+  return compact.startsWith("+") ? compact : `+${compact}`;
+}
+
 export async function POST(req: Request) {
   // ── Rate limiting ──────────────────────────────────────────────────────────
   const ip = getRealIp(req);
@@ -37,7 +67,7 @@ export async function POST(req: Request) {
           message: "Too many login attempts. Please try again in a minute.",
         },
       },
-      { status: 429 }
+      { status: 429 },
     );
   }
 
@@ -47,27 +77,100 @@ export async function POST(req: Request) {
     return NextResponse.json({ success: false, error }, { status: 400 });
   }
 
-  const { email, password } = data!;
+  const { identifier, password } = data!;
 
-  // ── Credential check ───────────────────────────────────────────────────────
-  const user = await prisma.user.findUnique({
-    where: { email: email.toLowerCase().trim() },
-  });
+  // ── Detect identifier type and find user ──────────────────────────────────
+  const identifierType = detectIdentifierType(identifier);
+  const normalizedIdentifier = identifier.toLowerCase().trim();
 
-  // Use a constant-time comparison path to prevent timing attacks:
-  // always call comparePassword even if user doesn't exist
-  const passwordMatch = user
-    ? await comparePassword(password, user.password)
-    : await comparePassword(password, "$2b$12$invalidhashfortimingattackprevention");
+  let user = null;
 
-  if (!user || !passwordMatch) {
-    // Vague message — don't reveal whether the email exists
+  if (identifierType === "email") {
+    user = await prisma.user.findUnique({
+      where: { email: normalizedIdentifier },
+    });
+
+    // Constant-time-ish path: always run one compare
+    const passwordMatch = user
+      ? await comparePassword(password, user.password)
+      : await comparePassword(
+          password,
+          "$2b$12$invalidhashfortimingattackprevention",
+        );
+
+    if (!user || !passwordMatch) {
+      // Vague message — don't reveal whether the identifier exists
+      return NextResponse.json(
+        {
+          success: false,
+          error: {
+            code: "INVALID_CREDENTIALS",
+            message: "Invalid email/phone or password",
+          },
+        },
+        { status: 401 },
+      );
+    }
+  } else {
+    // Phone lookup - tolerate legacy duplicate phone numbers by checking all matches
+    const normalizedPhone = normalizePhoneIdentifier(identifier);
+
+    const users = await prisma.user.findMany({
+      where: {
+        OR: [{ phone: normalizedPhone }, { phone: identifier.trim() }],
+      },
+      orderBy: { createdAt: "desc" },
+    });
+
+    if (users.length === 0) {
+      await comparePassword(
+        password,
+        "$2b$12$invalidhashfortimingattackprevention",
+      );
+      return NextResponse.json(
+        {
+          success: false,
+          error: {
+            code: "INVALID_CREDENTIALS",
+            message: "Invalid email/phone or password",
+          },
+        },
+        { status: 401 },
+      );
+    }
+
+    for (const candidate of users) {
+      if (await comparePassword(password, candidate.password)) {
+        user = candidate;
+        break;
+      }
+    }
+
+    if (!user) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: {
+            code: "INVALID_CREDENTIALS",
+            message: "Invalid email/phone or password",
+          },
+        },
+        { status: 401 },
+      );
+    }
+  }
+
+  if (!user) {
+    // Vague message — don't reveal whether the identifier exists
     return NextResponse.json(
       {
         success: false,
-        error: { code: "INVALID_CREDENTIALS", message: "Invalid email or password" },
+        error: {
+          code: "INVALID_CREDENTIALS",
+          message: "Invalid email/phone or password",
+        },
       },
-      { status: 401 }
+      { status: 401 },
     );
   }
 
@@ -87,7 +190,14 @@ export async function POST(req: Request) {
   // Cookie is set on the response — the token never appears in the body
   await setSessionCookie(token);
 
-  logger.info({ userId: user.id, role: user.role }, "User logged in");
+  logger.info(
+    {
+      userId: user.id,
+      role: user.role,
+      identifierType,
+    },
+    `User logged in via ${identifierType}`,
+  );
 
   // Return public user data only (no token, no password hash)
   return NextResponse.json({

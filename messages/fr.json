@@ -43,6 +43,7 @@
     "registerTitle": "Rejoignez CoachMe",
     "registerSubtitle": "Commencez votre parcours sport aujourd'hui",
     "email": "Email",
+    "emailOrPhone": "Email ou Numéro de téléphone",
     "password": "Mot de Passe",
     "confirmPassword": "Confirmer le Mot de Passe",
     "fullName": "Nom Complet",

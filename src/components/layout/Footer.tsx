@@ -4,6 +4,7 @@ import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/routing';
 import styles from './Footer.module.css';
 import Image from 'next/image';
+import ScrollToTop from '@/components/ui/ScrollToTop';
 
 export default function Footer() {
   const t = useTranslations('footer');
@@ -169,6 +170,7 @@ export default function Footer() {
           </ul>
         </div>
       </div>
+      <ScrollToTop />
     </footer>
   );
 }

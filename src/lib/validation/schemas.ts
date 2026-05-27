@@ -38,8 +38,16 @@ const strongPassword = z
 
 // ─── Auth ─────────────────────────────────────────────────────────────────────
 
+/**
+ * Login schema that accepts either email or phone number as identifier.
+ * The identifier field can be:
+ *  - An email address (e.g., user@example.com)
+ *  - A phone number in E.164 format (e.g., +237659037423)
+ * 
+ * The backend will automatically detect which type it is and query accordingly.
+ */
 export const LoginRequestSchema = z.object({
-  email: z.string().email("Invalid email format"),
+  identifier: z.string().min(1, "Email or phone number is required"),
   password: z.string().min(1, "Password is required"),
 });
 export type LoginInput = z.infer<typeof LoginRequestSchema>;

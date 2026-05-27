@@ -65,7 +65,7 @@ model User {
 
   /// Optional phone number in E.164 format, e.g. +237659037423
   /// Collected at registration and displayed in admin user detail view.
-  phone     String?
+  phone     String?  @unique
 
   avatar    String?  // R2 object key (resolved to URL at read time)
 
