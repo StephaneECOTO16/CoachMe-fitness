@@ -1,6 +1,8 @@
 "use client";
 
 import Image from "next/image";
+import { useState } from "react";
+import { Eye, EyeOff } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslations } from "next-intl";
@@ -15,7 +17,8 @@ import styles from "./page.module.css";
 
 export default function LoginPage() {
   const t = useTranslations("auth");
-  
+  const [showPassword, setShowPassword] = useState(false);
+
   const { login } = useAuth();
 
   const {
@@ -25,7 +28,7 @@ export default function LoginPage() {
   } = useForm<LoginInput>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      email: "",
+      identifier: "",
       password: "",
       rememberMe: false,
     },
@@ -39,7 +42,7 @@ export default function LoginPage() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          email: data.email,
+          identifier: data.identifier,
           password: data.password,
         }),
       });
@@ -55,7 +58,8 @@ export default function LoginPage() {
 
       toast.success(t("loginSuccess"), "Redirecting...");
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "An error occurred";
+      const errorMessage =
+        err instanceof Error ? err.message : "An error occurred";
       toast.error("Login Failed", errorMessage);
     }
   };
@@ -101,18 +105,38 @@ export default function LoginPage() {
             <form onSubmit={handleSubmit(onSubmit)} className={styles.form}>
               <div className={styles.inputGroup}>
                 <Input
-                  type="email"
-                  label={t("email")}
-                  placeholder="name@example.com"
-                  error={errors.email?.message}
-                  {...register("email")}
+                  type="text"
+                  label={t("emailOrPhone")}
+                  placeholder="name@example.com or +237659037423"
+                  error={errors.identifier?.message}
+                  {...register("identifier")}
                 />
 
                 <Input
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   label={t("password")}
                   placeholder="••••••••"
                   error={errors.password?.message}
+                  rightIcon={
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword((v) => !v)}
+                      aria-label={
+                        showPassword ? "Hide password" : "Show password"
+                      }
+                      style={{
+                        background: "transparent",
+                        border: "none",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        padding: 0,
+                        cursor: "pointer",
+                      }}
+                    >
+                      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
+                  }
                   {...register("password")}
                 />
               </div>

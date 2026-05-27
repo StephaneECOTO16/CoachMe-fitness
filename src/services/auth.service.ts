@@ -11,7 +11,12 @@ import {
   setSessionCookie,
   type JwtPayload,
 } from "@/lib/auth";
-import { sendMail, getProspectWelcomeTemplate, getCoachWelcomeTemplate, getAdminNewCoachAlertTemplate } from "@/lib/mail";
+import {
+  sendMail,
+  getProspectWelcomeTemplate,
+  getCoachWelcomeTemplate,
+  getAdminNewCoachAlertTemplate,
+} from "@/lib/mail";
 import { logger } from "@/lib/logger";
 import { env } from "@/lib/env";
 import { randomBytes } from "crypto";
@@ -25,16 +30,31 @@ import { getPublicUrl } from "@/lib/storage";
  * Returns the new user's public data.
  */
 export async function registerProspect(
-  data: Extract<RegisterInput, { accountType: "PROSPECT" }>
+  data: Extract<RegisterInput, { accountType: "PROSPECT" }>,
 ) {
-  const existing = await prisma.user.findUnique({
-    where: { email: data.email.toLowerCase().trim() },
-    select: { id: true },
+  const normalizedEmail = data.email.toLowerCase().trim();
+  const normalizedPhone = data.phone?.trim() || null;
+
+  const existing = await prisma.user.findFirst({
+    where: {
+      OR: [
+        { email: normalizedEmail },
+        ...(normalizedPhone ? [{ phone: normalizedPhone }] : []),
+      ],
+    },
+    select: { id: true, email: true, phone: true },
   });
 
-  if (existing) {
+  if (existing?.email === normalizedEmail) {
     throw Object.assign(new Error("Email already registered"), {
       code: "ALREADY_EXISTS",
+      status: 409,
+    });
+  }
+
+  if (normalizedPhone && existing?.phone === normalizedPhone) {
+    throw Object.assign(new Error("Phone number already registered"), {
+      code: "PHONE_ALREADY_EXISTS",
       status: 409,
     });
   }
@@ -44,11 +64,11 @@ export async function registerProspect(
   const user = await prisma.$transaction(async (tx) => {
     const created = await tx.user.create({
       data: {
-        email: data.email.toLowerCase().trim(),
+        email: normalizedEmail,
         password: hashed,
         role: "PROSPECT",
         name: data.name,
-        phone: data.phone || null,
+        phone: normalizedPhone,
       },
     });
 
@@ -80,16 +100,28 @@ export async function registerProspect(
  * Creates a COACH user with a pending CoachProfile.
  */
 export async function registerCoach(
-  data: Extract<RegisterInput, { accountType: "COACH" }>
+  data: Extract<RegisterInput, { accountType: "COACH" }>,
 ) {
-  const existing = await prisma.user.findUnique({
-    where: { email: data.email.toLowerCase().trim() },
-    select: { id: true },
+  const normalizedEmail = data.email.toLowerCase().trim();
+  const normalizedPhone = data.phone.trim();
+
+  const existing = await prisma.user.findFirst({
+    where: {
+      OR: [{ email: normalizedEmail }, { phone: normalizedPhone }],
+    },
+    select: { id: true, email: true, phone: true },
   });
 
-  if (existing) {
+  if (existing?.email === normalizedEmail) {
     throw Object.assign(new Error("Email already registered"), {
       code: "ALREADY_EXISTS",
+      status: 409,
+    });
+  }
+
+  if (existing?.phone === normalizedPhone) {
+    throw Object.assign(new Error("Phone number already registered"), {
+      code: "PHONE_ALREADY_EXISTS",
       status: 409,
     });
   }
@@ -111,11 +143,11 @@ export async function registerCoach(
   const user = await prisma.$transaction(async (tx) => {
     const created = await tx.user.create({
       data: {
-        email: data.email.toLowerCase().trim(),
+        email: normalizedEmail,
         password: hashed,
         role: "COACH",
         name: data.name,
-        phone: data.phone || null,
+        phone: normalizedPhone,
       },
     });
 
@@ -196,7 +228,7 @@ export async function initiatePasswordReset(email: string): Promise<void> {
  */
 export async function completePasswordReset(
   token: string,
-  newPassword: string
+  newPassword: string,
 ): Promise<void> {
   const record = await prisma.passwordResetToken.findUnique({
     where: { token },

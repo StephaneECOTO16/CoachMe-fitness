@@ -1,6 +1,19 @@
-# Mandara Fitness (CoachMe)
+# 🏋️ CoachMe - Plateforme de Coaching Sportif
 
-CoachMe-fitness is a professional full-stack platform designed to bridge the gap between certified sport coaches and clients (prospects). It provides a robust environment for coach onboarding, secure communication, and progress tracking, tailored for a premium sport journey experience.
+CoachMe est une plateforme full-stack professionnelle qui connecte des coachs sportifs certifiés avec des clients au Cameroun. Elle offre un environnement complet pour l'inscription des coachs, la communication sécurisée, et le suivi des progrès.
+
+> **🚀 Démarrage Rapide:** Consultez [QUICK_START.md](QUICK_START.md) pour démarrer en 5 minutes !
+
+---
+
+## 📚 Documentation
+
+- **[QUICK_START.md](QUICK_START.md)** - Démarrage rapide en 5 minutes
+- **[GUIDE_DEMARRAGE.md](GUIDE_DEMARRAGE.md)** - Guide complet de démarrage et configuration
+- **[TESTING.md](TESTING.md)** - Guide de tests manuels complets
+- **[RESUME_PROJET.md](RESUME_PROJET.md)** - Résumé technique du projet
+
+---
 
 ## Key Functionalities
 
