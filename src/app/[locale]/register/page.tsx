@@ -2,11 +2,13 @@
 
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import { Eye, EyeOff } from "lucide-react";
+import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslations } from "next-intl";
 import { Link, useRouter } from "@/i18n/routing";
 import Input from "@/components/ui/Input";
+import PhoneInput from "@/components/ui/PhoneInput";
 import Button from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
 import { registerSchema, type RegisterInput } from "@/lib/schemas";
@@ -26,11 +28,14 @@ export default function RegisterPage() {
   const router = useRouter();
   const [disciplines, setDisciplines] = useState<Discipline[]>([]);
   const [loadingDisciplines, setLoadingDisciplines] = useState(true);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const {
     register,
     handleSubmit,
     watch,
+    control,
     formState: { errors, isSubmitting },
   } = useForm<RegisterInput>({
     resolver: zodResolver(registerSchema),
@@ -195,32 +200,74 @@ export default function RegisterPage() {
                   {...register("email")}
                 />
 
-                <Input
-                  type="tel"
-                  label={t("phoneNumber")}
-                  placeholder="+237659037423"
-                  required={accountType === "COACH"}
-                  error={errors.phone?.message}
-                  helperText={accountType === "COACH" ? "" : undefined}
-                  {...register("phone")}
+                <Controller
+                  name="phone"
+                  control={control}
+                  render={({ field: { onChange, value } }) => (
+                    <PhoneInput
+                      label={t("phoneNumber")}
+                      placeholder="+237 659 037 423"
+                      required={accountType === "COACH"}
+                      error={errors.phone?.message}
+                      helperText={accountType === "COACH" ? "" : undefined}
+                      value={value}
+                      onChange={onChange}
+                    />
+                  )}
                 />
 
                 <Input
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   label={t("password")}
                   placeholder="••••••••"
                   error={errors.password?.message}
                   helperText={
                     !errors.password ? t("passwordRequirement") : undefined
                   }
+                  rightIcon={
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword((v) => !v)}
+                      aria-label={showPassword ? "Hide password" : "Show password"}
+                      style={{
+                        background: "transparent",
+                        border: "none",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        padding: 0,
+                        cursor: "pointer",
+                      }}
+                    >
+                      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
+                  }
                   {...register("password")}
                 />
 
                 <Input
-                  type="password"
+                  type={showConfirmPassword ? "text" : "password"}
                   label={t("confirmPassword")}
                   placeholder="••••••••"
                   error={errors.confirmPassword?.message}
+                  rightIcon={
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmPassword((v) => !v)}
+                      aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+                      style={{
+                        background: "transparent",
+                        border: "none",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        padding: 0,
+                        cursor: "pointer",
+                      }}
+                    >
+                      {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
+                  }
                   {...register("confirmPassword")}
                 />
               </div>

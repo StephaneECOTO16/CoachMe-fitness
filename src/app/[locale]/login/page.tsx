@@ -3,11 +3,12 @@
 import Image from "next/image";
 import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/routing";
 import Input from "@/components/ui/Input";
+import PhoneInput from "@/components/ui/PhoneInput";
 import Button from "@/components/ui/Button";
 import PublicRoute from "@/components/auth/PublicRoute";
 import { useAuth } from "@/contexts/AuthContext";
@@ -18,13 +19,16 @@ import styles from "./page.module.css";
 export default function LoginPage() {
   const t = useTranslations("auth");
   const [showPassword, setShowPassword] = useState(false);
+  const [loginMethod, setLoginMethod] = useState<"email" | "phone">("email");
 
   const { login } = useAuth();
 
   const {
     register,
     handleSubmit,
+    control,
     formState: { errors, isSubmitting },
+    setValue,
   } = useForm<LoginInput>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -103,14 +107,62 @@ export default function LoginPage() {
             </div>
 
             <form onSubmit={handleSubmit(onSubmit)} className={styles.form}>
+              {/* Login Method Selector */}
               <div className={styles.inputGroup}>
-                <Input
-                  type="text"
-                  label={t("emailOrPhone")}
-                  placeholder="name@example.com or +237659037423"
-                  error={errors.identifier?.message}
-                  {...register("identifier")}
-                />
+                <div className={styles.accountTypeSelector}>
+                  <label className={styles.radioOption}>
+                    <input
+                      type="radio"
+                      name="loginMethod"
+                      value="email"
+                      checked={loginMethod === "email"}
+                      onChange={() => {
+                        setLoginMethod("email");
+                        setValue("identifier", "");
+                      }}
+                    />
+                    <span>{t("email")}</span>
+                  </label>
+                  <label className={styles.radioOption}>
+                    <input
+                      type="radio"
+                      name="loginMethod"
+                      value="phone"
+                      checked={loginMethod === "phone"}
+                      onChange={() => {
+                        setLoginMethod("phone");
+                        setValue("identifier", "");
+                      }}
+                    />
+                    <span>{t("phoneNumber")}</span>
+                  </label>
+                </div>
+              </div>
+
+              <div className={styles.inputGroup}>
+                {loginMethod === "email" ? (
+                  <Input
+                    type="email"
+                    label={t("email")}
+                    placeholder="name@example.com"
+                    error={errors.identifier?.message}
+                    {...register("identifier")}
+                  />
+                ) : (
+                  <Controller
+                    name="identifier"
+                    control={control}
+                    render={({ field: { onChange, value } }) => (
+                      <PhoneInput
+                        label={t("phoneNumber")}
+                        placeholder="+237 659 037 423"
+                        error={errors.identifier?.message}
+                        value={value}
+                        onChange={onChange}
+                      />
+                    )}
+                  />
+                )}
 
                 <Input
                   type={showPassword ? "text" : "password"}
