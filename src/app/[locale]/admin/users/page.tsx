@@ -3,6 +3,8 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { Eye, CheckCircle, XCircle, MoreVertical, Trash2 } from "lucide-react";
+import { parsePhoneNumber } from "react-phone-number-input";
+import flags from "react-phone-number-input/flags";
 import {
   DataTable,
   StatusBadge,
@@ -187,8 +189,24 @@ export default function AdminUsersPage() {
             <span style={{ fontSize: "0.75rem", color: "#6b7280" }}>
               {user.email}
             </span>
-            <span style={{ fontSize: "0.75rem", color: "#6b7280" }}>
-              {user.phone || "N/A"}
+            <span style={{ fontSize: "0.75rem", color: "#6b7280", display: "flex", alignItems: "center", gap: "6px" }}>
+              {user.phone ? (
+                <>
+                  {(() => {
+                    try {
+                      const parsed = parsePhoneNumber(user.phone);
+                      if (parsed && parsed.country) {
+                        const Flag = flags[parsed.country];
+                        return Flag ? <Flag style={{ width: "16px", height: "12px", borderRadius: "2px" }} /> : null;
+                      }
+                    } catch (e) {}
+                    return null;
+                  })()}
+                  {user.phone}
+                </>
+              ) : (
+                "N/A"
+              )}
             </span>
           </div>
         </div>
@@ -409,9 +427,25 @@ export default function AdminUsersPage() {
                   <p style={{ color: "#6b7280", margin: 0 }}>
                     {selectedUser.email}
                   </p>
-                  <p style={{ color: "#6b7280", margin: 0 }}>
-                    {selectedUser.phone || "N/A"}
-                  </p>
+                  <div style={{ color: "#6b7280", margin: 0, display: "flex", alignItems: "center", gap: "8px" }}>
+                    {selectedUser.phone ? (
+                      <>
+                        {(() => {
+                          try {
+                            const parsed = parsePhoneNumber(selectedUser.phone);
+                            if (parsed && parsed.country) {
+                              const Flag = flags[parsed.country];
+                              return Flag ? <Flag style={{ width: "20px", height: "15px", borderRadius: "2px" }} /> : null;
+                            }
+                          } catch (e) {}
+                          return null;
+                        })()}
+                        <span>{selectedUser.phone}</span>
+                      </>
+                    ) : (
+                      "N/A"
+                    )}
+                  </div>
                   <div className="mt-2">
                     <span
                       style={{
