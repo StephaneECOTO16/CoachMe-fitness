@@ -106,7 +106,7 @@ export default function LoginPage() {
               <p className={styles.subtitle}>{t("loginSubtitle")}</p>
             </div>
 
-            <form onSubmit={handleSubmit(onSubmit)} className={styles.form}>
+            <form onSubmit={handleSubmit(onSubmit)} className={styles.form} id="coachme-login-form">
               {/* Login Method Selector */}
               <div className={styles.inputGroup}>
                 <div className={styles.accountTypeSelector}>
@@ -145,6 +145,7 @@ export default function LoginPage() {
                     type="email"
                     label={t("email")}
                     placeholder="name@example.com"
+                    autoComplete="email"
                     error={errors.identifier?.message}
                     {...register("identifier")}
                   />
@@ -189,6 +190,7 @@ export default function LoginPage() {
                       {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                     </button>
                   }
+                  autoComplete="current-password"
                   {...register("password")}
                 />
               </div>
