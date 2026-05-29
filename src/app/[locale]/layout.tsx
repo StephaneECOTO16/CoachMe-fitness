@@ -33,8 +33,8 @@ export const metadata: Metadata = {
   keywords:
     "sport, personal training, coaching, wellness, health, CoachMe, Ecotofitness, fitness",
   icons: {
-    icon: "/coachMe-logo.png",
-    apple: "/coachMe-logo.png",
+    icon: "/coachMe-logo.png?v=2",
+    apple: "/coachMe-logo.png?v=2",
   },
   manifest: "/manifest.webmanifest",
 };

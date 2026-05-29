@@ -11,17 +11,17 @@ export default function manifest(): MetadataRoute.Manifest {
     theme_color: '#14b8a6', // Teal color of the app
     icons: [
       {
-        src: '/coachMe-logo.png',
+        src: '/coachMe-logo.png?v=2',
         sizes: 'any',
         type: 'image/png',
       },
       {
-        src: '/coachMe-logo.png',
+        src: '/coachMe-logo.png?v=2',
         sizes: '192x192',
         type: 'image/png',
       },
       {
-        src: '/coachMe-logo.png',
+        src: '/coachMe-logo.png?v=2',
         sizes: '512x512',
         type: 'image/png',
       },
