@@ -36,6 +36,7 @@ export const metadata: Metadata = {
     icon: "/coachMe-logo.png",
     apple: "/coachMe-logo.png",
   },
+  manifest: "/manifest.webmanifest",
 };
 
 export function generateStaticParams() {
