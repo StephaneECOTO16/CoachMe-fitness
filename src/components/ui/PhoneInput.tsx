@@ -17,6 +17,7 @@ export interface PhoneInputProps {
   className?: string;
   placeholder?: string;
   defaultCountry?: any;
+  autoComplete?: string;
 }
 
 const PhoneInput = forwardRef<HTMLInputElement, PhoneInputProps>(
@@ -32,6 +33,7 @@ const PhoneInput = forwardRef<HTMLInputElement, PhoneInputProps>(
       onChange,
       placeholder = '+237 659 037 423',
       defaultCountry = 'CM',
+      autoComplete = 'tel',
       ...props
     },
     ref
@@ -58,6 +60,7 @@ const PhoneInput = forwardRef<HTMLInputElement, PhoneInputProps>(
             placeholder={placeholder}
             flags={flags}
             ref={ref as any}
+            inputProps={{ autoComplete }}
             {...props}
           />
         </div>
