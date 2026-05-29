@@ -196,8 +196,8 @@ export default function AdminUsersPage() {
                     try {
                       const parsed = parsePhoneNumber(user.phone);
                       if (parsed && parsed.country) {
-                        const Flag = flags[parsed.country];
-                        return Flag ? <Flag style={{ width: "16px", height: "12px", borderRadius: "2px" }} /> : null;
+                        const FlagComponent = flags[parsed.country] as React.ElementType;
+                        return FlagComponent ? <FlagComponent style={{ width: "16px", height: "12px", borderRadius: "2px" }} /> : null;
                       }
                     } catch (e) {}
                     return null;
@@ -434,8 +434,8 @@ export default function AdminUsersPage() {
                           try {
                             const parsed = parsePhoneNumber(selectedUser.phone);
                             if (parsed && parsed.country) {
-                              const Flag = flags[parsed.country];
-                              return Flag ? <Flag style={{ width: "20px", height: "15px", borderRadius: "2px" }} /> : null;
+                              const FlagComponent = flags[parsed.country] as React.ElementType;
+                              return FlagComponent ? <FlagComponent style={{ width: "20px", height: "15px", borderRadius: "2px" }} /> : null;
                             }
                           } catch (e) {}
                           return null;
