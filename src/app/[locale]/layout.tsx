@@ -32,6 +32,10 @@ export const metadata: Metadata = {
     "Connect with certified sport coaches who will guide you to achieve your goals. Find personal trainers, yoga instructors, and wellness coaches.",
   keywords:
     "sport, personal training, coaching, wellness, health, CoachMe, Ecotofitness, fitness",
+  icons: {
+    icon: "/coachMe-logo.png",
+    apple: "/coachMe-logo.png",
+  },
 };
 
 export function generateStaticParams() {
