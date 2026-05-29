@@ -77,7 +77,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ success: false, error }, { status: 400 });
   }
 
-  const { identifier, password } = data!;
+  const { identifier, password, rememberMe } = data!;
 
   // ── Detect identifier type and find user ──────────────────────────────────
   const identifierType = detectIdentifierType(identifier);
@@ -185,10 +185,10 @@ export async function POST(req: Request) {
     avatar: avatarUrl,
   };
 
-  const token = signJwt(jwtPayload);
+  const token = signJwt(jwtPayload, rememberMe ? "30d" : "1d");
 
   // Cookie is set on the response — the token never appears in the body
-  await setSessionCookie(token);
+  await setSessionCookie(token, rememberMe);
 
   logger.info(
     {

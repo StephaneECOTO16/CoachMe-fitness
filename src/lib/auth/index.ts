@@ -88,16 +88,24 @@ const COOKIE_OPTIONS = {
   secure: process.env.NODE_ENV === "production", // HTTPS only in prod
   sameSite: "lax" as const, // CSRF mitigation for cross-site navigations
   path: "/",
-  maxAge: 60 * 60 * 24 * 7, // 7 days in seconds
+  // maxAge is set dynamically based on 'rememberMe'
 } as const;
 
 /**
  * Sets the session cookie in a Next.js route handler response.
  * Call this after login or token refresh.
  */
-export async function setSessionCookie(token: string): Promise<void> {
+export async function setSessionCookie(token: string, rememberMe: boolean = false): Promise<void> {
   const cookieStore = await cookies();
-  cookieStore.set(SESSION_COOKIE, token, COOKIE_OPTIONS);
+  
+  // 30 days if rememberMe is true. If false, omit maxAge so it becomes a pure session cookie 
+  // that the browser clears when it closes.
+  const options: any = { ...COOKIE_OPTIONS };
+  if (rememberMe) {
+    options.maxAge = 60 * 60 * 24 * 30; // 30 days
+  }
+  
+  cookieStore.set(SESSION_COOKIE, token, options);
 }
 
 /**
