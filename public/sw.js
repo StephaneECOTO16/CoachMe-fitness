@@ -35,8 +35,10 @@ self.addEventListener('notificationclick', function (event) {
   }));
 });
 
-const CACHE_NAME = 'coachme-offline-v1';
-const OFFLINE_URL = '/'; // Alternatively, an explicit /offline page
+const CACHE_NAME = 'coachme-offline-v2';
+// Matches manifest.json's start_url — the installed PWA opens here, so it
+// must be pre-cached for a cold start while offline to work at all.
+const OFFLINE_URL = '/login';
 
 self.addEventListener('install', event => {
   event.waitUntil(

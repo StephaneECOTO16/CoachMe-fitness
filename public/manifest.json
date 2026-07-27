@@ -2,7 +2,7 @@
   "name": "CoachMe Fitness",
   "short_name": "CoachMe",
   "description": "Your ultimate fitness coaching platform.",
-  "start_url": "/",
+  "start_url": "/login",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#000000",

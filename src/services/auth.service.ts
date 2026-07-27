@@ -102,6 +102,20 @@ export async function registerProspect(
     url: "/coaches"
   }).catch(() => {});
 
+  // Notify all admins of the new client — symmetric with registerCoach below,
+  // so admins have visibility into every new account, not just coaches.
+  prisma.user.findMany({ where: { role: 'ADMIN' }, select: { id: true } }).then(admins => {
+    admins.forEach(admin => {
+      sendNotification({
+        userId: admin.id,
+        title: "Nouveau client inscrit",
+        body: `${user.name ?? user.email} vient de créer un compte client.`,
+        type: "SYSTEM",
+        url: "/admin/users"
+      }).catch(() => {});
+    });
+  }).catch(() => {});
+
   logger.info({ userId: user.id }, "Prospect registered");
   return { id: user.id, email: user.email, name: user.name, role: user.role };
 }
