@@ -4,6 +4,7 @@ import { requireAuth } from '@/lib/auth';
 import { z } from 'zod';
 import { parseRequestBody } from '@/lib/schemas';
 import { sendMail, getCoachRejectedTemplate } from "@/lib/mail";
+import { sendNotification } from "@/lib/notifications";
 
 // Define inline schema for rejection request
 const RejectCoachBodySchema = z.object({
@@ -64,14 +65,23 @@ export async function POST(req: Request, { params }: { params: Promise<{ userId:
             },
         });
 
-        // Send Rejection Email
+        // Send Rejection Email (non-blocking — same reasoning as approve/route.ts)
         if (coach.user.email) {
-            await sendMail({
+            sendMail({
                 to: coach.user.email,
                 subject: "Update on your Coach Application",
                 html: getCoachRejectedTemplate(coach.user.name || "Coach"),
-            });
+            }).catch((err) => console.error('[POST /api/admin/coaches/:userId/reject] sendMail failed:', err));
         }
+
+        // Send Push Notification
+        await sendNotification({
+            userId: coach.user.id,
+            title: "Mise à jour de votre candidature",
+            body: "Votre profil de coach a été examiné et requiert votre attention.",
+            type: "ACCOUNT_REVIEW",
+            url: "/coach/dashboard"
+        });
 
         return NextResponse.json({ success: true, coach: updated });
     } catch (err) {

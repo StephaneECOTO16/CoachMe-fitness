@@ -1077,6 +1077,18 @@
         "title": "Identifiants de Connexion",
         "description": "Gérez votre e-mail et votre mot de passe"
       },
+      "notifications": {
+        "title": "Notifications",
+        "description": "Choisissez comment CoachMe vous prévient des messages, validations et mises à jour",
+        "push": {
+          "label": "Notifications push",
+          "description": "Recevez une alerte instantanée sur cet appareil, même quand l'application est fermée ou en arrière-plan.",
+          "blockedByBrowser": "Bloquées par votre navigateur. Autorisez les notifications dans les paramètres du site pour les réactiver."
+        },
+        "enabledToast": "Notifications push activées",
+        "disabledToast": "Notifications push désactivées",
+        "blockedToast": "Impossible d'activer les notifications — vérifiez les paramètres de votre navigateur"
+      },
       "danger": {
         "title": "Zone de Danger",
         "description": "Supprimez définitivement votre compte et toutes vos données"

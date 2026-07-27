@@ -1102,6 +1102,18 @@
         "title": "Login Credentials",
         "description": "Manage your email and password"
       },
+      "notifications": {
+        "title": "Notifications",
+        "description": "Choose how CoachMe alerts you about messages, approvals and updates",
+        "push": {
+          "label": "Push notifications",
+          "description": "Get an instant alert on this device, even when the app is closed or in the background.",
+          "blockedByBrowser": "Blocked by your browser. Allow notifications in the site settings to re-enable them."
+        },
+        "enabledToast": "Push notifications enabled",
+        "disabledToast": "Push notifications disabled",
+        "blockedToast": "Couldn't enable notifications — check your browser settings"
+      },
       "danger": {
         "title": "Danger Zone",
         "description": "Permanently delete your account and all data"

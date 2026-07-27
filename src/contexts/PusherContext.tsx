@@ -28,6 +28,21 @@ interface PusherContextType {
     clientProfileId: number,
     onMessage: (message: Message) => void
   ) => () => void;
+  /** Subscribe to the current user's personal notification feed */
+  subscribeToNotifications: (
+    userId: string,
+    onNotification: (notification: AppNotification) => void
+  ) => () => void;
+}
+
+export interface AppNotification {
+  id: number;
+  userId: string;
+  title: string;
+  body: string;
+  type: string;
+  isRead: boolean;
+  createdAt: string;
 }
 
 interface Message {
@@ -158,10 +173,47 @@ export function PusherProvider({ children }: { children: React.ReactNode }) {
     [pusher]
   );
 
+  /**
+   * Subscribe to the current user's personal notification channel.
+   * Fires immediately (real time, down to the second) whenever the
+   * backend creates a Notification row for this user.
+   * Returns an unsubscribe function.
+   */
+  const subscribeToNotifications = useCallback(
+    (
+      userId: string,
+      onNotification: (notification: AppNotification) => void
+    ): (() => void) => {
+      if (!pusher) {
+        return () => { };
+      }
+
+      const channelName = `private-user-${userId}`;
+
+      let channel = channelsRef.current.get(channelName);
+      if (!channel) {
+        channel = pusher.subscribe(channelName);
+        channelsRef.current.set(channelName, channel);
+      }
+
+      const eventHandler = (data: AppNotification) => {
+        onNotification(data);
+      };
+
+      channel.bind('new-notification', eventHandler);
+
+      return () => {
+        channel?.unbind('new-notification', eventHandler);
+      };
+    },
+    [pusher]
+  );
+
   const value: PusherContextType = {
     pusher,
     isConnected,
     subscribeToChat,
+    subscribeToNotifications,
   };
 
   return (

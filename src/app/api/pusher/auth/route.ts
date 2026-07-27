@@ -31,6 +31,24 @@ export async function POST(req: Request) {
       );
     }
 
+    // Personal notification feed: private-user-{userId}.
+    // Only the owning user may subscribe to their own channel.
+    const userChannelMatch = channelName.match(/^private-user-(.+)$/);
+    if (userChannelMatch) {
+      if (userChannelMatch[1] !== payload.userId) {
+        console.warn(
+          `[Pusher Auth] User ${payload.userId} tried to access channel ${channelName}`
+        );
+        return NextResponse.json(
+          { error: "Not authorized for this channel" },
+          { status: 403 }
+        );
+      }
+
+      const authResponse = pusher.authorizeChannel(socketId, channelName);
+      return NextResponse.json(authResponse);
+    }
+
     // Parse channel name to extract profile IDs
     // Format: private-chat-{minProfileId}-{maxProfileId}
     const channelMatch = channelName.match(/^private-chat-(\d+)-(\d+)$/);

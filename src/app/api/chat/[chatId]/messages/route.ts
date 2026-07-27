@@ -4,6 +4,7 @@ import { requireAuth } from '@/lib/auth';
 import { broadcastMessage } from '@/lib/pusher';
 import { getPublicUrl } from '@/lib/storage';
 import { sendMail, getNewMessageTemplate } from '@/lib/mail';
+import { sendNotification } from '@/lib/notifications';
 
 /**
  * POST /api/chat/[chatId]/messages
@@ -79,6 +80,15 @@ export async function POST(req: Request, { params }: { params: Promise<{ chatId:
                 html: getNewMessageTemplate(message.sender.name || 'CoachMe User', content.trim()),
             });
         }
+
+        // Send Push Notification (Non-blocking)
+        sendNotification({
+            userId: recipient.id,
+            title: `Nouveau message de ${message.sender.name || 'Coach'}`,
+            body: content.trim(),
+            type: 'CHAT',
+            url: `/messages/${chatId}`
+        });
 
         return NextResponse.json({ success: true, message: messageWithAvatar });
     } catch (err: unknown) {

@@ -79,6 +79,8 @@ model User {
   messagesSent        Message[]            @relation("senderMessages")
   adminReviews        AdminReview[]        @relation("adminReviewer")
   passwordResetTokens PasswordResetToken[]
+  pushSubscriptions   PushSubscription[]
+  notifications       Notification[]
 }
 
 model CoachProfile {
@@ -247,4 +249,30 @@ model PasswordResetToken {
 
   @@index([userId])
   @@index([token])
+}
+
+model PushSubscription {
+  id        Int      @id @default(autoincrement())
+  userId    String   @db.Uuid
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+model Notification {
+  id        Int      @id @default(autoincrement())
+  userId    String   @db.Uuid
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String
+  body      String
+  type      String   @default("SYSTEM") // can be CHAT, MATCH, ALERT, etc.
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now()) // exact datetime with seconds
+
+  @@index([userId])
+  @@index([createdAt])
 }

@@ -38,3 +38,29 @@ export async function broadcastMessage(
     const channel = getChatChannelName(coachId, prospectId);
     await pusher.trigger(channel, event, data);
 }
+
+/**
+ * Private channel name for a single user's personal notification feed.
+ * Keyed on the User UUID (not a profile id) so it works for
+ * PROSPECT, COACH and ADMIN accounts alike.
+ */
+export function getUserChannelName(userId: string): string {
+    return `private-user-${userId}`;
+}
+
+/**
+ * Push a freshly-created Notification row to the user's live feed.
+ * Non-fatal by design: real-time delivery is a nice-to-have layered on
+ * top of the DB record — a Pusher outage must never break notification
+ * creation itself.
+ */
+export async function broadcastNotification(
+    userId: string,
+    notification: Record<string, unknown>
+): Promise<void> {
+    try {
+        await pusher.trigger(getUserChannelName(userId), 'new-notification', notification);
+    } catch (error) {
+        console.error('[broadcastNotification] Pusher trigger failed:', error);
+    }
+}

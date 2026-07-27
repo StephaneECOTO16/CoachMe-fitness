@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { requireAuth } from '@/lib/auth';
 import { sendMail, getCoachApprovedTemplate } from "@/lib/mail";
+import { sendNotification } from "@/lib/notifications";
 
 /**
  * POST /api/admin/coaches/:userId/approve
@@ -37,14 +38,25 @@ export async function POST(req: Request, { params }: { params: Promise<{ userId:
             },
         });
 
-        // Send Approval Email
+        // Send Approval Email (non-blocking — an SMTP failure must not
+        // prevent the push notification below from firing, since the
+        // status change above is already committed).
         if (coach.user.email) {
-            await sendMail({
+            sendMail({
                 to: coach.user.email,
                 subject: "Your Coach Profile is Approved!",
                 html: getCoachApprovedTemplate(coach.user.name || "Coach"),
-            });
+            }).catch((err) => console.error('[POST /api/admin/coaches/:userId/approve] sendMail failed:', err));
         }
+
+        // Send Push Notification
+        await sendNotification({
+            userId: coach.user.id,
+            title: "Profil Coach Validé 🎉",
+            body: "Félicitations, votre profil a été approuvé par un administrateur.",
+            type: "ACCOUNT_REVIEW",
+            url: "/coach/dashboard"
+        });
 
         return NextResponse.json({ success: true, coach: updated });
     } catch (err) {

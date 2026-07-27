@@ -159,8 +159,11 @@ export async function proxy(req: NextRequest): Promise<NextResponse> {
 }
 
 export const config = {
-  // Match all routes except Next.js internals and static files
+  // Match all routes except Next.js internals and static files.
+  // manifest.json and sw.js must stay excluded — they're served from
+  // public/ and must not be rewritten to a locale-prefixed path, or the
+  // browser can't register the service worker (breaks push + offline).
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|mp4|webm)).*)",
+    "/((?!_next/static|_next/image|favicon.ico|manifest.json|sw.js|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|mp4|webm)).*)",
   ],
 };

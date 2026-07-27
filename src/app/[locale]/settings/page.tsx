@@ -15,6 +15,7 @@ import {
 import Button from '@/components/ui/Button';
 import SettingsSection from '@/components/ui/SettingsSection/SettingsSection';
 import DeleteAccountZone from '@/components/ui/DeleteAccountZone/DeleteAccountZone';
+import NotificationPreferences from '@/components/settings/NotificationPreferences';
 import { toast } from 'sonner';
 import { Key, Mail, User, ArrowRight, Loader2 } from 'lucide-react';
 import styles from './page.module.css';
@@ -164,6 +165,14 @@ export default function SettingsPage() {
                             <ArrowRight size={16} />
                         </Link>
                     </div>
+                </SettingsSection>
+
+                {/* Notifications Section */}
+                <SettingsSection
+                    title={t('sections.notifications.title')}
+                    description={t('sections.notifications.description')}
+                >
+                    <NotificationPreferences />
                 </SettingsSection>
 
                 {/* Security Section (Password) */}

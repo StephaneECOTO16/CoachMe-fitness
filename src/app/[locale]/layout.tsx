@@ -7,7 +7,9 @@ import { routing } from "@/i18n/routing";
 import LayoutWrapper from "@/components/layout/LayoutWrapper";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { PusherProvider } from "@/contexts/PusherContext";
+import { NotificationsProvider } from "@/contexts/NotificationsContext";
 import { Toaster } from "@/components/ui/sonner";
+import PWASetup from "@/components/pwa/PWASetup";
 import "@/styles/globals.css";
 
 // Bebas Neue for headings - bold, athletic, high-energy
@@ -36,7 +38,7 @@ export const metadata: Metadata = {
     icon: "/coachMe-logo.png?v=2",
     apple: "/coachMe-logo.png?v=2",
   },
-  manifest: "/manifest.webmanifest",
+  manifest: "/manifest.json",
 };
 
 export function generateStaticParams() {
@@ -70,8 +72,11 @@ export default async function LocaleLayout({
         <NextIntlClientProvider messages={messages}>
           <AuthProvider>
             <PusherProvider>
-              <LayoutWrapper>{children}</LayoutWrapper>
-              <Toaster position="top-center" />
+              <NotificationsProvider>
+                <PWASetup />
+                <LayoutWrapper>{children}</LayoutWrapper>
+                <Toaster position="top-center" />
+              </NotificationsProvider>
             </PusherProvider>
           </AuthProvider>
         </NextIntlClientProvider>

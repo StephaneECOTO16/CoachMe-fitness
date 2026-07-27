@@ -2,6 +2,42 @@
    COACHME BY ECOTOFITNESS - GLOBAL STYLES & CSS VARIABLES
    ============================================ */
 
+/*
+ * Tailwind CSS v4 — this is the ONLY globals.css actually loaded by the
+ * app ([locale]/layout.tsx imports "@/styles/globals.css"). A second,
+ * unused src/app/globals.css exists with its own Tailwind + shadcn theme
+ * setup, but nothing imports it — every Tailwind utility class and every
+ * shadcn/ui primitive (Switch, etc.) in the app was rendering unstyled.
+ * Importing Tailwind here, and mapping shadcn's semantic tokens onto the
+ * brand's existing CSS variables below, fixes both without duplicating
+ * or overriding the brand palette.
+ */
+@import "tailwindcss";
+
+@theme inline {
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--white);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--white);
+  --color-background: var(--bg-primary);
+  --color-foreground: var(--text-primary);
+  --color-muted: var(--gray-100);
+  --color-muted-foreground: var(--gray-500);
+  --color-accent: var(--gray-100);
+  --color-accent-foreground: var(--text-primary);
+  --color-border: var(--gray-200);
+  --color-input: var(--gray-300);
+  --color-ring: var(--primary);
+  --color-destructive: var(--error);
+  --color-card: var(--white);
+  --color-card-foreground: var(--text-primary);
+  --color-popover: var(--white);
+  --color-popover-foreground: var(--text-primary);
+  --radius-sm: calc(var(--radius-lg) - 4px);
+  --radius-md: calc(var(--radius-lg) - 2px);
+  --radius-xl: calc(var(--radius-lg) + 4px);
+}
+
 /* CSS Custom Properties (Variables) */
 :root {
   /* Brand Colors - Green & White Theme */
@@ -119,6 +155,19 @@
   --breakpoint-xl: 1280px;
   --breakpoint-2xl: 1536px;
 }
+
+/*
+ * Everything below is wrapped in Tailwind's "base" cascade layer.
+ * Reason: `@import "tailwindcss"` registers CSS cascade layers
+ * (base < components < utilities). Per the CSS Cascade Layers spec,
+ * ANY unlayered rule automatically outranks EVERY layered rule,
+ * regardless of selector specificity or source order. Before this
+ * change, the plain `h1 { color: ... }` below silently beat Tailwind
+ * utilities like `text-white` everywhere in the app — that's why
+ * NotificationCenter's heading rendered in the wrong (washed-out)
+ * color despite an explicit `text-white`/`text-slate-900` class.
+ */
+@layer base {
 
 /* ============================================
    CSS RESET & BASE STYLES
@@ -522,3 +571,5 @@ body {
 .animate-spin {
   animation: spin 1s linear infinite;
 }
+
+} /* end @layer base */

@@ -1,0 +1,76 @@
+.card {
+    border: 1px solid rgba(148, 163, 184, 0.25);
+    border-radius: 1rem;
+    padding: 1.1rem 1.25rem;
+    background: rgba(148, 163, 184, 0.05);
+}
+
+.row {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.9rem;
+}
+
+.iconWrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    flex-shrink: 0;
+    border-radius: 0.75rem;
+    background: #e2e8f0;
+    color: #64748b;
+}
+
+.iconWrap[data-active="true"] {
+    background: #0ea5e9;
+    color: #fff;
+}
+
+.copy {
+    flex: 1;
+    min-width: 0;
+}
+
+.copy h3 {
+    margin: 0;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.copy p {
+    margin: 0.25rem 0 0;
+    font-size: 0.85rem;
+    line-height: 1.5;
+    color: #64748b;
+}
+
+.warning {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    margin-top: 0.5rem;
+    color: #b45309;
+    font-weight: 600;
+    font-size: 0.8rem;
+}
+
+:global(.dark) .copy h3 {
+    color: #f8fafc;
+}
+
+:global(.dark) .copy p {
+    color: #a1a1aa;
+}
+
+:global(.dark) .iconWrap {
+    background: #27272a;
+    color: #a1a1aa;
+}
+
+:global(.dark) .card {
+    border-color: rgba(63, 63, 70, 0.6);
+    background: rgba(39, 39, 42, 0.4);
+}

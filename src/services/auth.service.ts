@@ -22,6 +22,7 @@ import { env } from "@/lib/env";
 import { randomBytes } from "crypto";
 import { type RegisterInput } from "@/lib/validation/schemas";
 import { getPublicUrl } from "@/lib/storage";
+import { sendNotification } from "@/lib/notifications";
 
 // ─── Registration ─────────────────────────────────────────────────────────────
 
@@ -91,6 +92,15 @@ export async function registerProspect(
     subject: "Welcome to CoachMe!",
     html: getProspectWelcomeTemplate(user.name ?? "there"),
   }).catch(() => {}); // Already logged inside sendMail
+
+  // Create in-app welcome notification
+  sendNotification({
+    userId: user.id,
+    title: "Bienvenue sur CoachMe ! 🎉",
+    body: "Votre compte a bien été créé. Trouvez le coach idéal dès maintenant.",
+    type: "SYSTEM",
+    url: "/coaches"
+  }).catch(() => {});
 
   logger.info({ userId: user.id }, "Prospect registered");
   return { id: user.id, email: user.email, name: user.name, role: user.role };
@@ -175,6 +185,28 @@ export async function registerCoach(
     to: env.ADMIN_EMAIL,
     subject: "New Coach Application Pending",
     html: getAdminNewCoachAlertTemplate(user.name ?? "Unknown", user.email),
+  }).catch(() => {});
+
+  // Create in-app welcome notification for coach
+  sendNotification({
+    userId: user.id,
+    title: "Candidature reçue 🏋️",
+    body: "Votre profil est en cours d'examen. Vous serez notifié dès qu'il sera approuvé.",
+    type: "SYSTEM",
+    url: "/coach/dashboard"
+  }).catch(() => {});
+
+  // Notify all admins of new application via Push
+  prisma.user.findMany({ where: { role: 'ADMIN' }, select: { id: true } }).then(admins => {
+    admins.forEach(admin => {
+      sendNotification({
+        userId: admin.id,
+        title: "Nouvelle candidature Coach",
+        body: `${user.name} vient de s'inscrire et attend votre validation.`,
+        type: "ACCOUNT_REVIEW",
+        url: "/admin/coaches"
+      }).catch(() => {});
+    });
   }).catch(() => {});
 
   logger.info({ userId: user.id }, "Coach registered — pending approval");
