@@ -1,5 +1,5 @@
 /**
- * Next.js edge middleware — runs before every matched request.
+ * Next.js edge middleware — runs before every matched requests.
  *
  * Responsibilities:
  *  1. i18n routing (next-intl)
