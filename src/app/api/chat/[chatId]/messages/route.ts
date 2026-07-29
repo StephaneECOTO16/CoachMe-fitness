@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+import { NextResponse, after } from 'next/server';
 import { prisma } from '@/lib/db';
 import { requireAuth } from '@/lib/auth';
 import { broadcastMessage } from '@/lib/pusher';
@@ -76,23 +76,27 @@ export async function POST(req: Request, { params }: { params: Promise<{ chatId:
             console.error('[POST /api/chat/:chatId/messages] Pusher broadcast error:', pusherError);
         }
 
-        // Send Email Notification (Non-blocking)
+        // Send email + push notification after the response is sent.
+        // Wrapped in after() rather than left as a bare un-awaited call:
+        // Vercel can freeze the function the instant the response below
+        // is returned, which would silently drop these before they run.
         const recipient = isCoach ? chat.client.user : chat.coach.user;
-        if (recipient.email) {
-            sendMail({
-                to: recipient.email,
-                subject: `New message from ${message.sender.name || 'CoachMe User'}`,
-                html: getNewMessageTemplate(message.sender.name || 'CoachMe User', content.trim()),
-            });
-        }
+        after(async () => {
+            if (recipient.email) {
+                await sendMail({
+                    to: recipient.email,
+                    subject: `New message from ${message.sender.name || 'CoachMe User'}`,
+                    html: getNewMessageTemplate(message.sender.name || 'CoachMe User', content.trim()),
+                }).catch((err) => console.error('[POST /api/chat/:chatId/messages] sendMail failed:', err));
+            }
 
-        // Send Push Notification (Non-blocking)
-        sendNotification({
-            userId: recipient.id,
-            title: `Nouveau message de ${message.sender.name || 'Coach'}`,
-            body: content.trim(),
-            type: 'CHAT',
-            url: `/messages/${chatId}`
+            await sendNotification({
+                userId: recipient.id,
+                title: `Nouveau message de ${message.sender.name || 'Coach'}`,
+                body: content.trim(),
+                type: 'CHAT',
+                url: `/messages/${chatId}`
+            });
         });
 
         return NextResponse.json({ success: true, message: messageWithAvatar });

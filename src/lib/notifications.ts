@@ -64,12 +64,19 @@ export async function sendNotification({ userId, title, body, type, icon, url }:
 
     if (subscriptions.length === 0) return;
 
+    // Total unread count, so the service worker can set the app icon badge
+    // (Badging API) even while the app is fully closed.
+    const unreadCount = await prisma.notification.count({
+      where: { userId, isRead: false }
+    });
+
     // 3. Send Web Push to all active devices
     const payload = JSON.stringify({
       title,
       body,
       icon: icon || '/coachMe.png',
-      url: url || '/notifications'
+      url: url || '/notifications',
+      unreadCount
     });
 
     const sendPromises = subscriptions.map(async (sub: any) => {

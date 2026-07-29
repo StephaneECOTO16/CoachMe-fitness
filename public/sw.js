@@ -13,7 +13,18 @@ self.addEventListener('push', function (event) {
         primaryKey: '2'
       }
     };
-    event.waitUntil(self.registration.showNotification(data.title, options));
+
+    // Set the home-screen app icon badge (Badging API) so the unread
+    // count is visible even while the app is fully closed. Silently
+    // no-ops on browsers/platforms that don't support it.
+    const badgeTask =
+      data.unreadCount !== undefined && 'setAppBadge' in navigator
+        ? navigator.setAppBadge(data.unreadCount).catch(() => {})
+        : Promise.resolve();
+
+    event.waitUntil(
+      Promise.all([self.registration.showNotification(data.title, options), badgeTask])
+    );
   }
 });
 

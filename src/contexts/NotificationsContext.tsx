@@ -47,6 +47,18 @@ export function NotificationsProvider({ children }: { children: React.ReactNode 
 
   const unreadCount = notifications.filter((n) => !n.isRead).length;
 
+  // Keep the home-screen app icon badge (Badging API) in sync while the
+  // app is open — the service worker handles the closed-app case from the
+  // push payload (see public/sw.js).
+  useEffect(() => {
+    if (!('setAppBadge' in navigator)) return;
+    if (unreadCount > 0) {
+      navigator.setAppBadge(unreadCount).catch(() => {});
+    } else {
+      navigator.clearAppBadge?.().catch(() => {});
+    }
+  }, [unreadCount]);
+
   const refresh = useCallback(async () => {
     if (!isAuthenticated) {
       setNotifications([]);

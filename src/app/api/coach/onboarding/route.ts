@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+import { NextResponse, after } from 'next/server';
 import { prisma } from '@/lib/db';
 import { requireAuth } from '@/lib/auth';
 import { parseRequestBody, CoachOnboardingSchema } from '@/lib/schemas';
@@ -58,18 +58,25 @@ export async function POST(req: Request) {
         }
     });
 
-    // Notify all admins that a new coach application is awaiting review
-    // (non-blocking — an admin notification failure must not fail the
-    // coach's own onboarding submission).
-    prisma.user.findMany({ where: { role: 'ADMIN' }, select: { id: true } })
-        .then((admins) => Promise.allSettled(admins.map((admin) => sendNotification({
-            userId: admin.id,
-            title: 'Nouvelle candidature coach',
-            body: `${payload.name || payload.email} a soumis une candidature coach en attente de validation.`,
-            type: 'ACCOUNT_REVIEW',
-            url: '/admin/dashboard'
-        }))))
-        .catch((err) => console.error('[POST /api/coach/onboarding] admin notification failed:', err));
+    // Notify all admins that a new coach application is awaiting review.
+    // Runs via after() rather than a bare fire-and-forget promise: on
+    // Vercel the serverless function can be frozen the instant the
+    // response below is sent, which would silently kill an un-awaited
+    // .then() chain before it ever reaches the database or push send.
+    after(async () => {
+        try {
+            const admins = await prisma.user.findMany({ where: { role: 'ADMIN' }, select: { id: true } });
+            await Promise.allSettled(admins.map((admin) => sendNotification({
+                userId: admin.id,
+                title: 'Nouvelle candidature coach',
+                body: `${payload.name || payload.email} a soumis une candidature coach en attente de validation.`,
+                type: 'ACCOUNT_REVIEW',
+                url: '/admin/dashboard'
+            })));
+        } catch (err) {
+            console.error('[POST /api/coach/onboarding] admin notification failed:', err);
+        }
+    });
 
     return NextResponse.json({
         success: true,
