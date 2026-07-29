@@ -21,6 +21,7 @@ export default function NotificationPreferences() {
   const [enabled, setEnabled] = useState(true);
   const [status, setStatus] = useState<Status>('loading');
   const [isBusy, setIsBusy] = useState(false);
+  const [isTesting, setIsTesting] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -74,6 +75,31 @@ export default function NotificationPreferences() {
     }
   };
 
+  const handleTest = async () => {
+    setIsTesting(true);
+    try {
+      const res = await fetch('/api/web-push/test', { method: 'POST' });
+      const data = await res.json();
+
+      if (data.success) {
+        toast.success('Notification envoyée — regarde ton appareil.');
+        return;
+      }
+
+      // Surface the exact server-side reason instead of a generic failure,
+      // so the user (or support) can actually act on it.
+      const detail =
+        data.error?.message ||
+        data.results?.find((r: { status: string }) => r.status === 'error')?.message ||
+        'Échec inconnu';
+      toast.error(`Échec du test push : ${detail}`);
+    } catch {
+      toast.error('Impossible de contacter le serveur pour le test.');
+    } finally {
+      setIsTesting(false);
+    }
+  };
+
   if (status === 'unsupported') return null;
 
   return (
@@ -99,6 +125,16 @@ export default function NotificationPreferences() {
           aria-label={t('push.label')}
         />
       </div>
+      {enabled && status === 'granted' && (
+        <button
+          type="button"
+          className={styles.testButton}
+          onClick={handleTest}
+          disabled={isTesting}
+        >
+          {isTesting ? 'Envoi…' : 'Tester la notification push'}
+        </button>
+      )}
     </div>
   );
 }
