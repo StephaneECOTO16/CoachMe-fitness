@@ -1,5 +1,19 @@
 const { Client } = require('pg');
 
+function getConnectionConfig(connectionString) {
+  const url = new URL(connectionString);
+  const isLocalhost = ['localhost', '127.0.0.1', '::1'].includes(url.hostname);
+
+  for (const key of ['sslmode', 'sslcert', 'sslkey', 'sslrootcert']) {
+    url.searchParams.delete(key);
+  }
+
+  return {
+    connectionString: url.toString(),
+    ssl: isLocalhost ? false : { rejectUnauthorized: false },
+  };
+}
+
 async function main() {
   const connectionString = process.env.DATABASE_URL;
 
@@ -7,10 +21,7 @@ async function main() {
     throw new Error('DATABASE_URL is required to ensure push notification tables.');
   }
 
-  const client = new Client({
-    connectionString,
-    ssl: connectionString.includes('localhost') ? false : { rejectUnauthorized: false },
-  });
+  const client = new Client(getConnectionConfig(connectionString));
 
   await client.connect();
 
