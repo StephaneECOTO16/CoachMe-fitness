@@ -1,0 +1,77 @@
+.banner {
+    position: fixed;
+    left: 1rem;
+    right: 1rem;
+    bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+    z-index: 60;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    max-width: 26rem;
+    margin: 0 auto;
+    padding: 1rem;
+    border-radius: 1rem;
+    background: #0f172a;
+    color: #f8fafc;
+    box-shadow: 0 12px 30px -8px rgba(15, 23, 42, 0.45);
+}
+
+.iconWrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    flex-shrink: 0;
+    border-radius: 0.7rem;
+    background: #0ea5e9;
+    color: #fff;
+}
+
+.copy {
+    flex: 1;
+    min-width: 0;
+}
+
+.copy strong {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 700;
+}
+
+.copy p {
+    margin: 0.2rem 0 0;
+    font-size: 0.8rem;
+    line-height: 1.45;
+    color: #cbd5e1;
+}
+
+.actions {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    flex-shrink: 0;
+}
+
+.dismissButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 0.5rem;
+    color: #94a3b8;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+}
+
+.dismissButton:hover {
+    background: rgba(148, 163, 184, 0.15);
+    color: #f8fafc;
+}
+
+:global(.dark) .banner {
+    background: #18181b;
+    border: 1px solid rgba(63, 63, 70, 0.6);
+}

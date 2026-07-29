@@ -1087,7 +1087,14 @@
         },
         "enabledToast": "Notifications push activées",
         "disabledToast": "Notifications push désactivées",
-        "blockedToast": "Impossible d'activer les notifications — vérifiez les paramètres de votre navigateur"
+        "blockedToast": "Impossible d'activer les notifications — vérifiez les paramètres de votre navigateur",
+        "banner": {
+          "title": "Activez les notifications",
+          "description": "Ne manquez aucun message, validation ou mise à jour importante, même quand l'application est fermée.",
+          "enableButton": "Activer",
+          "laterButton": "Plus tard",
+          "enabledToast": "Notifications push activées"
+        }
       },
       "danger": {
         "title": "Zone de Danger",

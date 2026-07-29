@@ -1112,7 +1112,14 @@
         },
         "enabledToast": "Push notifications enabled",
         "disabledToast": "Push notifications disabled",
-        "blockedToast": "Couldn't enable notifications — check your browser settings"
+        "blockedToast": "Couldn't enable notifications — check your browser settings",
+        "banner": {
+          "title": "Turn on notifications",
+          "description": "Never miss a message, approval or important update, even when the app is closed.",
+          "enableButton": "Enable",
+          "laterButton": "Later",
+          "enabledToast": "Push notifications enabled"
+        }
       },
       "danger": {
         "title": "Danger Zone",

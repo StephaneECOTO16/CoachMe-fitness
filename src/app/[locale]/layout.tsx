@@ -10,6 +10,7 @@ import { PusherProvider } from "@/contexts/PusherContext";
 import { NotificationsProvider } from "@/contexts/NotificationsContext";
 import { Toaster } from "@/components/ui/sonner";
 import PWASetup from "@/components/pwa/PWASetup";
+import PushPermissionBanner from "@/components/notifications/PushPermissionBanner";
 import "@/styles/globals.css";
 
 // Bebas Neue for headings - bold, athletic, high-energy
@@ -75,6 +76,7 @@ export default async function LocaleLayout({
               <NotificationsProvider>
                 <PWASetup />
                 <LayoutWrapper>{children}</LayoutWrapper>
+                <PushPermissionBanner />
                 <Toaster position="top-center" />
               </NotificationsProvider>
             </PusherProvider>
