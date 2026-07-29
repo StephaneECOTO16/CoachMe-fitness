@@ -19,6 +19,8 @@ export interface ChatCardData {
   secondaryParticipant?: ChatParticipant; // For dual avatars in Admin view
   lastMessage?: string;
   lastUpdate: string;
+  lastMessageSenderName?: string;
+  lastMessageIsMine?: boolean;
   unreadCount?: number;
   isOnline?: boolean;
 }
@@ -95,11 +97,11 @@ const ChatCard: React.FC<ChatCardProps> = ({
           <UserAvatar user={chat.participant} size="lg" />
         )}
         {chat.isOnline && <span className={styles.onlineIndicator} />}
-        {/* {chat.unreadCount && chat.unreadCount > 0 && (
+        {!!chat.unreadCount && chat.unreadCount > 0 && (
           <span className={styles.unreadBadge}>
             {chat.unreadCount > 9 ? '9+' : chat.unreadCount}
           </span>
-        )} */}
+        )}
       </div>
 
       <div className={styles.content}>
@@ -115,7 +117,6 @@ const ChatCard: React.FC<ChatCardProps> = ({
           </h4>
           <div className={styles.timeWrap}>
             <span className={styles.time}>{formatTime(chat.lastUpdate)}</span>
-            {/* <span className={styles.date}>{formatDate(chat.lastUpdate)}</span> */}
           </div>
         </div>
 
@@ -126,7 +127,15 @@ const ChatCard: React.FC<ChatCardProps> = ({
         )}
 
         {chat.lastMessage && (
-          <p className={styles.lastMessage}>
+          <p className={`${styles.lastMessage} ${chat.unreadCount ? styles.unread : ''}`}>
+            {(chat.lastMessageIsMine || chat.lastMessageSenderName) && (
+              <span className={styles.sender}>
+                {chat.lastMessageIsMine
+                  ? (locale === 'en' ? 'You' : 'Vous')
+                  : chat.lastMessageSenderName?.split(' ')[0]}
+                :{' '}
+              </span>
+            )}
             {truncateMessage(chat.lastMessage)}
           </p>
         )}

@@ -118,9 +118,11 @@ const ConversationList: React.FC<ConversationListProps> = ({
                     secondaryParticipant: secondaryParticipant ? {
                         ...secondaryParticipant,
                     } as ChatParticipant : undefined,
-                    lastMessage: chat.lastMessage,
-                    lastUpdate: chat.updatedAt,
-                    unreadCount: chat._count?.messages,
+                    lastMessage: chat.lastMessage ?? undefined,
+                    lastUpdate: chat.lastMessageAt || chat.updatedAt,
+                    lastMessageSenderName: chat.lastMessageSenderName ?? undefined,
+                    lastMessageIsMine: chat.lastMessageIsMine,
+                    unreadCount: chat.unreadCount,
                     isOnline: chat.isOnline,
                 };
 

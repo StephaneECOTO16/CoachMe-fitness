@@ -11,7 +11,12 @@ export interface Chat {
     clientId: number;
     createdAt: string;
     updatedAt: string;
-    lastMessage?: string;
+    lastMessage?: string | null;
+    lastMessageAt?: string | null;
+    lastMessageSenderId?: string | null;
+    lastMessageSenderName?: string | null;
+    lastMessageIsMine?: boolean;
+    unreadCount?: number;
     isOnline?: boolean;
     coach: {
         id: number;

@@ -167,6 +167,8 @@ export default function AdminMessagesPage() {
                 return {
                     ...c,
                     lastMessage: newMessage.content,
+                    lastMessageAt: newMessage.createdAt,
+                    lastMessageSenderName: newMessage.sender.name,
                     updatedAt: newMessage.createdAt
                 };
             }

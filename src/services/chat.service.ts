@@ -138,7 +138,7 @@ export async function sendMessage(
 
 // ─── Chat lists ───────────────────────────────────────────────────────────────
 
-/** Returns all chats for a coach user. */
+/** Returns all chats for a coach user, with last-message preview and unread count. */
 export async function getCoachChats(userId: string) {
   const coach = await prisma.coachProfile.findUnique({
     where: { userId },
@@ -148,17 +148,14 @@ export async function getCoachChats(userId: string) {
 
   const chats = await prisma.chat.findMany({
     where: { coachId: coach.id },
-    include: {
-      ...chatInclude,
-      _count: { select: { messages: true } },
-    },
+    include: { ...chatInclude, ...lastMessageInclude(userId) },
     orderBy: { updatedAt: "desc" },
   });
 
-  return chats.map(resolveAvatars);
+  return chats.map((c) => resolveLastMessage(resolveAvatars(c), userId));
 }
 
-/** Returns all chats for a prospect/client user. */
+/** Returns all chats for a prospect/client user, with last-message preview and unread count. */
 export async function getClientChats(userId: string) {
   const client = await prisma.clientProfile.findUnique({
     where: { userId },
@@ -168,17 +165,14 @@ export async function getClientChats(userId: string) {
 
   const chats = await prisma.chat.findMany({
     where: { clientId: client.id },
-    include: {
-      ...chatInclude,
-      _count: { select: { messages: true } },
-    },
+    include: { ...chatInclude, ...lastMessageInclude(userId) },
     orderBy: { updatedAt: "desc" },
   });
 
-  return chats.map(resolveAvatars);
+  return chats.map((c) => resolveLastMessage(resolveAvatars(c), userId));
 }
 
-/** Returns all chats (admin view) with pagination. */
+/** Returns all chats (admin view) with pagination. Admin isn't a participant, so no unread count. */
 export async function getAllChats(limit = 50, offset = 0) {
   const [chats, total] = await prisma.$transaction([
     prisma.chat.findMany({
@@ -187,9 +181,13 @@ export async function getAllChats(limit = 50, offset = 0) {
         messages: {
           orderBy: { createdAt: "desc" },
           take: 1,
-          select: { content: true, createdAt: true },
+          select: {
+            content: true,
+            createdAt: true,
+            senderId: true,
+            sender: { select: { name: true } },
+          },
         },
-        _count: { select: { messages: true } },
       },
       orderBy: { updatedAt: "desc" },
       take: limit,
@@ -199,10 +197,16 @@ export async function getAllChats(limit = 50, offset = 0) {
   ]);
 
   return {
-    chats: chats.map((c) => ({
-      ...resolveAvatars(c),
-      lastMessage: c.messages[0]?.content ?? null,
-    })),
+    chats: chats.map((c) => {
+      const last = c.messages[0];
+      return {
+        ...resolveAvatars(c),
+        lastMessage: last?.content ?? null,
+        lastMessageAt: last?.createdAt ?? null,
+        lastMessageSenderId: last?.senderId ?? null,
+        lastMessageSenderName: last?.sender.name ?? null,
+      };
+    }),
     total,
   };
 }
@@ -243,5 +247,50 @@ function resolveAvatars<T extends {
         avatar: chat.client.user.avatar ? getPublicUrl(chat.client.user.avatar) : null,
       },
     },
+  };
+}
+
+/**
+ * Include clause for a chat's last message (with sender name) plus a count
+ * of messages sent by the *other* participant that this user hasn't read
+ * yet. Filtered relation counts are evaluated in the database, so this
+ * stays a single query regardless of chat/message volume.
+ */
+function lastMessageInclude(currentUserId: string) {
+  return {
+    messages: {
+      orderBy: { createdAt: "desc" as const },
+      take: 1,
+      select: {
+        content: true,
+        createdAt: true,
+        senderId: true,
+        sender: { select: { name: true } },
+      },
+    },
+    _count: {
+      select: {
+        messages: { where: { senderId: { not: currentUserId }, isRead: false } },
+      },
+    },
+  };
+}
+
+function resolveLastMessage<
+  T extends {
+    messages: { content: string; createdAt: Date; senderId: string; sender: { name: string | null } }[];
+    _count: { messages: number };
+  }
+>(chat: T, currentUserId: string) {
+  const { messages, _count, ...rest } = chat;
+  const last = messages[0];
+  return {
+    ...rest,
+    lastMessage: last?.content ?? null,
+    lastMessageAt: last?.createdAt ?? null,
+    lastMessageSenderId: last?.senderId ?? null,
+    lastMessageSenderName: last?.sender.name ?? null,
+    lastMessageIsMine: last ? last.senderId === currentUserId : false,
+    unreadCount: _count.messages,
   };
 }

@@ -41,17 +41,22 @@ export async function POST(req: Request, { params }: { params: Promise<{ chatId:
             return NextResponse.json({ success: false, error: { code: 'FORBIDDEN', message: 'Not a participant in this chat' } }, { status: 403 });
         }
 
-        // Create message in database
-        const message = await prisma.message.create({
-            data: {
-                chatId,
-                senderId: payload.userId,
-                content: content.trim(),
-            },
-            include: {
-                sender: { select: { id: true, name: true, email: true, role: true, avatar: true } }
-            }
-        });
+        // Create message and bump the chat's updatedAt in one transaction —
+        // conversation lists sort/display by this, so it must reflect the
+        // latest message, not just chat creation time.
+        const [message] = await prisma.$transaction([
+            prisma.message.create({
+                data: {
+                    chatId,
+                    senderId: payload.userId,
+                    content: content.trim(),
+                },
+                include: {
+                    sender: { select: { id: true, name: true, email: true, role: true, avatar: true } }
+                }
+            }),
+            prisma.chat.update({ where: { id: chatId }, data: { updatedAt: new Date() } }),
+        ]);
 
         const messageWithAvatar = {
             ...message,
@@ -141,6 +146,15 @@ export async function GET(req: Request, { params }: { params: Promise<{ chatId: 
         });
 
         const total = await prisma.message.count({ where: { chatId } });
+
+        // The other participant is now viewing this conversation — mark
+        // their unread messages as read so the conversation list badge clears.
+        if (isCoach || isClient) {
+            await prisma.message.updateMany({
+                where: { chatId, senderId: { not: payload.userId }, isRead: false },
+                data: { isRead: true },
+            });
+        }
 
         const messagesWithAvatars = messages
             .reverse()

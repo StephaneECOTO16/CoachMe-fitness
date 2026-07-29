@@ -123,6 +123,39 @@
   line-height: 1.4;
 }
 
+.lastMessage.unread {
+  color: #111827;
+  font-weight: 600;
+}
+
+.sender {
+  font-weight: 600;
+  color: #374151;
+}
+
+.lastMessage.unread .sender {
+  color: #111827;
+}
+
+.unreadBadge {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9px;
+  border: 2px solid #ffffff;
+  background: #ef4444;
+  color: #ffffff;
+  font-size: 0.65rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
 .chatCard.active .lastMessage {
   color: #059669;
   font-weight: 500;
