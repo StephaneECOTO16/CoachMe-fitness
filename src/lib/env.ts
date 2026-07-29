@@ -7,6 +7,7 @@
 
 const required = [
   "DATABASE_URL",
+  "POSTGRES_PRISMA_URL",
   "JWT_SECRET",
   "R2_ENDPOINT",
   "R2_REGION",
