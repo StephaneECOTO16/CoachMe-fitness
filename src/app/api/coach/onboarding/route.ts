@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { requireAuth } from '@/lib/auth';
 import { parseRequestBody, CoachOnboardingSchema } from '@/lib/schemas';
+import { sendNotification } from '@/lib/notifications';
 
 export async function POST(req: Request) {
     // Validate authentication
@@ -56,6 +57,19 @@ export async function POST(req: Request) {
             status: 'PENDING'
         }
     });
+
+    // Notify all admins that a new coach application is awaiting review
+    // (non-blocking — an admin notification failure must not fail the
+    // coach's own onboarding submission).
+    prisma.user.findMany({ where: { role: 'ADMIN' }, select: { id: true } })
+        .then((admins) => Promise.allSettled(admins.map((admin) => sendNotification({
+            userId: admin.id,
+            title: 'Nouvelle candidature coach',
+            body: `${payload.name || payload.email} a soumis une candidature coach en attente de validation.`,
+            type: 'ACCOUNT_REVIEW',
+            url: '/admin/dashboard'
+        }))))
+        .catch((err) => console.error('[POST /api/coach/onboarding] admin notification failed:', err));
 
     return NextResponse.json({
         success: true,
