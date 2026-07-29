@@ -55,3 +55,26 @@
 .actionIconBtnDanger:active {
     transform: scale(0.95);
 }
+
+.actionIconBtnSuccess {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border: none;
+    background: transparent;
+    border-radius: 8px;
+    cursor: pointer;
+    color: #16a34a;
+    transition: all 0.2s ease;
+}
+
+.actionIconBtnSuccess:hover {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+.actionIconBtnSuccess:active {
+    transform: scale(0.95);
+}

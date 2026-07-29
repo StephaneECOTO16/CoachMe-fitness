@@ -282,27 +282,10 @@ export default function AdminUsersPage() {
       onClick: () => void;
     }[] = [];
 
+    // Delete stays in the overflow menu for coaches — accept/reject are
+    // shown as direct buttons below instead, so admins don't need to open
+    // a dropdown to do the two most common actions on a pending coach.
     if (user.role === "COACH" && user.coachId) {
-      if (user.status !== "APPROVED") {
-        dropdownItems.push({
-          label: tUsers("approveCoach"),
-          icon: <CheckCircle size={16} />,
-          onClick: () => handleApprove(user.id),
-        });
-      }
-      if (user.status !== "REJECTED") {
-        dropdownItems.push({
-          label: tUsers("rejectCoach"),
-          icon: <XCircle size={16} />,
-          variant: "danger",
-          onClick: () => {
-            setSelectedUser(user);
-            setRejectionReason("");
-            setIsRejectModalOpen(true);
-          },
-        });
-      }
-      // Add delete action for coaches
       dropdownItems.push({
         label: tUsers("deleteUser"),
         icon: <Trash2 size={16} />,
@@ -323,6 +306,30 @@ export default function AdminUsersPage() {
           justifyContent: "flex-end",
         }}
       >
+        {user.role === "COACH" && user.coachId && user.status !== "APPROVED" && (
+          <button
+            type="button"
+            className={styles.actionIconBtnSuccess}
+            onClick={() => handleApprove(user.id)}
+            title={tUsers("approveCoach")}
+          >
+            <CheckCircle size={18} />
+          </button>
+        )}
+        {user.role === "COACH" && user.coachId && user.status !== "REJECTED" && (
+          <button
+            type="button"
+            className={styles.actionIconBtnDanger}
+            onClick={() => {
+              setSelectedUser(user);
+              setRejectionReason("");
+              setIsRejectModalOpen(true);
+            }}
+            title={tUsers("rejectCoach")}
+          >
+            <XCircle size={18} />
+          </button>
+        )}
         <button
           type="button"
           className={styles.actionIconBtn}
