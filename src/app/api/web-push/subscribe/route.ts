@@ -3,11 +3,16 @@ import webpush from 'web-push';
 import { prisma } from '@/lib/db';
 import { requireAuth } from '@/lib/auth';
 
-webpush.setVapidDetails(
-  process.env.VAPID_SUBJECT || 'mailto:example@yourdomain.org',
-  process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY as string,
-  process.env.VAPID_PRIVATE_KEY as string
-);
+const publicVapidKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
+const privateVapidKey = process.env.VAPID_PRIVATE_KEY;
+
+if (publicVapidKey && privateVapidKey) {
+  webpush.setVapidDetails(
+    process.env.VAPID_SUBJECT || 'mailto:example@yourdomain.org',
+    publicVapidKey,
+    privateVapidKey
+  );
+}
 
 export async function POST(req: Request) {
   try {
