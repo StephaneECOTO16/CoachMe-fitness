@@ -51,30 +51,10 @@ export default function LoginPage() {
         }),
       });
 
-      // An upstream/server error can return an empty body or HTML instead of
-      // JSON. Parse defensively so the user sees a useful error message rather
-      // than the technical "Unexpected end of JSON input" exception.
-      const responseText = await response.text();
-      let result: { error?: { message?: string }; success?: boolean } = {};
-      if (responseText.trim()) {
-        try {
-          result = JSON.parse(responseText);
-        } catch {
-          // Keep the generic status-based message below.
-        }
-      }
+      const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(
-          result.error?.message ||
-            (response.status >= 500
-              ? "The login service is temporarily unavailable. Please try again."
-              : "Login failed")
-        );
-      }
-
-      if (!result.success) {
-        throw new Error("Login failed. Please try again.");
+        throw new Error(result.error?.message || "Login failed");
       }
 
       // Sync user state from the HttpOnly cookie set by the server

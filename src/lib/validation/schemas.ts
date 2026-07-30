@@ -208,22 +208,9 @@ export const SendMessageSchema = z.object({
   content: z
     .string()
     .min(1, "Message cannot be empty")
-    .max(5000, "Message cannot exceed 5000 characters")
-    .transform((value) => value.trim())
-    .refine((value) => value.length > 0, "Message cannot be empty"),
-  replyToId: z.coerce.number().int().positive().nullable().optional(),
+    .max(5000, "Message cannot exceed 5000 characters"),
 });
 export type SendMessageInput = z.infer<typeof SendMessageSchema>;
-
-export const DeleteMessagesSchema = z.union([
-  z.object({
-    messageIds: z.array(z.coerce.number().int().positive()).min(1).max(100),
-  }),
-  z.object({
-    messageId: z.coerce.number().int().positive(),
-  }),
-]);
-export type DeleteMessagesInput = z.infer<typeof DeleteMessagesSchema>;
 
 // ─── Admin ────────────────────────────────────────────────────────────────────
 

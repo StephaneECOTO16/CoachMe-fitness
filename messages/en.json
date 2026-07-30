@@ -339,7 +339,6 @@
       "reset": "Reset",
       "about": "About",
       "discipline": "Discipline",
-      "loadingDisciplines": "Loading disciplines...",
       "experience": "Experience",
       "certifications": "Certifications",
       "gallery": "Gallery",
@@ -708,21 +707,9 @@
         "deleteError": "Failed to delete user",
         "deleteModal": {
           "title": "Delete User",
-          "message": "Are you sure you want to delete this {role}? The account will be deactivated and moved to deleted accounts. You can restore it at any time from that tab.",
-          "confirm": "Delete"
-        },
-        "activeAccounts": "Active Accounts",
-        "deletedAccounts": "Deleted Accounts",
-        "activateUser": "Activate account",
-        "deactivateUser": "Deactivate account",
-        "restoreUser": "Restore account",
-        "activateSuccess": "Account activated successfully",
-        "deactivateSuccess": "Account deactivated successfully",
-        "restoreSuccess": "Account restored successfully",
-        "activateError": "Failed to activate account",
-        "deactivateError": "Failed to deactivate account",
-        "restoreError": "Failed to restore account",
-        "deletedOn": "Deleted on {date}"
+          "message": "Are you sure you want to delete this {role}? All associated data including profile, messages, and activity will be permanently removed.",
+          "confirm": "Delete Permanently"
+        }
       }
     },
     "coaches": {
@@ -990,17 +977,6 @@
       "send": "Send",
       "sending": "Sending...",
       "sendError": "Failed to send message. Please try again.",
-      "reply": "Reply",
-      "replyingTo": "Replying to {name}",
-      "cancelReply": "Cancel reply",
-      "selectMessage": "Select message",
-      "deleteMessage": "Delete message",
-      "deleteSelected": "Delete selected",
-      "selectedCount": "{count} message(s) selected",
-      "deleteConfirm": "Delete {count} selected message(s)?",
-      "deleting": "Deleting...",
-      "deleteError": "Failed to delete messages. Please try again.",
-      "unknownUser": "User",
       "comingSoon": "Coming soon",
       "presenceLabel": "Presence"
     }

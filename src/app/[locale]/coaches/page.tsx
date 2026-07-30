@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
 import { LoadingIndicator, CoachCard, Pagination, type CoachData } from "@/components";
@@ -50,6 +50,12 @@ export default function CoachesPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
 
+  // Applied filters (used for fetching)
+  const [selectedDiscipline, setSelectedDiscipline] = useState<string>("");
+  const [minRating, setMinRating] = useState<string>("");
+  const [selectedRateType, setSelectedRateType] = useState<string>("");
+  const [maxRate, setMaxRate] = useState<string>("");
+
   // Temporary filters (UI state before applying)
   const [tempDiscipline, setTempDiscipline] = useState<string>("");
   const [tempMinRating, setTempMinRating] = useState<string>("");
@@ -59,57 +65,35 @@ export default function CoachesPage() {
   const [disciplines, setDisciplines] = useState<{ id: number; name: string; imageUrl?: string }[]>([]);
   const [loadingDisciplines, setLoadingDisciplines] = useState(true);
 
-  const abortControllerRef = useRef<AbortController | null>(null);
-
-  interface AppliedFilters {
-    disciplineId: string;
-    minRating: string;
-    rateType: string;
-    maxRate: string;
-  }
-
-  // Accepts the filters to fetch with explicitly, rather than reading them
-  // back off state — state updates from the same click are not yet visible
-  // here, so relying on the enclosing render's state would fetch with the
-  // previous selection.
-  const fetchCoaches = async (filters: AppliedFilters) => {
-    // Cancel any in-flight request so a slow, superseded fetch can never
-    // resolve after (and overwrite) a newer one's results.
-    abortControllerRef.current?.abort();
-    const controller = new AbortController();
-    abortControllerRef.current = controller;
-
+  const fetchCoaches = async () => {
     setLoading(true);
     try {
       const params = new URLSearchParams({ limit: "50" });
 
-      if (filters.disciplineId) {
-        params.append("disciplineId", filters.disciplineId);
+      if (selectedDiscipline) {
+        params.append("discipline", selectedDiscipline);
       }
-      if (filters.minRating) {
-        params.append("minRating", filters.minRating);
+      if (minRating) {
+        params.append("minRating", minRating);
       }
-      if (filters.rateType) {
-        params.append("rateType", filters.rateType);
+      if (selectedRateType) {
+        params.append("rateType", selectedRateType);
       }
-      if (filters.maxRate) {
-        params.append("maxRate", filters.maxRate);
+      if (maxRate) {
+        params.append("maxRate", maxRate);
       }
 
       const url = `/api/coaches?${params.toString()}`;
-      const response = await fetch(url, { signal: controller.signal });
+      const response = await fetch(url);
       const data = await response.json();
 
       if (data.success) {
         setCoaches(data.coaches);
       }
     } catch (error) {
-      if ((error as Error).name === "AbortError") return;
       console.error("Error fetching coaches:", error);
     } finally {
-      if (abortControllerRef.current === controller) {
-        setLoading(false);
-      }
+      setLoading(false);
     }
   };
 
@@ -134,18 +118,19 @@ export default function CoachesPage() {
 
   // Only fetch coaches on initial load
   useEffect(() => {
-    fetchCoaches({ disciplineId: "", minRating: "", rateType: "", maxRate: "" });
+    fetchCoaches();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleApplyFilters = () => {
-    setCurrentPage(1);
-    fetchCoaches({
-      disciplineId: tempDiscipline,
-      minRating: tempMinRating,
-      rateType: tempRateType,
-      maxRate: tempMaxRate,
-    });
+    setSelectedDiscipline(tempDiscipline);
+    setMinRating(tempMinRating);
+    setSelectedRateType(tempRateType);
+    setMaxRate(tempMaxRate);
+    // Trigger fetch after state update
+    setTimeout(() => {
+      fetchCoaches();
+    }, 0);
   };
 
   const handleResetFilters = () => {
@@ -153,8 +138,16 @@ export default function CoachesPage() {
     setTempMinRating("");
     setTempRateType("");
     setTempMaxRate("");
+    setSelectedDiscipline("");
+    setMinRating("");
+    setSelectedRateType("");
+    setMaxRate("");
+    // Trigger fetch after state update
+    setTimeout(() => {
+      fetchCoaches();
+    }, 0);
+    // Reset to page 1 when filters change
     setCurrentPage(1);
-    fetchCoaches({ disciplineId: "", minRating: "", rateType: "", maxRate: "" });
   };
 
   const transformCoachData = (coach: Coach): CoachData => ({
@@ -239,10 +232,10 @@ export default function CoachesPage() {
               disabled={loadingDisciplines}
             >
               <option value="">
-                {loadingDisciplines ? t("loadingDisciplines") : t("allDisciplines")}
+                {loadingDisciplines ? "Loading disciplines..." : t("allDisciplines")}
               </option>
               {disciplines.map((discipline) => (
-                <option key={discipline.id} value={discipline.id}>
+                <option key={discipline.id} value={discipline.name}>
                   {discipline.name}
                 </option>
               ))}

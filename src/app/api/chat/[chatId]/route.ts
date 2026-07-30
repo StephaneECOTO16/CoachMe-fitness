@@ -34,8 +34,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ chatId: 
                 },
                 messages: {
                     include: {
-                        sender: { select: { id: true, name: true, email: true, role: true, avatar: true } },
-                        replyTo: { select: { id: true, content: true, sender: { select: { name: true } } } },
+                        sender: { select: { id: true, name: true, email: true, role: true, avatar: true } }
                     },
                     orderBy: { createdAt: 'asc' }
                 }

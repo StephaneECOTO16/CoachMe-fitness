@@ -9,7 +9,7 @@ export interface ChatMessage {
   content: string;
   timestamp: string;
   sender: {
-    id?: string;
+    id?: number;
     name: string;
     avatar?: string;
   };
