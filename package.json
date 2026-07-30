@@ -15,7 +15,7 @@
     "prisma:studio": "prisma studio",
     "db:migrate": "prisma migrate deploy && prisma generate",
     "db:ensure-push-notifications": "node scripts/ensure-push-notifications.js",
-    "vercel-build": "pnpm db:ensure-push-notifications && prisma generate && next build"
+    "vercel-build": "pnpm db:ensure-push-notifications && prisma migrate deploy && prisma generate && next build"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.600.0",
