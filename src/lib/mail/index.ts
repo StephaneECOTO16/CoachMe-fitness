@@ -11,12 +11,20 @@ import { escapeHtml } from "./sanitize";
 
 // ─── Transport ────────────────────────────────────────────────────────────────
 
+const mailHost = process.env.MAIL_HOST || process.env.SMTP_HOST;
+const mailPort = Number.parseInt(process.env.MAIL_PORT || process.env.SMTP_PORT || "587", 10);
+const mailEncryption = (process.env.MAIL_ENCRYPTION || "tls").toLowerCase();
+const mailUser = process.env.MAIL_USER || process.env.SMTP_USER;
+const mailPassword = process.env.MAIL_PASSWORD || process.env.SMTP_PASS;
+
 const transporter = nodemailer.createTransport({
-  host: env.SMTP_HOST,
-  port: parseInt(env.SMTP_PORT, 10),
+  host: mailHost,
+  port: mailPort,
+  secure: mailEncryption === "ssl" || mailPort === 465,
+  requireTLS: mailEncryption === "tls" && mailPort !== 465,
   auth: {
-    user: env.SMTP_USER,
-    pass: env.SMTP_PASS,
+    user: mailUser,
+    pass: mailPassword,
   },
 });
 
@@ -28,11 +36,16 @@ interface MailOptions {
   html: string;
 }
 
+interface SendMailOptions {
+  /** Throw when delivery is essential, such as password reset emails. */
+  throwOnError?: boolean;
+}
+
 /**
  * Sends a transactional email. Non-blocking — awaiting is optional for
  * fire-and-forget notification emails, but await when delivery matters.
  */
-export async function sendMail(options: MailOptions): Promise<void> {
+export async function sendMail(options: MailOptions, settings: SendMailOptions = {}): Promise<void> {
   try {
     const info = await transporter.sendMail({
       from: `"${env.MAIL_FROM_NAME}" <${env.MAIL_FROM_ADDRESS}>`,
@@ -44,6 +57,7 @@ export async function sendMail(options: MailOptions): Promise<void> {
   } catch (err) {
     // Log but don't throw — a failed notification should never crash a request
     logger.error({ err, to: options.to, subject: options.subject }, "Email send failed");
+    if (settings.throwOnError) throw err;
   }
 }
 

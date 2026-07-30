@@ -19,7 +19,7 @@ import {
 } from "@/lib/mail";
 import { logger } from "@/lib/logger";
 import { env } from "@/lib/env";
-import { randomBytes } from "crypto";
+import { createHash, randomBytes } from "crypto";
 import { type RegisterInput } from "@/lib/validation/schemas";
 import { getPublicUrl } from "@/lib/storage";
 import { sendNotification } from "@/lib/notifications";
@@ -251,19 +251,25 @@ export async function initiatePasswordReset(email: string): Promise<void> {
   });
 
   const token = randomBytes(32).toString("hex");
+  const tokenHash = createHash("sha256").update(token).digest("hex");
   const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
 
-  await prisma.passwordResetToken.create({
-    data: { userId: user.id, token, expiresAt },
+  const resetToken = await prisma.passwordResetToken.create({
+    data: { userId: user.id, token: tokenHash, expiresAt },
   });
 
   const resetUrl = `${env.NEXT_PUBLIC_APP_URL}/reset-password?token=${token}`;
 
-  sendMail({
-    to: normalised,
-    subject: "Reset Your Password — CoachMe",
-    html: (await import("@/lib/mail")).getForgotPasswordTemplate(resetUrl),
-  }).catch(() => {});
+  try {
+    await sendMail({
+      to: normalised,
+      subject: "Reset Your Password — CoachMe",
+      html: (await import("@/lib/mail")).getForgotPasswordTemplate(resetUrl),
+    }, { throwOnError: true });
+  } catch (error) {
+    await prisma.passwordResetToken.update({ where: { id: resetToken.id }, data: { used: true } });
+    throw error;
+  }
 
   logger.info({ userId: user.id }, "Password reset initiated");
 }
@@ -276,7 +282,11 @@ export async function completePasswordReset(
   token: string,
   newPassword: string,
 ): Promise<void> {
+  const tokenHash = createHash("sha256").update(token).digest("hex");
   const record = await prisma.passwordResetToken.findUnique({
+    where: { token: tokenHash },
+    include: { user: { select: { id: true } } },
+  }) ?? await prisma.passwordResetToken.findUnique({
     where: { token },
     include: { user: { select: { id: true } } },
   });

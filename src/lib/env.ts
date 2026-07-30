@@ -21,10 +21,6 @@ const required = [
   "PUSHER_CLUSTER",
   "NEXT_PUBLIC_PUSHER_KEY",
   "NEXT_PUBLIC_PUSHER_CLUSTER",
-  "SMTP_HOST",
-  "SMTP_PORT",
-  "SMTP_USER",
-  "SMTP_PASS",
   "ADMIN_EMAIL",
   "MAIL_FROM_NAME",
   "MAIL_FROM_ADDRESS",
@@ -53,6 +49,15 @@ function validateEnv(): void {
       env[key] = value;
     }
   }
+
+  const mailHost = process.env.MAIL_HOST || process.env.SMTP_HOST;
+  const mailPort = process.env.MAIL_PORT || process.env.SMTP_PORT;
+  const mailUser = process.env.MAIL_USER || process.env.SMTP_USER;
+  const mailPassword = process.env.MAIL_PASSWORD || process.env.SMTP_PASS;
+  if (!mailHost) missing.push("MAIL_HOST (or SMTP_HOST)");
+  if (!mailPort) missing.push("MAIL_PORT (or SMTP_PORT)");
+  if (!mailUser) missing.push("MAIL_USER (or SMTP_USER)");
+  if (!mailPassword) missing.push("MAIL_PASSWORD (or SMTP_PASS)");
 
   if (missing.length > 0) {
     throw new Error(

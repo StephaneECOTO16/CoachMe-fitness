@@ -6,16 +6,10 @@
  */
 
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/db";
-import { z } from "zod";
-import { parseRequestBody } from "@/lib/schemas";
-import { randomBytes } from "crypto";
+import { parseRequestBody, ForgotPasswordSchema } from "@/lib/validation/schemas";
 import { checkRateLimit } from "@/lib/rate-limit";
-import { sendMail, getForgotPasswordTemplate } from "@/lib/mail";
+import { initiatePasswordReset } from "@/services/auth.service";
 
-const ForgotPasswordSchema = z.object({
-  email: z.string().email("Invalid email address"),
-});
 
 /**
  * POST /api/auth/forgot-password
@@ -49,56 +43,11 @@ export async function POST(req: Request) {
   }
 
   try {
-    // Find user by email
-    const user = await prisma.user.findUnique({
-      where: { email: normalizedEmail },
-    });
-
-    // Always return success to prevent email enumeration
-    if (!user) {
-      return NextResponse.json({
-        success: true,
-        message: "If an account exists with this email, a reset link will be sent.",
-      });
-    }
-
-    // Invalidate any existing unused tokens for this user
-    await prisma.passwordResetToken.updateMany({
-      where: {
-        userId: user.id,
-        used: false,
-      },
-      data: {
-        used: true,
-      },
-    });
-
-    // Generate a secure random token
-    const token = randomBytes(32).toString("hex");
-    const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hour from now
-
-    // Store the token in the database
-    await prisma.passwordResetToken.create({
-      data: {
-        userId: user.id,
-        token,
-        expiresAt,
-      },
-    });
-
-    // Send email with reset link
-    const resetUrl = `${process.env.NEXT_PUBLIC_APP_URL}/reset-password?token=${token}`;
-    await sendMail({
-      to: normalizedEmail,
-      subject: "Reset Your Password - CoachMe",
-      html: getForgotPasswordTemplate(resetUrl),
-    });
+    await initiatePasswordReset(normalizedEmail);
 
     return NextResponse.json({
       success: true,
       message: "If an account exists with this email, a reset link will be sent.",
-      // DEV ONLY: Include token in response for testing (remove in production!)
-      ...(process.env.NODE_ENV === "development" && { devToken: token }),
     });
   } catch (err) {
     console.error("[POST /api/auth/forgot-password] Error:", err);
