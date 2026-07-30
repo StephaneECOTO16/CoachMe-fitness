@@ -79,13 +79,14 @@ export async function POST(req: Request) {
 
   const { identifier, password, rememberMe } = data!;
 
-  // ── Detect identifier type and find user ──────────────────────────────────
-  const identifierType = detectIdentifierType(identifier);
-  const normalizedIdentifier = identifier.toLowerCase().trim();
+  try {
+    // ── Detect identifier type and find user ──────────────────────────────────
+    const identifierType = detectIdentifierType(identifier);
+    const normalizedIdentifier = identifier.toLowerCase().trim();
 
-  let user = null;
+    let user = null;
 
-  if (identifierType === "email") {
+    if (identifierType === "email") {
     user = await prisma.user.findUnique({
       where: { email: normalizedIdentifier },
     });
@@ -111,7 +112,7 @@ export async function POST(req: Request) {
         { status: 401 },
       );
     }
-  } else {
+    } else {
     // Phone lookup - tolerate legacy duplicate phone numbers by checking all matches
     const normalizedPhone = normalizePhoneIdentifier(identifier);
 
@@ -160,7 +161,7 @@ export async function POST(req: Request) {
     }
   }
 
-  if (!user) {
+    if (!user) {
     // Vague message — don't reveal whether the identifier exists
     return NextResponse.json(
       {
@@ -178,7 +179,7 @@ export async function POST(req: Request) {
   // Deleted/deactivated accounts authenticate correctly (right password) but
   // must not receive a session — distinct from INVALID_CREDENTIALS so the
   // client can show a clear "account disabled" message instead of "wrong password".
-  if (user.deletedAt) {
+    if (user.deletedAt) {
     return NextResponse.json(
       {
         success: false,
@@ -191,7 +192,7 @@ export async function POST(req: Request) {
     );
   }
 
-  if (!user.isActive) {
+    if (!user.isActive) {
     return NextResponse.json(
       {
         success: false,
@@ -205,9 +206,9 @@ export async function POST(req: Request) {
   }
 
   // ── Sign JWT + set cookie ──────────────────────────────────────────────────
-  const avatarUrl = user.avatar ? getPublicUrl(user.avatar) : null;
+    const avatarUrl = user.avatar ? getPublicUrl(user.avatar) : null;
 
-  const jwtPayload: JwtPayload = {
+    const jwtPayload: JwtPayload = {
     userId: user.id,
     role: user.role,
     email: user.email,
@@ -215,12 +216,12 @@ export async function POST(req: Request) {
     avatar: avatarUrl,
   };
 
-  const token = signJwt(jwtPayload, rememberMe ? "30d" : "1d");
+    const token = signJwt(jwtPayload, rememberMe ? "30d" : "1d");
 
   // Cookie is set on the response — the token never appears in the body
-  await setSessionCookie(token, rememberMe);
+    await setSessionCookie(token, rememberMe);
 
-  logger.info(
+    logger.info(
     {
       userId: user.id,
       role: user.role,
@@ -230,7 +231,7 @@ export async function POST(req: Request) {
   );
 
   // Return public user data only (no token, no password hash)
-  return NextResponse.json({
+    return NextResponse.json({
     success: true,
     user: {
       id: user.id,
@@ -240,5 +241,18 @@ export async function POST(req: Request) {
       phone: user.phone,
       avatar: avatarUrl,
     },
-  });
+    });
+  } catch (err) {
+    logger.error({ err, identifierType: detectIdentifierType(identifier) }, "Login request failed");
+    return NextResponse.json(
+      {
+        success: false,
+        error: {
+          code: "LOGIN_UNAVAILABLE",
+          message: "Unable to complete login right now. Please try again.",
+        },
+      },
+      { status: 500 },
+    );
+  }
 }

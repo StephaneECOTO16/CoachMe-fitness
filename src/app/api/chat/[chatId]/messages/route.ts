@@ -5,6 +5,7 @@ import { broadcastMessage } from '@/lib/pusher';
 import { getPublicUrl } from '@/lib/storage';
 import { sendMail, getNewMessageTemplate } from '@/lib/mail';
 import { sendNotification } from '@/lib/notifications';
+import { DeleteMessagesSchema, SendMessageSchema } from '@/lib/validation/schemas';
 
 /**
  * POST /api/chat/[chatId]/messages
@@ -20,10 +21,24 @@ export async function POST(req: Request, { params }: { params: Promise<{ chatId:
     const chatId = parseInt(chatIdParam);
     if (isNaN(chatId)) return NextResponse.json({ success: false, error: { code: 'INVALID_INPUT' } }, { status: 400 });
 
-    const { content, replyToId } = await req.json();
-    if (!content || !content.trim()) {
-        return NextResponse.json({ success: false, error: { code: 'INVALID_INPUT', message: 'Message content required' } }, { status: 400 });
+    let input: { content: string; replyToId?: number | null };
+    try {
+        const parsed = SendMessageSchema.safeParse(await req.json());
+        if (!parsed.success) {
+            return NextResponse.json({
+                success: false,
+                error: { code: 'INVALID_INPUT', message: parsed.error.issues[0]?.message ?? 'Invalid message' },
+            }, { status: 400 });
+        }
+        input = parsed.data;
+    } catch {
+        return NextResponse.json({
+            success: false,
+            error: { code: 'INVALID_INPUT', message: 'Invalid JSON body' },
+        }, { status: 400 });
     }
+
+    const { content, replyToId } = input;
 
     try {
         // Verify chat exists and user is a participant
@@ -137,17 +152,19 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ chatI
     if (isNaN(chatId)) return NextResponse.json({ success: false, error: { code: 'INVALID_INPUT' } }, { status: 400 });
 
     try {
-        const body = await req.json();
-        const rawIds: unknown[] = Array.isArray(body.messageIds) ? body.messageIds : [body.messageId];
-        const messageIds: number[] = [...new Set(
-            rawIds
-                .map((id: unknown) => Number(id))
-                .filter((id: number): id is number => Number.isInteger(id) && id > 0)
-        )];
-
-        if (messageIds.length === 0 || messageIds.length > 100) {
+        let parsedBody;
+        try {
+            parsedBody = DeleteMessagesSchema.safeParse(await req.json());
+        } catch {
+            return NextResponse.json({ success: false, error: { code: 'INVALID_INPUT', message: 'Invalid JSON body' } }, { status: 400 });
+        }
+        if (!parsedBody.success) {
             return NextResponse.json({ success: false, error: { code: 'INVALID_INPUT', message: 'Select between 1 and 100 messages' } }, { status: 400 });
         }
+
+        const messageIds = [...new Set(
+            'messageIds' in parsedBody.data ? parsedBody.data.messageIds : [parsedBody.data.messageId]
+        )];
 
         const chat = await prisma.chat.findUnique({
             where: { id: chatId },
@@ -199,8 +216,10 @@ export async function GET(req: Request, { params }: { params: Promise<{ chatId: 
     if (isNaN(chatId)) return NextResponse.json({ success: false, error: { code: 'INVALID_INPUT' } }, { status: 400 });
 
     const url = new URL(req.url);
-    const limit = Math.min(parseInt(url.searchParams.get('limit') || '50'), 100);
-    const offset = parseInt(url.searchParams.get('offset') || '0');
+    const requestedLimit = Number.parseInt(url.searchParams.get('limit') || '50', 10);
+    const requestedOffset = Number.parseInt(url.searchParams.get('offset') || '0', 10);
+    const limit = Number.isFinite(requestedLimit) ? Math.min(Math.max(requestedLimit, 1), 100) : 50;
+    const offset = Number.isFinite(requestedOffset) ? Math.max(requestedOffset, 0) : 0;
 
     try {
         // Verify chat exists and user is a participant
