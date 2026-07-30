@@ -340,6 +340,7 @@
       "reset": "Réinitialiser",
       "discipline": "Discipline",
       "allDisciplines": "Toutes les disciplines",
+      "loadingDisciplines": "Chargement des disciplines...",
       "minimumRating": "Note minimale",
       "any": "Tout",
       "maxHourlyRate": "Tarif Horaire Max",
@@ -721,9 +722,21 @@
         "deleteError": "Échec de la suppression de l'utilisateur",
         "deleteModal": {
           "title": "Supprimer l'Utilisateur",
-          "message": "Êtes-vous sûr de vouloir supprimer ce {role} ? Toutes les données associées, y compris le profil, les messages et l'activité seront définitivement supprimées.",
-          "confirm": "Supprimer Définitivement"
-        }
+          "message": "Êtes-vous sûr de vouloir supprimer ce {role} ? Le compte sera désactivé et déplacé vers les comptes supprimés. Vous pourrez le restaurer à tout moment depuis cet onglet.",
+          "confirm": "Supprimer"
+        },
+        "activeAccounts": "Comptes actifs",
+        "deletedAccounts": "Comptes supprimés",
+        "activateUser": "Activer le compte",
+        "deactivateUser": "Désactiver le compte",
+        "restoreUser": "Restaurer le compte",
+        "activateSuccess": "Compte activé avec succès",
+        "deactivateSuccess": "Compte désactivé avec succès",
+        "restoreSuccess": "Compte restauré avec succès",
+        "activateError": "Échec de l'activation du compte",
+        "deactivateError": "Échec de la désactivation du compte",
+        "restoreError": "Échec de la restauration du compte",
+        "deletedOn": "Supprimé le {date}"
       }
     },
     "coaches": {
@@ -952,6 +965,17 @@
       "send": "Envoyer",
       "sending": "Envoi...",
       "sendError": "Échec de l'envoi du message. Veuillez réessayer.",
+      "reply": "Répondre",
+      "replyingTo": "Réponse à {name}",
+      "cancelReply": "Annuler la réponse",
+      "selectMessage": "Sélectionner le message",
+      "deleteMessage": "Supprimer le message",
+      "deleteSelected": "Supprimer la sélection",
+      "selectedCount": "{count} message(s) sélectionné(s)",
+      "deleteConfirm": "Supprimer {count} message(s) sélectionné(s) ?",
+      "deleting": "Suppression...",
+      "deleteError": "Échec de la suppression. Veuillez réessayer.",
+      "unknownUser": "Utilisateur",
       "comingSoon": "Bientôt disponible",
       "presenceLabel": "Présence"
     }

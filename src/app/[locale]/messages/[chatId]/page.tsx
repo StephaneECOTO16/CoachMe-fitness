@@ -11,16 +11,22 @@ import Button from "@/components/ui/Button";
 import { ChatBubble, LoadingIndicator } from "@/components";
 import UserAvatar from "@/components/ui/UserAvatar/UserAvatar";
 import toast from "@/lib/toast";
+import { Check, Reply, Trash2, X } from "lucide-react";
 import styles from "./page.module.css";
 
 interface Message {
   id: number;
   chatId: number;
-  senderId: number;
+  senderId: string;
   content: string;
   createdAt: string;
-  sender: {
+  replyTo?: {
     id: number;
+    content: string;
+    sender: { name: string | null };
+  } | null;
+  sender: {
+    id: string;
     name: string | null;
     email: string;
     role: string;
@@ -71,6 +77,9 @@ export default function ConversationPage() {
   const [newMessage, setNewMessage] = useState("");
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
+  const [selectedMessageIds, setSelectedMessageIds] = useState<number[]>([]);
+  const [replyTo, setReplyTo] = useState<Message | null>(null);
+  const [deleting, setDeleting] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -118,6 +127,11 @@ export default function ConversationPage() {
     });
   }, []);
 
+  const handleDeletedMessages = useCallback((messageIds: number[]) => {
+    setMessages((prev) => prev.filter((message) => !messageIds.includes(message.id)));
+    setSelectedMessageIds((prev) => prev.filter((id) => !messageIds.includes(id)));
+  }, []);
+
   // Memoize coach and client IDs to prevent useEffect re-runs
   const coachId = useMemo(() => chat?.coachId, [chat?.coachId]);
   const clientId = useMemo(() => chat?.clientId, [chat?.clientId]);
@@ -130,13 +144,14 @@ export default function ConversationPage() {
     const unsubscribe = subscribeToChat(
       coachId,
       clientId,
-      handleIncomingMessage
+      handleIncomingMessage,
+      handleDeletedMessages
     );
 
     return () => {
       unsubscribe();
     };
-  }, [coachId, clientId, isConnected, subscribeToChat, handleIncomingMessage]);
+  }, [coachId, clientId, isConnected, subscribeToChat, handleIncomingMessage, handleDeletedMessages]);
 
   // Scroll to bottom when messages change
   useEffect(() => {
@@ -181,6 +196,7 @@ export default function ConversationPage() {
         credentials: "include",
         body: JSON.stringify({
           content: messageContent,
+          replyToId: replyTo?.id,
         }),
       });
 
@@ -190,6 +206,7 @@ export default function ConversationPage() {
         toast.error(t("sendError"));
         setNewMessage(messageContent); // Restore message on failure
       }
+      if (data.success) setReplyTo(null);
       // Don't add here - let Pusher handle it to avoid duplicates
     } catch (error) {
       console.error("Error sending message:", error);
@@ -197,6 +214,37 @@ export default function ConversationPage() {
       setNewMessage(messageContent); // Restore message on failure
     } finally {
       setSending(false);
+    }
+  };
+
+  const toggleMessageSelection = (messageId: number) => {
+    setSelectedMessageIds((current) => current.includes(messageId)
+      ? current.filter((id) => id !== messageId)
+      : [...current, messageId]);
+  };
+
+  const handleDeleteMessages = async (messageIds: number[] = selectedMessageIds) => {
+    if (!messageIds.length || deleting) return;
+    if (!window.confirm(t("deleteConfirm", { count: messageIds.length }))) return;
+
+    setDeleting(true);
+    try {
+      const response = await fetch(`/api/chat/${chatId}/messages`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ messageIds }),
+      });
+      const data = await response.json();
+      if (!data.success) throw new Error(data.error?.message || "Delete failed");
+      setMessages((current) => current.filter((message) => !messageIds.includes(message.id)));
+      setSelectedMessageIds((current) => current.filter((id) => !messageIds.includes(id)));
+      setReplyTo((current) => current && messageIds.includes(current.id) ? null : current);
+    } catch (error) {
+      console.error("Error deleting messages:", error);
+      toast.error(t("deleteError"));
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -380,6 +428,17 @@ export default function ConversationPage() {
         {/* Messages Container */}
         <div className={styles.messagesContainer}>
           <div className={styles.messagesContent}>
+            {selectedMessageIds.length > 0 && (
+              <div className={styles.selectionToolbar}>
+                <span>{t("selectedCount", { count: selectedMessageIds.length })}</span>
+                <button type="button" onClick={() => handleDeleteMessages()} disabled={deleting} className={styles.deleteButton}>
+                  <Trash2 size={16} /> {deleting ? t("deleting") : t("deleteSelected")}
+                </button>
+                <button type="button" onClick={() => setSelectedMessageIds([])} className={styles.cancelSelection}>
+                  <X size={16} />
+                </button>
+              </div>
+            )}
             {messages.length === 0 ? (
               <div className={styles.emptyMessages}>
                 <div className={styles.emptyIcon}>👋</div>
@@ -407,11 +466,30 @@ export default function ConversationPage() {
                     status: undefined as 'sending' | 'sent' | 'delivered' | 'read' | undefined,
                   };
                   return (
-                    <ChatBubble
-                      key={message.id}
-                      message={bubbleMessage}
-                      isOwn={isOwnMessage}
-                    />
+                    <div key={message.id} className={`${styles.messageRow} ${isOwnMessage ? styles.messageRowOwn : styles.messageRowOther}`}>
+                      <div className={styles.messageActions}>
+                        {isOwnMessage && (
+                          <button type="button" onClick={() => toggleMessageSelection(message.id)} className={`${styles.actionButton} ${selectedMessageIds.includes(message.id) ? styles.selectedAction : ""}`} title={t("selectMessage")}>
+                            {selectedMessageIds.includes(message.id) ? <Check size={15} /> : <span className={styles.emptyCheckbox} />}
+                          </button>
+                        )}
+                        <button type="button" onClick={() => setReplyTo(message)} className={styles.actionButton} title={t("reply")}>
+                          <Reply size={15} />
+                        </button>
+                        {isOwnMessage && (
+                          <button type="button" onClick={() => handleDeleteMessages([message.id])} className={styles.actionButton} title={t("deleteMessage")}>
+                            <Trash2 size={15} />
+                          </button>
+                        )}
+                      </div>
+                      {message.replyTo && (
+                        <div className={styles.replyPreview}>
+                          <strong>{message.replyTo.sender.name || t("unknownUser")}</strong>
+                          <span>{message.replyTo.content}</span>
+                        </div>
+                      )}
+                      <ChatBubble message={bubbleMessage} isOwn={isOwnMessage} />
+                    </div>
                   );
                 })}
                 <div ref={messagesEndRef} />
@@ -423,6 +501,12 @@ export default function ConversationPage() {
         {/* Message Input */}
         <div className={styles.inputContainer}>
           <div className={styles.inputContent}>
+            {replyTo && (
+              <div className={styles.replyComposer}>
+                <div><strong>{t("replyingTo", { name: replyTo.sender.name || t("unknownUser") })}</strong><span>{replyTo.content}</span></div>
+                <button type="button" onClick={() => setReplyTo(null)} aria-label={t("cancelReply")}><X size={18} /></button>
+              </div>
+            )}
             <form onSubmit={handleSendMessage} className={styles.inputForm}>
               <button
                 type="button"

@@ -69,6 +69,12 @@ model User {
 
   avatar    String?  // R2 object key (resolved to URL at read time)
 
+  /// Admin can deactivate an account without deleting it (blocks login).
+  isActive  Boolean  @default(true)
+  /// Soft-delete marker. Set by admin "delete" instead of removing the row,
+  /// so deleted accounts remain listable/restorable. Null = not deleted.
+  deletedAt DateTime?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -81,6 +87,8 @@ model User {
   passwordResetTokens PasswordResetToken[]
   pushSubscriptions   PushSubscription[]
   notifications       Notification[]
+
+  @@index([deletedAt])
 }
 
 model CoachProfile {
@@ -125,6 +133,7 @@ model CoachProfile {
   @@index([disciplineId])
   @@index([status])                    // Frequently filtered in admin queries
   @@index([status, createdAt])         // Pagination of pending coaches by date
+  @@index([status, disciplineId])      // Public directory: APPROVED + discipline filter
 }
 
 model ClientProfile {
@@ -188,15 +197,19 @@ model Message {
   id        Int      @id @default(autoincrement())
   chatId    Int
   senderId  String   @db.Uuid  // FK to User.id (UUID)
+  replyToId Int?
   content   String
   isRead    Boolean  @default(false)
   createdAt DateTime @default(now())
 
   chat   Chat @relation(fields: [chatId], references: [id], onDelete: Cascade)
   sender User @relation("senderMessages", fields: [senderId], references: [id], onDelete: Cascade)
+  replyTo Message? @relation("MessageReplies", fields: [replyToId], references: [id], onDelete: SetNull)
+  replies Message[] @relation("MessageReplies")
 
   @@index([chatId])
   @@index([senderId])
+  @@index([replyToId])
 }
 
 model AdminReview {

@@ -91,9 +91,9 @@ const MessageThread: React.FC<MessageThreadProps> = ({
                         </div>
                         {msgs.map((message, index) => {
                             const isOwn = rightSideUserId
-                                ? message.sender.id === rightSideUserId
+                                ? String(message.sender.id) === String(rightSideUserId)
                                 : currentUserId
-                                    ? message.sender.id === currentUserId
+                                    ? String(message.sender.id) === String(currentUserId)
                                     : false;
 
                             return (

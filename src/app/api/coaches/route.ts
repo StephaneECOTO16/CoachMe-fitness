@@ -6,7 +6,9 @@ import { listCoaches } from "@/services/coach.service";
 export async function GET(req: Request) {
   const url = new URL(req.url);
   const filters = {
-    discipline: url.searchParams.get("discipline") ?? undefined,
+    disciplineId: url.searchParams.get("disciplineId")
+      ? parseInt(url.searchParams.get("disciplineId")!)
+      : undefined,
     minRating: url.searchParams.get("minRating")
       ? parseFloat(url.searchParams.get("minRating")!)
       : undefined,

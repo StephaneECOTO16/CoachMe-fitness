@@ -14,7 +14,7 @@ import { getPublicUrl, deleteFromStorage, validateCoachMediaKey} from "@/lib/sto
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 export interface CoachListFilters {
-  discipline?: string;
+  disciplineId?: number;
   minRating?: number;
   rateType?: "HOUR" | "WEEK" | "MONTH";
   maxRate?: number;
@@ -30,7 +30,7 @@ export interface CoachListFilters {
  */
 export async function listCoaches(filters: CoachListFilters = {}) {
   const {
-    discipline,
+    disciplineId,
     minRating,
     rateType,
     maxRate,
@@ -40,9 +40,7 @@ export async function listCoaches(filters: CoachListFilters = {}) {
 
   const where: Prisma.CoachProfileWhereInput = {
     status: "APPROVED",
-    ...(discipline && {
-      discipline: { name: { contains: discipline, mode: "insensitive" } },
-    }),
+    ...(disciplineId !== undefined && { disciplineId }),
     ...(minRating !== undefined && { minRating: { gte: minRating } }),
     ...(rateType && { rateType }),
     ...(maxRate !== undefined && { rateAmount: { lte: maxRate } }),

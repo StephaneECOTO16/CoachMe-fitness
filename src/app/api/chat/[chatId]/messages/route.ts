@@ -20,7 +20,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ chatId:
     const chatId = parseInt(chatIdParam);
     if (isNaN(chatId)) return NextResponse.json({ success: false, error: { code: 'INVALID_INPUT' } }, { status: 400 });
 
-    const { content } = await req.json();
+    const { content, replyToId } = await req.json();
     if (!content || !content.trim()) {
         return NextResponse.json({ success: false, error: { code: 'INVALID_INPUT', message: 'Message content required' } }, { status: 400 });
     }
@@ -41,6 +41,22 @@ export async function POST(req: Request, { params }: { params: Promise<{ chatId:
             return NextResponse.json({ success: false, error: { code: 'FORBIDDEN', message: 'Not a participant in this chat' } }, { status: 403 });
         }
 
+        let replyTargetId: number | null = null;
+        if (replyToId !== undefined && replyToId !== null) {
+            replyTargetId = Number(replyToId);
+            if (!Number.isInteger(replyTargetId) || replyTargetId <= 0) {
+                return NextResponse.json({ success: false, error: { code: 'INVALID_INPUT', message: 'Invalid reply target' } }, { status: 400 });
+            }
+
+            const replyTarget = await prisma.message.findFirst({
+                where: { id: replyTargetId, chatId },
+                select: { id: true },
+            });
+            if (!replyTarget) {
+                return NextResponse.json({ success: false, error: { code: 'NOT_FOUND', message: 'Reply target not found' } }, { status: 404 });
+            }
+        }
+
         // Create message and bump the chat's updatedAt in one transaction —
         // conversation lists sort/display by this, so it must reflect the
         // latest message, not just chat creation time.
@@ -50,9 +66,11 @@ export async function POST(req: Request, { params }: { params: Promise<{ chatId:
                     chatId,
                     senderId: payload.userId,
                     content: content.trim(),
+                    replyToId: replyTargetId,
                 },
                 include: {
-                    sender: { select: { id: true, name: true, email: true, role: true, avatar: true } }
+                    sender: { select: { id: true, name: true, email: true, role: true, avatar: true } },
+                    replyTo: { select: { id: true, content: true, sender: { select: { name: true } } } },
                 }
             }),
             prisma.chat.update({ where: { id: chatId }, data: { updatedAt: new Date() } }),
@@ -107,6 +125,67 @@ export async function POST(req: Request, { params }: { params: Promise<{ chatId:
 }
 
 /**
+ * DELETE /api/chat/[chatId]/messages
+ * Delete one or more messages owned by the authenticated participant.
+ */
+export async function DELETE(req: Request, { params }: { params: Promise<{ chatId: string }> }) {
+    const payload = await requireAuth(req);
+    if (!payload) return NextResponse.json({ success: false, error: { code: 'UNAUTHORIZED' } }, { status: 401 });
+
+    const { chatId: chatIdParam } = await params;
+    const chatId = parseInt(chatIdParam);
+    if (isNaN(chatId)) return NextResponse.json({ success: false, error: { code: 'INVALID_INPUT' } }, { status: 400 });
+
+    try {
+        const body = await req.json();
+        const rawIds: unknown[] = Array.isArray(body.messageIds) ? body.messageIds : [body.messageId];
+        const messageIds: number[] = [...new Set(
+            rawIds
+                .map((id: unknown) => Number(id))
+                .filter((id: number): id is number => Number.isInteger(id) && id > 0)
+        )];
+
+        if (messageIds.length === 0 || messageIds.length > 100) {
+            return NextResponse.json({ success: false, error: { code: 'INVALID_INPUT', message: 'Select between 1 and 100 messages' } }, { status: 400 });
+        }
+
+        const chat = await prisma.chat.findUnique({
+            where: { id: chatId },
+            include: { client: true, coach: true },
+        });
+        if (!chat) return NextResponse.json({ success: false, error: { code: 'NOT_FOUND' } }, { status: 404 });
+
+        const isParticipant = chat.coach.userId === payload.userId || chat.client.userId === payload.userId;
+        if (!isParticipant) return NextResponse.json({ success: false, error: { code: 'FORBIDDEN' } }, { status: 403 });
+
+        const ownedMessages = await prisma.message.findMany({
+            where: { id: { in: messageIds }, chatId, senderId: payload.userId },
+            select: { id: true },
+        });
+        if (ownedMessages.length !== messageIds.length) {
+            return NextResponse.json({ success: false, error: { code: 'FORBIDDEN', message: 'You can only delete your own messages' } }, { status: 403 });
+        }
+
+        await prisma.$transaction(async (tx) => {
+            await tx.message.deleteMany({ where: { id: { in: messageIds }, chatId, senderId: payload.userId } });
+            const latestMessage = await tx.message.findFirst({ where: { chatId }, orderBy: { createdAt: 'desc' }, select: { createdAt: true } });
+            await tx.chat.update({ where: { id: chatId }, data: { updatedAt: latestMessage?.createdAt ?? new Date() } });
+        });
+
+        try {
+            await broadcastMessage(chat.coachId, chat.clientId, 'deleted-messages', { messageIds });
+        } catch (pusherError) {
+            console.error('[DELETE /api/chat/:chatId/messages] Pusher broadcast error:', pusherError);
+        }
+
+        return NextResponse.json({ success: true, messageIds });
+    } catch (err: unknown) {
+        console.error('[DELETE /api/chat/:chatId/messages]', err);
+        return NextResponse.json({ success: false, error: { code: 'INTERNAL_ERROR' } }, { status: 500 });
+    }
+}
+
+/**
  * GET /api/chat/[chatId]/messages
  * Fetch message history for a chat.
  * Paginated for performance.
@@ -143,7 +222,10 @@ export async function GET(req: Request, { params }: { params: Promise<{ chatId: 
         // Fetch messages
         const messages = await prisma.message.findMany({
             where: { chatId },
-            include: { sender: { select: { id: true, name: true, email: true, avatar: true } } },
+            include: {
+                sender: { select: { id: true, name: true, email: true, avatar: true } },
+                replyTo: { select: { id: true, content: true, sender: { select: { name: true } } } },
+            },
             take: limit,
             skip: offset,
             orderBy: { createdAt: 'desc' },

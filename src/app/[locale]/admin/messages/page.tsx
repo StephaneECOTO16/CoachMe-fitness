@@ -14,7 +14,7 @@ import { ChatMessage } from '@/components/chat/ChatBubble';
 interface Message {
     id: number;
     chatId: number;
-    senderId: number;
+    senderId: string;
     content: string;
     createdAt: string;
     sender: {
