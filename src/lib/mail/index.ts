@@ -14,7 +14,7 @@ import { escapeHtml } from "./sanitize";
 const mailHost = process.env.MAIL_HOST || process.env.SMTP_HOST;
 const mailPort = Number.parseInt(process.env.MAIL_PORT || process.env.SMTP_PORT || "587", 10);
 const mailEncryption = (process.env.MAIL_ENCRYPTION || "tls").toLowerCase();
-const mailUser = process.env.MAIL_USER || process.env.SMTP_USER;
+const mailUser = process.env.MAIL_USERNAME || process.env.MAIL_USER || process.env.SMTP_USER;
 const mailPassword = process.env.MAIL_PASSWORD || process.env.SMTP_PASS;
 
 const transporter = nodemailer.createTransport({

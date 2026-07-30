@@ -16,7 +16,7 @@ import {
   getProspectWelcomeTemplate,
   getCoachWelcomeTemplate,
   getAdminNewCoachAlertTemplate,
-} from "@/lib/mail";
+} from "@/lib/mail/index";
 import { logger } from "@/lib/logger";
 import { env } from "@/lib/env";
 import { createHash, randomBytes } from "crypto";
@@ -264,7 +264,7 @@ export async function initiatePasswordReset(email: string): Promise<void> {
     await sendMail({
       to: normalised,
       subject: "Reset Your Password — CoachMe",
-      html: (await import("@/lib/mail")).getForgotPasswordTemplate(resetUrl),
+      html: (await import("@/lib/mail/index")).getForgotPasswordTemplate(resetUrl),
     }, { throwOnError: true });
   } catch (error) {
     await prisma.passwordResetToken.update({ where: { id: resetToken.id }, data: { used: true } });
