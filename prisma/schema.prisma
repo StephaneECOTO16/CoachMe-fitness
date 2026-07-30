@@ -69,12 +69,6 @@ model User {
 
   avatar    String?  // R2 object key (resolved to URL at read time)
 
-  /// Admin can deactivate an account without deleting it (blocks login).
-  isActive  Boolean  @default(true)
-  /// Soft-delete marker. Set by admin "delete" instead of removing the row,
-  /// so deleted accounts remain listable/restorable. Null = not deleted.
-  deletedAt DateTime?
-
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -88,7 +82,6 @@ model User {
   pushSubscriptions   PushSubscription[]
   notifications       Notification[]
 
-  @@index([deletedAt])
 }
 
 model CoachProfile {

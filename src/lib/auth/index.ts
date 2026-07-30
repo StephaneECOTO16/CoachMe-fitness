@@ -174,28 +174,16 @@ export async function requireAuth(
     return null;
   }
 
-  // Account status gate — re-checked on every request (not just at login) so
-  // a mid-session deactivation/deletion takes effect immediately instead of
-  // waiting for the JWT to expire.
-  const user = await prisma.user.findUnique({
-    where: { id: payload.userId },
-    select: {
-      isActive: true,
-      deletedAt: true,
-      coachProfile: { select: { status: true } },
-    },
-  });
-
-  if (!user || user.deletedAt || !user.isActive) {
-    logger.warn({ userId: payload.userId }, "Account inactive or deleted — access denied");
-    return null;
-  }
-
   // Coach approval gate — always on by default
   // This is an explicit boolean check, not a truthiness check,
   // so passing {} never accidentally skips it.
   if (payload.role === "COACH" && checkCoachStatus === true) {
-    if (!user.coachProfile || user.coachProfile.status !== "APPROVED") {
+    const coach = await prisma.coachProfile.findUnique({
+      where: { userId: payload.userId },
+      select: { status: true },
+    });
+
+    if (!coach || coach.status !== "APPROVED") {
       logger.warn({ userId: payload.userId }, "Coach not approved — access denied");
       return null;
     }

@@ -175,36 +175,6 @@ export async function POST(req: Request) {
     );
   }
 
-  // ── Account status gate ─────────────────────────────────────────────────────
-  // Deleted/deactivated accounts authenticate correctly (right password) but
-  // must not receive a session — distinct from INVALID_CREDENTIALS so the
-  // client can show a clear "account disabled" message instead of "wrong password".
-    if (user.deletedAt) {
-    return NextResponse.json(
-      {
-        success: false,
-        error: {
-          code: "ACCOUNT_DELETED",
-          message: "This account has been deleted",
-        },
-      },
-      { status: 403 },
-    );
-  }
-
-    if (!user.isActive) {
-    return NextResponse.json(
-      {
-        success: false,
-        error: {
-          code: "ACCOUNT_DEACTIVATED",
-          message: "This account has been deactivated",
-        },
-      },
-      { status: 403 },
-    );
-  }
-
   // ── Sign JWT + set cookie ──────────────────────────────────────────────────
     const avatarUrl = user.avatar ? getPublicUrl(user.avatar) : null;
 
