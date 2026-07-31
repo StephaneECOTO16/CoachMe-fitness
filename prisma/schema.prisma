@@ -188,19 +188,15 @@ model Message {
   id        Int      @id @default(autoincrement())
   chatId    Int
   senderId  String   @db.Uuid  // FK to User.id (UUID)
-  replyToId Int?
   content   String
   isRead    Boolean  @default(false)
   createdAt DateTime @default(now())
 
-  chat    Chat     @relation(fields: [chatId], references: [id], onDelete: Cascade)
-  sender  User     @relation("senderMessages", fields: [senderId], references: [id], onDelete: Cascade)
-  replyTo Message? @relation("MessageReplies", fields: [replyToId], references: [id], onDelete: SetNull)
-  replies Message[] @relation("MessageReplies")
+  chat   Chat @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  sender User @relation("senderMessages", fields: [senderId], references: [id], onDelete: Cascade)
 
   @@index([chatId])
   @@index([senderId])
-  @@index([replyToId])
 }
 
 model AdminReview {
