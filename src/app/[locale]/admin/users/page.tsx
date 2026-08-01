@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState, useMemo, useEffect, useCallback } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { useTranslations } from "next-intl";
-import { Eye, CheckCircle, XCircle, MoreVertical, Trash2, Power, RotateCcw } from "lucide-react";
+import { Eye, CheckCircle, XCircle, MoreVertical, Trash2 } from "lucide-react";
 import { parsePhoneNumber } from "react-phone-number-input";
 import flags from "react-phone-number-input/flags";
 import {
@@ -31,8 +31,6 @@ interface UserData {
   coachId: number | null;
   goals: string | null;
   createdAt: string;
-  isActive: boolean;
-  deletedAt: string | null;
   coachProfile?: { experienceYears?: number };
   clientProfile?: { goals?: string };
 }
@@ -47,7 +45,6 @@ export default function AdminUsersPage() {
   const [loading, setLoading] = useState(true);
   const [searchValue, setSearchValue] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [view, setView] = useState<"active" | "deleted">("active");
   const itemsPerPage = 10;
 
   // Modal states
@@ -58,10 +55,10 @@ export default function AdminUsersPage() {
   const [rejectionReason, setRejectionReason] = useState("");
   const [isActionLoading, setIsActionLoading] = useState(false);
 
-  const fetchUsers = useCallback(async () => {
+  const fetchUsers = async () => {
     try {
       setLoading(true);
-      const res = await fetch(`/api/admin/users?view=${view}`, {
+      const res = await fetch("/api/admin/users", {
         credentials: "include",
       });
       const data = await res.json();
@@ -76,13 +73,12 @@ export default function AdminUsersPage() {
     } finally {
       setLoading(false);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [view]);
+  };
 
   useEffect(() => {
-    setCurrentPage(1);
     fetchUsers();
-  }, [fetchUsers]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleApprove = async (userId: string) => {
     if (!confirm(tCoaches("confirmApprove"))) return;
@@ -147,32 +143,6 @@ export default function AdminUsersPage() {
       setIsActionLoading(false);
     }
   };
-
-  const patchUser = async (userId: string, action: "activate" | "deactivate" | "restore") => {
-    setIsActionLoading(true);
-    try {
-      const res = await fetch(`/api/admin/users/${userId}`, {
-        method: "PATCH",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action }),
-      });
-      const data = await res.json();
-      if (data.success) {
-        toast.success(tUsers(`${action}Success`));
-        fetchUsers();
-      } else {
-        toast.error(data.error?.message || tUsers(`${action}Error`));
-      }
-    } catch {
-      toast.error(t("messages.errorOccurred"));
-    } finally {
-      setIsActionLoading(false);
-    }
-  };
-
-  const handleToggleActive = (user: UserData) => patchUser(user.id, user.isActive ? "deactivate" : "activate");
-  const handleRestore = (user: UserData) => patchUser(user.id, "restore");
 
   const handleDelete = async () => {
     if (!selectedUser) return;
@@ -279,24 +249,12 @@ export default function AdminUsersPage() {
     {
       header: tUsers("tableStatus"),
       key: "status",
-      render: (user) => (
-        <div style={{ display: "flex", flexDirection: "column", gap: "4px", alignItems: "flex-start" }}>
-          {user.role === "COACH" ? (
-            <StatusBadge status={user.status || "PENDING"} size="sm" />
-          ) : (
-            <span style={{ color: "#9ca3af" }}>N/A</span>
-          )}
-          {view === "deleted" ? (
-            <span style={{ fontSize: "0.75rem", color: "#6b7280" }}>
-              {tUsers("deletedOn", {
-                date: user.deletedAt ? new Date(user.deletedAt).toLocaleDateString() : "",
-              })}
-            </span>
-          ) : (
-            <StatusBadge status={user.isActive ? "ACTIVE" : "INACTIVE"} size="sm" />
-          )}
-        </div>
-      ),
+      render: (user) =>
+        user.role === "COACH" ? (
+          <StatusBadge status={user.status || "PENDING"} size="sm" />
+        ) : (
+          <span style={{ color: "#9ca3af" }}>N/A</span>
+        ),
     },
   ];
 
@@ -317,30 +275,6 @@ export default function AdminUsersPage() {
   };
 
   const renderActions = (user: UserData) => {
-    if (view === "deleted") {
-      return (
-        <div style={{ display: "flex", alignItems: "center", gap: "8px", justifyContent: "flex-end" }}>
-          <button
-            type="button"
-            className={styles.actionIconBtn}
-            onClick={() => handleOpenView(user)}
-            title={tUsers("viewDetails")}
-          >
-            <Eye size={18} />
-          </button>
-          <button
-            type="button"
-            className={styles.actionIconBtnSuccess}
-            onClick={() => handleRestore(user)}
-            disabled={isActionLoading}
-            title={tUsers("restoreUser")}
-          >
-            <RotateCcw size={18} />
-          </button>
-        </div>
-      );
-    }
-
     const dropdownItems: {
       label: string;
       icon: React.ReactNode;
@@ -372,15 +306,6 @@ export default function AdminUsersPage() {
           justifyContent: "flex-end",
         }}
       >
-        <button
-          type="button"
-          className={user.isActive ? styles.actionIconBtnDanger : styles.actionIconBtnSuccess}
-          onClick={() => handleToggleActive(user)}
-          disabled={isActionLoading}
-          title={tUsers(user.isActive ? "deactivateUser" : "activateUser")}
-        >
-          <Power size={18} />
-        </button>
         {user.role === "COACH" && user.coachId && user.status !== "APPROVED" && (
           <button
             type="button"
@@ -466,26 +391,6 @@ export default function AdminUsersPage() {
           onPageChange: setCurrentPage,
         }}
         renderRowActions={renderActions}
-        renderHeaderActions={() => (
-          <>
-            <Button
-              type="button"
-              variant={view === "active" ? "primary" : "outline"}
-              size="sm"
-              onClick={() => setView("active")}
-            >
-              {tUsers("activeAccounts")}
-            </Button>
-            <Button
-              type="button"
-              variant={view === "deleted" ? "primary" : "outline"}
-              size="sm"
-              onClick={() => setView("deleted")}
-            >
-              {tUsers("deletedAccounts")}
-            </Button>
-          </>
-        )}
       />
 
       {/* View User Modal */}

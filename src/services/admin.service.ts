@@ -74,14 +74,12 @@ export async function listUsers(options: {
   search?: string;
   page?: number;
   limit?: number;
-  view?: "active" | "deleted";
 }) {
-  const { search = "", page = 1, limit = 25, view = "active" } = options;
+  const { search = "", page = 1, limit = 25 } = options;
   const offset = (page - 1) * limit;
 
   const where: Prisma.UserWhereInput = {
     role: { in: ["COACH", "PROSPECT"] as UserRole[] },
-    deletedAt: view === "deleted" ? { not: null } : null,
     ...(search && {
       OR: [
         { name: { contains: search, mode: "insensitive" as const } },
@@ -101,8 +99,6 @@ export async function listUsers(options: {
         role: true,
         avatar: true,
         createdAt: true,
-        isActive: true,
-        deletedAt: true,
         coachProfile: {
           select: {
             id: true,
@@ -139,14 +135,13 @@ export async function listUsers(options: {
 }
 
 /**
- * Soft-deletes a non-admin user: archives the account (sets deletedAt,
- * clears isActive) instead of removing the row, so it can be listed
- * under "deleted accounts" and restored later. Prevents deleting ADMIN accounts.
+ * Deletes a non-admin user and all their data.
+ * Prevents deletion of ADMIN accounts.
  */
-export async function softDeleteUser(userId: string) {
+export async function deleteUser(userId: string) {
   const user = await prisma.user.findUnique({
     where: { id: userId },
-    select: { role: true },
+    select: { role: true, avatar: true },
   });
 
   if (!user) {
@@ -160,78 +155,13 @@ export async function softDeleteUser(userId: string) {
     });
   }
 
-  const updated = await prisma.user.update({
-    where: { id: userId },
-    data: { deletedAt: new Date(), isActive: false },
-  });
+  // Cascade deletes handle all related records via Prisma schema
+  await prisma.user.delete({ where: { id: userId } });
 
-  logger.info({ userId }, "User soft-deleted by admin");
-  return updated;
-}
+  // Clean up avatar from R2 after DB deletion
+  if (user.avatar) await deleteFromStorage(user.avatar);
 
-/**
- * Restores a previously soft-deleted user: clears deletedAt and
- * reactivates the account.
- */
-export async function restoreUser(userId: string) {
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
-    select: { deletedAt: true },
-  });
-
-  if (!user) {
-    throw Object.assign(new Error("User not found"), { code: "NOT_FOUND", status: 404 });
-  }
-
-  if (!user.deletedAt) {
-    throw Object.assign(new Error("User is not deleted"), { code: "INVALID_STATE", status: 400 });
-  }
-
-  const updated = await prisma.user.update({
-    where: { id: userId },
-    data: { deletedAt: null, isActive: true },
-  });
-
-  logger.info({ userId }, "User restored by admin");
-  return updated;
-}
-
-/**
- * Activates or deactivates a non-admin, non-deleted user's account.
- * Deactivated users are blocked at login and on subsequent authenticated
- * requests (see requireAuth). Deleted accounts must be restored first.
- */
-export async function setUserActive(userId: string, isActive: boolean) {
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
-    select: { role: true, deletedAt: true },
-  });
-
-  if (!user) {
-    throw Object.assign(new Error("User not found"), { code: "NOT_FOUND", status: 404 });
-  }
-
-  if (user.role === "ADMIN") {
-    throw Object.assign(new Error("Cannot change status of admin accounts"), {
-      code: "FORBIDDEN",
-      status: 403,
-    });
-  }
-
-  if (user.deletedAt) {
-    throw Object.assign(new Error("Restore the account before changing its active status"), {
-      code: "INVALID_STATE",
-      status: 400,
-    });
-  }
-
-  const updated = await prisma.user.update({
-    where: { id: userId },
-    data: { isActive },
-  });
-
-  logger.info({ userId, isActive }, "User active status changed by admin");
-  return updated;
+  logger.info({ userId }, "User deleted by admin");
 }
 
 // ─── Discipline management ────────────────────────────────────────────────────

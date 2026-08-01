@@ -40,7 +40,6 @@ export async function listCoaches(filters: CoachListFilters = {}) {
 
   const where: Prisma.CoachProfileWhereInput = {
     status: "APPROVED",
-    user: { isActive: true, deletedAt: null },
     ...(discipline && {
       discipline: { name: { contains: discipline, mode: "insensitive" } },
     }),
@@ -79,18 +78,13 @@ export async function getPublicCoachProfile(userId: string) {
   const coach = await prisma.coachProfile.findUnique({
     where: { userId },
     include: {
-      user: { select: { id: true, name: true, avatar: true, isActive: true, deletedAt: true } },
+      user: { select: { id: true, name: true, avatar: true } },
       discipline: true,
       media: true,
     },
   });
 
-  if (
-    !coach ||
-    coach.status !== "APPROVED" ||
-    !coach.user.isActive ||
-    coach.user.deletedAt
-  ) return null;
+  if (!coach || coach.status !== "APPROVED") return null;
   return resolveCoachUrls(coach);
 }
 
