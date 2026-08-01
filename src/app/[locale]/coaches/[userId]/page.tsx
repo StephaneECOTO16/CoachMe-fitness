@@ -23,6 +23,7 @@ import {
   Facebook,
   Twitter,
   Youtube,
+  ArrowLeft,
 } from "lucide-react";
 import styles from "./page.module.css";
 
@@ -142,6 +143,15 @@ export default function CoachProfilePage() {
     }
   };
 
+  const handleBackToCoaches = () => {
+    if (window.history.length > 1) {
+      router.back();
+      return;
+    }
+
+    router.push("/coaches");
+  };
+
   if (loading) {
     return (
       <div className={styles.container}>
@@ -185,6 +195,16 @@ export default function CoachProfilePage() {
   return (
     <div className={styles.container}>
       <div className={styles.pageWrapper}>
+        <button
+          type="button"
+          className={styles.backButton}
+          onClick={handleBackToCoaches}
+          aria-label={tCommon("back")}
+        >
+          <ArrowLeft size={18} aria-hidden="true" />
+          <span>{tCommon("back")}</span>
+        </button>
+
         {/* Sidebar */}
         <aside className={styles.sidebar}>
           <div className={styles.sidebarCard}>
