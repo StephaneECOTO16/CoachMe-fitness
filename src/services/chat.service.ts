@@ -7,8 +7,8 @@
 
 import { prisma } from "@/lib/db";
 import { broadcastMessage } from "@/lib/pusher";
-import { sendMail, getNewMessageTemplate } from "@/lib/mail";
-import { sendMail as _sendMail } from "@/lib/mail";
+import { sendMail, getNewMessageTemplate } from "@/lib/mail/index";
+import { sendMail as _sendMail } from "@/lib/mail/index";
 import { logger } from "@/lib/logger";
 import { getPublicUrl } from "@/lib/storage";
 

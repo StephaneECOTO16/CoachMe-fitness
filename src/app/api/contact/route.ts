@@ -1,5 +1,5 @@
 import { NextResponse, after } from 'next/server';
-import { sendMail, getContactInquiryTemplate } from "@/lib/mail";
+import { sendMail, getContactInquiryTemplate } from "@/lib/mail/index";
 import { prisma } from '@/lib/db';
 import { sendNotification } from '@/lib/notifications';
 

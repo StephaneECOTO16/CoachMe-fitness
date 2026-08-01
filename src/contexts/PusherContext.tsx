@@ -26,7 +26,8 @@ interface PusherContextType {
   subscribeToChat: (
     coachProfileId: number,
     clientProfileId: number,
-    onMessage: (message: Message) => void
+    onMessage: (message: Message) => void,
+    onDeletedMessages?: (messageIds: number[]) => void
   ) => () => void;
   /** Subscribe to the current user's personal notification feed */
   subscribeToNotifications: (
@@ -138,7 +139,8 @@ export function PusherProvider({ children }: { children: React.ReactNode }) {
     (
       coachProfileId: number,
       clientProfileId: number,
-      onMessage: (message: Message) => void
+      onMessage: (message: Message) => void,
+      onDeletedMessages?: (messageIds: number[]) => void
     ): (() => void) => {
       if (!pusher) {
         return () => { };
@@ -162,12 +164,18 @@ export function PusherProvider({ children }: { children: React.ReactNode }) {
       const eventHandler = (data: { message: Message }) => {
         onMessage(data.message);
       };
-
       channel.bind("new-message", eventHandler);
+
+      // Bind to deleted-messages event
+      const deletedHandler = (data: { messageIds: number[] }) => {
+        onDeletedMessages?.(data.messageIds);
+      };
+      channel.bind("deleted-messages", deletedHandler);
 
       // Return unsubscribe function
       return () => {
         channel?.unbind("new-message", eventHandler);
+        channel?.unbind("deleted-messages", deletedHandler);
       };
     },
     [pusher]

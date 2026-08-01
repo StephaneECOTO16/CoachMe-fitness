@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { requireAuth } from '@/lib/auth';
-import { sendMail, getCoachApprovedTemplate } from "@/lib/mail";
+import { sendMail, getCoachApprovedTemplate } from "@/lib/mail/index";
 import { sendNotification } from "@/lib/notifications";
 
 /**
@@ -42,7 +42,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ userId:
         // prevent the push notification below from firing, since the
         // status change above is already committed).
         if (coach.user.email) {
-            sendMail({
+            await sendMail({
                 to: coach.user.email,
                 subject: "Your Coach Profile is Approved!",
                 html: getCoachApprovedTemplate(coach.user.name || "Coach"),

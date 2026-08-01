@@ -2,7 +2,7 @@ import { NextResponse, after } from 'next/server';
 import { prisma } from '@/lib/db';
 import { requireAuth } from '@/lib/auth';
 import { getPublicUrl } from '@/lib/storage';
-import { sendMail, getCoachApprovedTemplate, getCoachRejectedTemplate } from '@/lib/mail';
+import { sendMail, getCoachApprovedTemplate, getCoachRejectedTemplate } from '@/lib/mail/index';
 import { sendNotification } from '@/lib/notifications';
 
 /**

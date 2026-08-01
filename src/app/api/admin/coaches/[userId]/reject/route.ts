@@ -3,7 +3,7 @@ import { prisma } from '@/lib/db';
 import { requireAuth } from '@/lib/auth';
 import { z } from 'zod';
 import { parseRequestBody } from '@/lib/schemas';
-import { sendMail, getCoachRejectedTemplate } from "@/lib/mail";
+import { sendMail, getCoachRejectedTemplate } from "@/lib/mail/index";
 import { sendNotification } from "@/lib/notifications";
 
 // Define inline schema for rejection request
@@ -67,7 +67,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ userId:
 
         // Send Rejection Email (non-blocking — same reasoning as approve/route.ts)
         if (coach.user.email) {
-            sendMail({
+            await sendMail({
                 to: coach.user.email,
                 subject: "Update on your Coach Application",
                 html: getCoachRejectedTemplate(coach.user.name || "Coach"),

@@ -7,7 +7,7 @@
 
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
-import { sendMail, getCoachApprovedTemplate, getCoachRejectedTemplate } from "@/lib/mail";
+import { sendMail, getCoachApprovedTemplate, getCoachRejectedTemplate } from "@/lib/mail/index";
 import { logger } from "@/lib/logger";
 import { getPublicUrl, deleteFromStorage, validateCoachMediaKey} from "@/lib/storage";
 
@@ -114,11 +114,11 @@ export async function approveCoach(coachId: number, adminId: string) {
     }),
   ]);
 
-  sendMail({
+  await sendMail({
     to: coach.user.email,
     subject: "Your Coach Profile is Approved!",
     html: getCoachApprovedTemplate(coach.user.name ?? "Coach"),
-  }).catch(() => {});
+  }).catch((err) => logger.error({ err, coachId }, "Coach approval email failed"));
 
   logger.info({ coachId, adminId }, "Coach approved");
   return updated;
@@ -151,11 +151,11 @@ export async function rejectCoach(
     }),
   ]);
 
-  sendMail({
+  await sendMail({
     to: coach.user.email,
     subject: "Update on Your Coach Application",
     html: getCoachRejectedTemplate(coach.user.name ?? "Coach"),
-  }).catch(() => {});
+  }).catch((err) => logger.error({ err, coachId }, "Coach rejection email failed"));
 
   logger.info({ coachId, adminId }, "Coach rejected");
   return updated;

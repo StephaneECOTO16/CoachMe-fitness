@@ -86,12 +86,12 @@ export async function registerProspect(
     return created;
   });
 
-  // Non-blocking welcome email
-  sendMail({
+  // Await delivery so serverless runtimes do not freeze before the email is sent.
+  await sendMail({
     to: user.email,
     subject: "Welcome to CoachMe!",
     html: getProspectWelcomeTemplate(user.name ?? "there"),
-  }).catch(() => {}); // Already logged inside sendMail
+  }).catch((err) => logger.error({ err, userId: user.id }, "Prospect welcome email failed"));
 
   // Create in-app welcome notification
   sendNotification({
@@ -188,18 +188,18 @@ export async function registerCoach(
     return created;
   });
 
-  // Non-blocking emails
-  sendMail({
+  // Await delivery so the welcome email is not lost when the response closes.
+  await sendMail({
     to: user.email,
     subject: "Welcome to CoachMe!",
     html: getCoachWelcomeTemplate(user.name ?? "Coach"),
-  }).catch(() => {});
+  }).catch((err) => logger.error({ err, userId: user.id }, "Coach welcome email failed"));
 
-  sendMail({
+  await sendMail({
     to: env.ADMIN_EMAIL,
     subject: "New Coach Application Pending",
     html: getAdminNewCoachAlertTemplate(user.name ?? "Unknown", user.email),
-  }).catch(() => {});
+  }).catch((err) => logger.error({ err, userId: user.id }, "Admin coach alert email failed"));
 
   // Create in-app welcome notification for coach
   sendNotification({
