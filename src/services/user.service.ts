@@ -11,8 +11,10 @@ import type {
   UpdateBasicInfoInput,
   UpdateCoachProfileInput,
   UpdateClientProfileInput,
+  BecomeCoachInput,
 } from "@/lib/validation/schemas";
 import { deleteFromStorage, getPublicUrl } from "@/lib/storage";
+import { releaseIdentifiersFromDeletedUsers } from "@/lib/archived-identifiers";
 
 // ─── Profile fetch ────────────────────────────────────────────────────────────
 
@@ -163,10 +165,26 @@ export async function updateCoachProfile(
     });
   }
 
+  const current = await prisma.coachProfile.findUnique({
+    where: { userId },
+    select: { disciplineId: true, status: true, discipline: { select: { name: true } } },
+  });
+
+  if (!current) {
+    throw Object.assign(new Error("Coach profile not found"), { code: "NOT_FOUND", status: 404 });
+  }
+
+  // An approved coach switching discipline must be re-reviewed by an admin:
+  // their certifications were validated for the previous discipline only.
+  // PENDING / REJECTED profiles are left as-is (already awaiting action).
+  const reviewRequired =
+    current.status === "APPROVED" && current.disciplineId !== discipline.id;
+
   const profile = await prisma.coachProfile.update({
     where: { userId },
     data: {
       disciplineId: discipline.id,
+      ...(reviewRequired ? { status: "PENDING" as const, statusReason: null } : {}),
       bio: data.bio ?? null,
       portfolio: data.portfolio || null,
       rateType: data.rateType ?? "HOUR",
@@ -184,11 +202,114 @@ export async function updateCoachProfile(
     include: { discipline: true, media: true },
   });
 
-  logger.info({ userId }, "Coach profile updated");
+  logger.info(
+    { userId, reviewRequired, ...(reviewRequired ? { from: current.disciplineId, to: discipline.id } : {}) },
+    reviewRequired ? "Coach discipline changed — back to pending review" : "Coach profile updated"
+  );
   return {
     ...profile,
     media: profile.media.map((m) => ({ ...m, url: getPublicUrl(m.url) })),
+    reviewRequired,
+    previousDiscipline: current.discipline.name,
   };
+}
+
+// ─── Prospect → Coach conversion ──────────────────────────────────────────────
+
+/**
+ * Converts a PROSPECT account into a COACH account awaiting admin approval,
+ * without creating a new user. Keeps the same email, password, avatar and
+ * ClientProfile (and therefore past chats) — only the role changes and a
+ * PENDING CoachProfile is created. Re-issues the session cookie so the new
+ * role takes effect immediately.
+ */
+export async function becomeCoach(userId: string, data: BecomeCoachInput) {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { role: true, phone: true, coachProfile: { select: { id: true } } },
+  });
+
+  if (!user) {
+    throw Object.assign(new Error("User not found"), { code: "NOT_FOUND", status: 404 });
+  }
+
+  if (user.role !== "PROSPECT" || user.coachProfile) {
+    throw Object.assign(new Error("Account is already a coach account"), {
+      code: "ALREADY_EXISTS",
+      status: 409,
+    });
+  }
+
+  // Coaches must have a phone number (same rule as coach registration).
+  const phone = data.phone?.trim() || user.phone;
+  if (!phone) {
+    throw Object.assign(new Error("Phone number is required for coach accounts"), {
+      code: "PHONE_REQUIRED",
+      status: 400,
+    });
+  }
+
+  if (phone !== user.phone) {
+    // Only active accounts block the number; an admin-deleted holder's
+    // number is released inside the transaction below.
+    const phoneOwner = await prisma.user.findUnique({
+      where: { phone },
+      select: { id: true, deletedAt: true },
+    });
+    if (phoneOwner && phoneOwner.id !== userId && !phoneOwner.deletedAt) {
+      throw Object.assign(new Error("Phone number already registered"), {
+        code: "PHONE_ALREADY_EXISTS",
+        status: 409,
+      });
+    }
+  }
+
+  const discipline = await prisma.discipline.findUnique({
+    where: { name: data.discipline },
+    select: { id: true },
+  });
+
+  if (!discipline) {
+    throw Object.assign(new Error("Invalid discipline"), {
+      code: "VALIDATION_ERROR",
+      status: 400,
+    });
+  }
+
+  const updated = await prisma.$transaction(async (tx) => {
+    if (phone !== user.phone) {
+      await releaseIdentifiersFromDeletedUsers(tx, { phone, exceptUserId: userId });
+    }
+
+    await tx.coachProfile.create({
+      data: {
+        userId,
+        disciplineId: discipline.id,
+        bio: data.bio || null,
+        portfolio: data.portfolio || null,
+        status: "PENDING",
+      },
+    });
+
+    return tx.user.update({
+      where: { id: userId },
+      data: { role: "COACH", phone },
+      select: { id: true, email: true, name: true, role: true, avatar: true },
+    });
+  });
+
+  // Refresh the session so the new COACH role applies without re-login
+  const token = signJwt({
+    userId: updated.id,
+    role: updated.role,
+    email: updated.email,
+    name: updated.name,
+    avatar: updated.avatar ? getPublicUrl(updated.avatar) : null,
+  });
+  await setSessionCookie(token);
+
+  logger.info({ userId }, "Prospect converted to coach — pending approval");
+  return updated;
 }
 
 // ─── Client profile update ────────────────────────────────────────────────────

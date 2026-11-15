@@ -7,8 +7,13 @@
  * is precise rather than a single permissive schema.
  */
 
-import { NextResponse } from "next/server";
-import { requireAuth } from "@/lib/auth";
+import { NextResponse, after } from "next/server";
+import { requireAuth, type JwtPayload } from "@/lib/auth";
+import { prisma } from "@/lib/db";
+import { env } from "@/lib/env";
+import { logger } from "@/lib/logger";
+import { sendNotification } from "@/lib/notifications";
+import { sendMail, getAdminCoachDisciplineChangedTemplate } from "@/lib/mail/index";
 import {
   getUserProfile,
   updateBasicInfo,
@@ -22,6 +27,44 @@ import {
   UpdateClientProfileSchema,
   UpdateAvatarSchema,
 } from "@/lib/validation/schemas";
+
+/**
+ * An approved coach changed discipline and is back to PENDING: tell the
+ * coach and alert admins so the profile gets re-reviewed. Runs via after()
+ * so Vercel does not freeze the function before delivery.
+ */
+function notifyDisciplineChange(payload: JwtPayload, from: string, to: string) {
+  const displayName = payload.name ?? payload.email;
+  after(async () => {
+    await Promise.allSettled([
+      sendNotification({
+        userId: payload.userId,
+        title: "Profil en cours de revalidation ⏳",
+        body: `Vous êtes passé de ${from} à ${to}. Un administrateur doit revalider votre profil avant qu'il soit de nouveau visible.`,
+        type: "ACCOUNT_REVIEW",
+        url: "/coach/dashboard",
+      }),
+      sendMail({
+        to: env.ADMIN_EMAIL,
+        subject: "Coach discipline changed — review required",
+        html: getAdminCoachDisciplineChangedTemplate(displayName, payload.email, from, to),
+      }),
+    ]);
+
+    try {
+      const admins = await prisma.user.findMany({ where: { role: "ADMIN" }, select: { id: true } });
+      await Promise.allSettled(admins.map((admin) => sendNotification({
+        userId: admin.id,
+        title: "Changement de discipline à valider",
+        body: `${displayName} est passé de ${from} à ${to} et attend votre revalidation.`,
+        type: "ACCOUNT_REVIEW",
+        url: "/admin/coaches",
+      })));
+    } catch (err) {
+      logger.error({ err }, "[PATCH /api/profile] discipline change admin notification failed");
+    }
+  });
+}
 
 export async function GET(req: Request) {
   const payload = await requireAuth(req, { checkCoachStatus: false });
@@ -52,6 +95,8 @@ export async function PATCH(req: Request) {
     );
   }
 
+  let reviewRequired = false;
+
   try {
     // Discriminate by which fields are present in the body
     if ("avatar" in body) {
@@ -73,7 +118,11 @@ export async function PATCH(req: Request) {
           { status: 400 }
         );
       }
-      await updateCoachProfile(payload.userId, result.data);
+      const updated = await updateCoachProfile(payload.userId, result.data);
+      if (updated.reviewRequired) {
+        reviewRequired = true;
+        notifyDisciplineChange(payload, updated.previousDiscipline, updated.discipline.name);
+      }
     } else if (payload.role === "PROSPECT" && ("ageRange" in body || "goals" in body)) {
       // Client profile update
       const result = UpdateClientProfileSchema.safeParse(body);
@@ -104,7 +153,8 @@ export async function PATCH(req: Request) {
     return NextResponse.json({
       success: true,
       user,
-      profile: coachProfile || clientProfile
+      profile: coachProfile || clientProfile,
+      ...(reviewRequired ? { reviewRequired: true } : {}),
     });
 
   } catch (err: unknown) {

@@ -23,6 +23,7 @@ import { createHash, randomBytes } from "crypto";
 import { type RegisterInput } from "@/lib/validation/schemas";
 import { getPublicUrl } from "@/lib/storage";
 import { sendNotification } from "@/lib/notifications";
+import { releaseIdentifiersFromDeletedUsers } from "@/lib/archived-identifiers";
 
 // ─── Registration ─────────────────────────────────────────────────────────────
 
@@ -36,8 +37,11 @@ export async function registerProspect(
   const normalizedEmail = data.email.toLowerCase().trim();
   const normalizedPhone = data.phone?.trim() || null;
 
+  // Fast-fail on identifiers held by *active* accounts. Identifiers of
+  // admin-deleted accounts are released inside the transaction below.
   const existing = await prisma.user.findFirst({
     where: {
+      deletedAt: null,
       OR: [
         { email: normalizedEmail },
         ...(normalizedPhone ? [{ phone: normalizedPhone }] : []),
@@ -63,6 +67,8 @@ export async function registerProspect(
   const hashed = await hashPassword(data.password);
 
   const user = await prisma.$transaction(async (tx) => {
+    await releaseIdentifiersFromDeletedUsers(tx, { email: normalizedEmail, phone: normalizedPhone });
+
     const created = await tx.user.create({
       data: {
         email: normalizedEmail,
@@ -129,8 +135,10 @@ export async function registerCoach(
   const normalizedEmail = data.email.toLowerCase().trim();
   const normalizedPhone = data.phone.trim();
 
+  // Fast-fail on active accounts only (see registerProspect).
   const existing = await prisma.user.findFirst({
     where: {
+      deletedAt: null,
       OR: [{ email: normalizedEmail }, { phone: normalizedPhone }],
     },
     select: { id: true, email: true, phone: true },
@@ -165,6 +173,8 @@ export async function registerCoach(
   const hashed = await hashPassword(data.password);
 
   const user = await prisma.$transaction(async (tx) => {
+    await releaseIdentifiersFromDeletedUsers(tx, { email: normalizedEmail, phone: normalizedPhone });
+
     const created = await tx.user.create({
       data: {
         email: normalizedEmail,

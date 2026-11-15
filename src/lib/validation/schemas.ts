@@ -140,6 +140,19 @@ export const UpdateCoachProfileSchema = z.object({
 });
 export type UpdateCoachProfileInput = z.infer<typeof UpdateCoachProfileSchema>;
 
+/**
+ * Converts an existing PROSPECT account into a (pending) COACH account.
+ * Phone is optional here because the user may already have one on file;
+ * the service enforces that a coach always ends up with a phone number.
+ */
+export const BecomeCoachSchema = z.object({
+  discipline: z.string().min(2, "Discipline is required"),
+  phone: e164PhoneOptional.nullable(),
+  bio: z.string().max(2000).optional().nullable(),
+  portfolio: optionalUrl.nullable(),
+});
+export type BecomeCoachInput = z.infer<typeof BecomeCoachSchema>;
+
 export const UpdateClientProfileSchema = z.object({
   ageRange: z.string().optional().nullable(),
   heightCm: z.number().positive().optional().nullable().or(z.nan()),

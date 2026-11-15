@@ -9,6 +9,7 @@ import { Prisma, UserRole } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { logger } from "@/lib/logger";
 import { getPublicUrl, deleteFromStorage } from "@/lib/storage";
+import { originalIdentifier, isArchivedIdentifier } from "@/lib/archived-identifiers";
 
 // ─── Dashboard stats ──────────────────────────────────────────────────────────
 
@@ -125,6 +126,11 @@ export async function listUsers(options: {
   return {
     users: users.map((u) => ({
       ...u,
+      // Deleted accounts may have had their identifiers released for a new
+      // signup — show admins the original values, not the archived form.
+      email: originalIdentifier(u.email),
+      phone: originalIdentifier(u.phone),
+      identifiersReleased: isArchivedIdentifier(u.email) || isArchivedIdentifier(u.phone),
       avatar: u.avatar ? getPublicUrl(u.avatar) : null,
       specialty: u.coachProfile?.discipline?.name ?? null,
       status: u.coachProfile?.status ?? null,
@@ -176,7 +182,7 @@ export async function softDeleteUser(userId: string) {
 export async function restoreUser(userId: string) {
   const user = await prisma.user.findUnique({
     where: { id: userId },
-    select: { deletedAt: true },
+    select: { deletedAt: true, email: true, phone: true },
   });
 
   if (!user) {
@@ -187,9 +193,39 @@ export async function restoreUser(userId: string) {
     throw Object.assign(new Error("User is not deleted"), { code: "INVALID_STATE", status: 400 });
   }
 
+  // If the email/phone were released for a new signup while this account
+  // was deleted, put the originals back — unless someone now owns them.
+  const email = originalIdentifier(user.email);
+  const phone = originalIdentifier(user.phone);
+
+  if (email !== user.email || phone !== user.phone) {
+    const holder = await prisma.user.findFirst({
+      where: {
+        id: { not: userId },
+        OR: [
+          ...(email !== user.email ? [{ email }] : []),
+          ...(phone && phone !== user.phone ? [{ phone }] : []),
+        ],
+      },
+      select: { email: true },
+    });
+
+    if (holder) {
+      const emailTaken = holder.email === email;
+      throw Object.assign(
+        new Error(
+          emailTaken
+            ? "This email is now used by another account"
+            : "This phone number is now used by another account"
+        ),
+        { code: emailTaken ? "RESTORE_EMAIL_TAKEN" : "RESTORE_PHONE_TAKEN", status: 409 }
+      );
+    }
+  }
+
   const updated = await prisma.user.update({
     where: { id: userId },
-    data: { deletedAt: null, isActive: true },
+    data: { deletedAt: null, isActive: true, email, phone },
   });
 
   logger.info({ userId }, "User restored by admin");

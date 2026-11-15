@@ -592,6 +592,28 @@
       "twitterPlaceholder": "https://x.com/votreprofil",
       "youtubeLabel": "YouTube",
       "youtubePlaceholder": "https://youtube.com/@votreprofil"
+    },
+    "becomeCoach": {
+      "title": "Vous êtes coach ?",
+      "description": "Transformez votre compte en compte coach sans en recréer un nouveau. Vous gardez le même email, le même mot de passe et votre historique.",
+      "button": "Devenir coach",
+      "modalTitle": "Devenir coach",
+      "modalIntro": "Renseignez votre discipline et votre téléphone. Votre profil coach sera examiné par un administrateur avant d’être visible sur la plateforme.",
+      "phoneHint": "Obligatoire pour les coachs, au format international (ex. +2376XXXXXXXX).",
+      "confirmLabel": "Je comprends que mon compte client deviendra un compte coach en attente de validation.",
+      "confirmRequired": "Veuillez confirmer pour continuer",
+      "submit": "Envoyer ma candidature",
+      "submitting": "Envoi...",
+      "success": "Candidature envoyée ! Votre profil coach est en attente de validation.",
+      "errors": {
+        "phoneTaken": "Ce numéro de téléphone est déjà utilisé par un autre compte.",
+        "alreadyCoach": "Votre compte est déjà un compte coach.",
+        "generic": "Impossible de traiter votre demande. Réessayez plus tard."
+      }
+    },
+    "disciplineChange": {
+      "warning": "Attention : votre profil est déjà validé. Si vous changez de discipline, il repassera en attente de validation par un administrateur. En attendant, il ne sera plus visible par les clients et la messagerie sera indisponible.",
+      "toast": "Discipline modifiée. Votre profil est en attente de revalidation par un administrateur."
     }
   },
   "admin": {
@@ -735,7 +757,9 @@
         "activateError": "Échec de l'activation du compte",
         "deactivateError": "Échec de la désactivation du compte",
         "restoreError": "Échec de la restauration du compte",
-        "deletedOn": "Supprimé le {date}"
+        "deletedOn": "Supprimé le {date}",
+        "restoreEmailTaken": "Impossible de restaurer : un nouveau compte a été créé avec cet email depuis la suppression.",
+        "restorePhoneTaken": "Impossible de restaurer : un nouveau compte utilise ce numéro de téléphone depuis la suppression."
       }
     },
     "coaches": {
