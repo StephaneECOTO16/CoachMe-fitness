@@ -15,6 +15,7 @@ import { registerSchema, type RegisterInput } from "@/lib/schemas";
   
 import PublicRoute from "@/components/auth/PublicRoute";
 import toast from "@/lib/toast";
+import { trackCompleteRegistration } from "@/lib/meta-pixel";
 import styles from "./page.module.css";
 
 interface Discipline {
@@ -113,7 +114,13 @@ export default function RegisterPage() {
       if (!response.ok) {
         throw new Error(result.error?.message || "Registration failed");
       }
- 
+
+      // Meta Pixel: count the signup only once the account really exists
+      // (fired before the redirect below; deduplicated per user id).
+      if (result.user?.id) {
+        trackCompleteRegistration(result.user.id, data.accountType);
+      }
+
       // Show success toast
       toast.success(
         t("registerSuccess"),

@@ -11,6 +11,7 @@ import { NotificationsProvider } from "@/contexts/NotificationsContext";
 import { Toaster } from "@/components/ui/sonner";
 import PWASetup from "@/components/pwa/PWASetup";
 import PushPermissionBanner from "@/components/notifications/PushPermissionBanner";
+import MetaPixel from "@/components/analytics/MetaPixel";
 import "@/styles/globals.css";
 
 // Bebas Neue for headings - bold, athletic, high-energy
@@ -70,6 +71,7 @@ export default async function LocaleLayout({
       className={`${bebasNeue.variable} ${sourceSans.variable}`}
     >
       <body>
+        <MetaPixel />
         <NextIntlClientProvider messages={messages}>
           <AuthProvider>
             <PusherProvider>

@@ -32,8 +32,11 @@ export default function PublicRoute({ children }: PublicRouteProps) {
     }
   }, [isAuthenticated, user, isLoading, router]);
 
-  // Show loading state while checking authentication
-  if (isLoading) {
+  // Render the page immediately while the session check runs: almost every
+  // visitor of login/register is anonymous, and blocking on /api/auth/me
+  // showed a full-screen "Loading..." (slow on mobile data, e.g. ad traffic).
+  // Signed-in users are redirected by the effect above once the check ends.
+  if (!isLoading && isAuthenticated) {
     return (
       <div style={{
         display: 'flex',
@@ -44,11 +47,6 @@ export default function PublicRoute({ children }: PublicRouteProps) {
         <LoadingIndicator label={tCommon('loading')} />
       </div>
     );
-  }
-
-  // Don't render children if user is authenticated (they'll be redirected)
-  if (isAuthenticated) {
-    return null;
   }
 
   return <>{children}</>;

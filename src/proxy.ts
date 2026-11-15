@@ -71,12 +71,14 @@ function applySecurityHeaders(response: NextResponse): NextResponse {
     "Content-Security-Policy",
     [
       "default-src 'self'",
-      "script-src 'self' 'unsafe-inline' blob: https://js.pusher.com",
+      // connect.facebook.net: Meta Pixel (fbevents.js + pixel config)
+      "script-src 'self' 'unsafe-inline' blob: https://js.pusher.com https://connect.facebook.net",
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
       "font-src 'self' https://fonts.gstatic.com",
       `worker-src 'self' blob:`,
-      `img-src 'self' data: blob: ${process.env.R2_PUBLIC_URL ?? ""} https://images.unsplash.com https://ui-avatars.com https://media.mandarafitness.com`,
-      `connect-src 'self' wss://*.pusher.com https://sockjs-mt1.pusher.com https://*.r2.cloudflarestorage.com ${process.env.UPSTASH_REDIS_REST_URL ?? ""}`,
+      `img-src 'self' data: blob: ${process.env.R2_PUBLIC_URL ?? ""} https://images.unsplash.com https://ui-avatars.com https://media.mandarafitness.com https://www.facebook.com`,
+      // www.facebook.com / connect.facebook.net: Meta Pixel event beacons
+      `connect-src 'self' wss://*.pusher.com https://sockjs-mt1.pusher.com https://*.r2.cloudflarestorage.com https://www.facebook.com https://connect.facebook.net ${process.env.UPSTASH_REDIS_REST_URL ?? ""}`,
       `media-src 'self' ${process.env.R2_PUBLIC_URL ?? ""}`,
       "frame-src 'none'",
     ].join("; ")

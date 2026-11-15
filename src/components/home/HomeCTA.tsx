@@ -27,7 +27,7 @@ export default function HomeCTA() {
                     {t("description")}
                 </p>
                 <div className={styles.buttonWrapper}>
-                    <Link href="/login" className={styles.button}>
+                    <Link href="/register" className={styles.button}>
                         <span>{t("button")}</span>
                         <ArrowRight size={20} className={styles.icon} />
                     </Link>
