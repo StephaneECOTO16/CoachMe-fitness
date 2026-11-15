@@ -169,7 +169,7 @@
         }
       },
       "stats": {
-        "trust": "500+ Clients Actifs",
+        "trust": "Coachs vérifiés",
         "standard": "Standard Premium"
       }
     },
@@ -198,7 +198,7 @@
     },
     "cta": {
       "title": "Prêt à commencer votre <highlight>parcours bien-être ?</highlight>",
-      "description": "Rejoignez des milliers de professionnels qui ont transformé leur santé avec nos coachs certifiés.",
+      "description": "Rejoignez CoachMe et transformez votre santé avec nos coachs certifiés.",
       "button": "Commencer maintenant"
     },
     "testimonials": {
@@ -260,7 +260,7 @@
         },
         "today": {
           "title": "Lancement & Croissance",
-          "description": "Lancement officiel au Cameroun, connectant des centaines de professionnels certifiés à une communauté en pleine croissance."
+          "description": "Lancement officiel au Cameroun, pour connecter des professionnels certifiés à une communauté en pleine croissance."
         }
       }
     },

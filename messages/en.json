@@ -168,7 +168,7 @@
         }
       },
       "stats": {
-        "trust": "500+ Active Clients",
+        "trust": "Verified Coaches",
         "standard": "Premium Standard"
       }
     },
@@ -197,7 +197,7 @@
     },
     "cta": {
       "title": "Ready to Start Your <highlight>Wellness Journey?</highlight>",
-      "description": "Join thousands of professionals who have transformed their health with our certified coaches.",
+      "description": "Join CoachMe and transform your health with our certified coaches.",
       "button": "Get Started Now"
     },
     "testimonials": {
@@ -259,7 +259,7 @@
         },
         "today": {
           "title": "Launch & Growth",
-          "description": "Official launch in Cameroon, connecting hundreds of certified professionals with a growing community."
+          "description": "Official launch in Cameroon, connecting certified professionals with a growing community."
         }
       }
     },

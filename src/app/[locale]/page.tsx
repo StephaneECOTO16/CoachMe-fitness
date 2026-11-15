@@ -3,7 +3,9 @@ import AboutSection from '@/components/home/AboutSection';
 import WhyChooseUs from '@/components/home/WhyChooseUs';
 import DisciplinesSection from '@/components/home/DisciplinesSection';
 import HomeCTA from '@/components/home/HomeCTA';
-import Testimonials from '@/components/home/Testimonials';
+
+// <Testimonials /> is hidden until real client testimonials are available
+// (the current items are placeholders). Re-add it below <HomeCTA /> later.
 
 export default function HomePage() {
   return (
@@ -13,7 +15,6 @@ export default function HomePage() {
       <WhyChooseUs />
       <DisciplinesSection />
       <HomeCTA />
-      <Testimonials />
     </main>
   );
 }

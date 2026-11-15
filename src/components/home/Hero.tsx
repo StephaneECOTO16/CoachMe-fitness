@@ -68,18 +68,21 @@ export default function HomeHero() {
                         />
                     </div>
 
-                    {/* Stats Overlay Card */}
+                    {/* Stats Overlay Card — hidden until the client provides
+                        real figures (the previous "4.9/5" and "1.2k+" were
+                        placeholders). Labels remain in home.hero.stats.
                     <div className={styles.statsCard}>
                         <div className={styles.statItem}>
-                            <span className={styles.statValue}>4.9/5</span>
+                            <span className={styles.statValue}>…</span>
                             <span className={styles.statLabel}>{t("stats.rating")}</span>
                         </div>
                         <div className={styles.statDivider} />
                         <div className={styles.statItem}>
-                            <span className={styles.statValue}>1.2k+</span>
+                            <span className={styles.statValue}>…</span>
                             <span className={styles.statLabel}>{t("stats.agreements")}</span>
                         </div>
                     </div>
+                    */}
 
                     {/* Floating Actions */}
                     <div className={styles.floatingActions}>
