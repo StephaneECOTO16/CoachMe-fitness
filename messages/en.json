@@ -99,7 +99,22 @@
     "passwordResetSuccess": "Your password has been reset successfully!",
     "redirectingToLogin": "Redirecting you to login...",
     "invalidResetLink": "This reset link is invalid or has expired.",
-    "requestNewLink": "Request a new reset link"
+    "requestNewLink": "Request a new reset link",
+    "chooseAccount": {
+      "title": "Several accounts use these credentials",
+      "hint": "Choose which account to open:",
+      "roles": {
+        "PROSPECT": "My client account",
+        "COACH": "My coach account",
+        "ADMIN": "My admin account"
+      }
+    },
+    "accountExists": {
+      "clientEmail": "A client account already exists with this email. Log in, or sign up as a coach if that is what you want.",
+      "coachEmail": "A coach account already exists with this email. Log in to that account.",
+      "clientPhone": "A client account already uses this phone number.",
+      "coachPhone": "A coach account already uses this phone number."
+    }
   },
   "home": {
     "hero": {
@@ -594,7 +609,8 @@
       "errors": {
         "phoneTaken": "This phone number is already used by another account.",
         "alreadyCoach": "Your account is already a coach account.",
-        "generic": "We could not process your request. Please try again later."
+        "generic": "We could not process your request. Please try again later.",
+        "coachAccountExists": "You already have a coach account with this email. Log out and log in to your coach account."
       }
     },
     "disciplineChange": {

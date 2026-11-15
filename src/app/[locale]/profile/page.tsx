@@ -477,7 +477,9 @@ export default function ProfilePage() {
       }
 
       const code = result.error?.code as string | undefined;
-      if (code === 'PHONE_ALREADY_EXISTS') {
+      if (code === 'COACH_ACCOUNT_EXISTS') {
+        toast.error(t('becomeCoach.errors.coachAccountExists'), { duration: 8000 });
+      } else if (code === 'PHONE_ALREADY_EXISTS') {
         toast.error(t('becomeCoach.errors.phoneTaken'));
       } else if (code === 'ALREADY_EXISTS') {
         toast.error(t('becomeCoach.errors.alreadyCoach'));

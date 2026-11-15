@@ -111,6 +111,14 @@ export default function RegisterPage() {
       const result = await response.json();
  
       if (!response.ok) {
+        // Email/phone are unique per account type: explain which one exists.
+        const isCoach = data.accountType === "COACH";
+        if (result.error?.code === "ALREADY_EXISTS") {
+          throw new Error(t(isCoach ? "accountExists.coachEmail" : "accountExists.clientEmail"));
+        }
+        if (result.error?.code === "PHONE_ALREADY_EXISTS") {
+          throw new Error(t(isCoach ? "accountExists.coachPhone" : "accountExists.clientPhone"));
+        }
         throw new Error(result.error?.message || "Registration failed");
       }
  

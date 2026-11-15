@@ -57,7 +57,9 @@ enum RateType {
 model User {
   /// UUID primary key — prevents sequential ID enumeration attacks
   id        String   @id @default(uuid()) @db.Uuid
-  email     String   @unique
+  /// Not globally unique: the same person may hold one account per role
+  /// (e.g. a client account AND a coach account). See @@unique([email, role]).
+  email     String
   password  String
 
   role      UserRole @default(PROSPECT)
@@ -65,7 +67,8 @@ model User {
 
   /// Optional phone number in E.164 format, e.g. +237659037423
   /// Collected at registration and displayed in admin user detail view.
-  phone     String?  @unique
+  /// Unique per role, like email (see @@unique([phone, role])).
+  phone     String?
 
   avatar    String?  // R2 object key (resolved to URL at read time)
 
@@ -87,6 +90,9 @@ model User {
   pushSubscriptions   PushSubscription[]
   notifications       Notification[]
 
+  /// One account per email per role (max one client + one coach per email).
+  @@unique([email, role])
+  @@unique([phone, role])
   @@index([deletedAt])
 }
 

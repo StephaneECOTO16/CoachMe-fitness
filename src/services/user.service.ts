@@ -71,6 +71,24 @@ export async function updateBasicInfo(
   userId: string,
   data: UpdateBasicInfoInput
 ) {
+  // Phone is unique per role: refuse a number already used by another
+  // account of the same role (instead of failing on the DB constraint).
+  if (data.phone) {
+    const current = await prisma.user.findUnique({ where: { id: userId }, select: { role: true } });
+    const taken = current
+      ? await prisma.user.findFirst({
+          where: { phone: data.phone, role: current.role, id: { not: userId } },
+          select: { id: true },
+        })
+      : null;
+    if (taken) {
+      throw Object.assign(new Error("Phone number already registered"), {
+        code: "PHONE_ALREADY_EXISTS",
+        status: 409,
+      });
+    }
+  }
+
   const user = await prisma.user.update({
     where: { id: userId },
     data: {
@@ -226,7 +244,7 @@ export async function updateCoachProfile(
 export async function becomeCoach(userId: string, data: BecomeCoachInput) {
   const user = await prisma.user.findUnique({
     where: { id: userId },
-    select: { role: true, phone: true, coachProfile: { select: { id: true } } },
+    select: { role: true, email: true, phone: true, coachProfile: { select: { id: true } } },
   });
 
   if (!user) {
@@ -249,19 +267,28 @@ export async function becomeCoach(userId: string, data: BecomeCoachInput) {
     });
   }
 
-  if (phone !== user.phone) {
-    // Only active accounts block the number; an admin-deleted holder's
-    // number is released inside the transaction below.
-    const phoneOwner = await prisma.user.findUnique({
-      where: { phone },
-      select: { id: true, deletedAt: true },
-    });
-    if (phoneOwner && phoneOwner.id !== userId && !phoneOwner.deletedAt) {
-      throw Object.assign(new Error("Phone number already registered"), {
-        code: "PHONE_ALREADY_EXISTS",
-        status: 409,
-      });
-    }
+  // Email/phone are unique per role: once converted, this account must not
+  // collide with another *active* COACH account. Admin-deleted coach
+  // accounts holding them are released inside the transaction below.
+  const coachTwin = await prisma.user.findFirst({
+    where: {
+      role: "COACH",
+      deletedAt: null,
+      id: { not: userId },
+      OR: [{ email: user.email }, { phone }],
+    },
+    select: { email: true },
+  });
+  if (coachTwin) {
+    const sameEmail = coachTwin.email === user.email;
+    throw Object.assign(
+      new Error(
+        sameEmail
+          ? "A coach account already exists with this email — log in to it instead"
+          : "Phone number already registered"
+      ),
+      { code: sameEmail ? "COACH_ACCOUNT_EXISTS" : "PHONE_ALREADY_EXISTS", status: 409 }
+    );
   }
 
   const discipline = await prisma.discipline.findUnique({
@@ -277,9 +304,12 @@ export async function becomeCoach(userId: string, data: BecomeCoachInput) {
   }
 
   const updated = await prisma.$transaction(async (tx) => {
-    if (phone !== user.phone) {
-      await releaseIdentifiersFromDeletedUsers(tx, { phone, exceptUserId: userId });
-    }
+    await releaseIdentifiersFromDeletedUsers(tx, {
+      email: user.email,
+      phone,
+      role: "COACH",
+      exceptUserId: userId,
+    });
 
     await tx.coachProfile.create({
       data: {

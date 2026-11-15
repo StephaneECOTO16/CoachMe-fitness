@@ -50,6 +50,11 @@ export const LoginRequestSchema = z.object({
   identifier: z.string().min(1, "Email or phone number is required"),
   password: z.string().min(1, "Password is required"),
   rememberMe: z.boolean().optional(),
+  /**
+   * Which account to open when the same email/phone + password match
+   * several accounts (one per role). Sent after a ROLE_REQUIRED response.
+   */
+  role: z.enum(["PROSPECT", "COACH", "ADMIN"]).optional(),
 });
 export type LoginInput = z.infer<typeof LoginRequestSchema>;
 

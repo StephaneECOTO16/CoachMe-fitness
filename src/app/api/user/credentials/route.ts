@@ -20,12 +20,15 @@ export async function PATCH(req: NextRequest) {
     const { email } = data!;
 
     try {
-        // Check if email is already in use by another user
-        const existingUser = await prisma.user.findUnique({
-            where: { email },
+        // Email is unique per role: only another account of the SAME role
+        // (e.g. another coach) can block it — the user's own client/coach
+        // twin account may legitimately share the email.
+        const existingUser = await prisma.user.findFirst({
+            where: { email, role: authPayload.role, id: { not: authPayload.userId } },
+            select: { id: true },
         });
 
-        if (existingUser && existingUser.id !== authPayload.userId) {
+        if (existingUser) {
             return NextResponse.json({
                 success: false,
                 error: { code: 'EMAIL_IN_USE', message: 'Email is already in use' }

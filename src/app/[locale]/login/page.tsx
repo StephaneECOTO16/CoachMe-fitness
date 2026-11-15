@@ -16,10 +16,17 @@ import { loginSchema, type LoginInput } from "@/lib/schemas";
 import toast from "@/lib/toast";
 import styles from "./page.module.css";
 
+type AccountRole = "PROSPECT" | "COACH" | "ADMIN";
+
 export default function LoginPage() {
   const t = useTranslations("auth");
   const [showPassword, setShowPassword] = useState(false);
   const [loginMethod, setLoginMethod] = useState<"email" | "phone">("email");
+  // Set when the same email/phone + password open several accounts
+  // (e.g. a client AND a coach account): the user picks which one.
+  const [roleChoices, setRoleChoices] = useState<AccountRole[] | null>(null);
+  const [pendingLogin, setPendingLogin] = useState<LoginInput | null>(null);
+  const [isChoosingRole, setIsChoosingRole] = useState(false);
 
   const { login } = useAuth();
 
@@ -38,7 +45,7 @@ export default function LoginPage() {
     },
   });
 
-  const onSubmit = async (data: LoginInput) => {
+  const submitLogin = async (data: LoginInput, role?: AccountRole) => {
     try {
       const response = await fetch("/api/auth/login", {
         method: "POST",
@@ -48,14 +55,25 @@ export default function LoginPage() {
         body: JSON.stringify({
           identifier: data.identifier,
           password: data.password,
+          rememberMe: Boolean(data.rememberMe),
+          ...(role ? { role } : {}),
         }),
       });
 
       const result = await response.json();
 
+      if (result.error?.code === "ROLE_REQUIRED") {
+        setPendingLogin(data);
+        setRoleChoices(result.error.roles as AccountRole[]);
+        return;
+      }
+
       if (!response.ok) {
         throw new Error(result.error?.message || "Login failed");
       }
+
+      setRoleChoices(null);
+      setPendingLogin(null);
 
       // Sync user state from the HttpOnly cookie set by the server
       await login();
@@ -66,6 +84,18 @@ export default function LoginPage() {
         err instanceof Error ? err.message : "An error occurred";
       toast.error("Login Failed", errorMessage);
     }
+  };
+
+  const onSubmit = (data: LoginInput) => {
+    setRoleChoices(null);
+    return submitLogin(data);
+  };
+
+  const chooseRole = async (role: AccountRole) => {
+    if (!pendingLogin) return;
+    setIsChoosingRole(true);
+    await submitLogin(pendingLogin, role);
+    setIsChoosingRole(false);
   };
 
   return (
@@ -209,16 +239,40 @@ export default function LoginPage() {
                 </Link>
               </div>
 
-              <Button
-                type="submit"
-                variant="primary"
-                size="lg"
-                fullWidth
-                loading={isSubmitting}
-                className={styles.submitButton}
-              >
-                {isSubmitting ? t("loggingIn") : t("loginButton")}
-              </Button>
+              {roleChoices && roleChoices.length > 1 ? (
+                <div className={styles.roleChoice} role="group" aria-labelledby="role-choice-title">
+                  <p id="role-choice-title" className={styles.roleChoiceTitle}>
+                    {t("chooseAccount.title")}
+                  </p>
+                  <p className={styles.roleChoiceHint}>{t("chooseAccount.hint")}</p>
+                  <div className={styles.roleChoiceButtons}>
+                    {roleChoices.map((r) => (
+                      <Button
+                        key={r}
+                        type="button"
+                        variant="primary"
+                        size="lg"
+                        fullWidth
+                        disabled={isChoosingRole}
+                        onClick={() => chooseRole(r)}
+                      >
+                        {t(`chooseAccount.roles.${r}`)}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <Button
+                  type="submit"
+                  variant="primary"
+                  size="lg"
+                  fullWidth
+                  loading={isSubmitting}
+                  className={styles.submitButton}
+                >
+                  {isSubmitting ? t("loggingIn") : t("loginButton")}
+                </Button>
+              )}
             </form>
 
             <div className={styles.footer}>

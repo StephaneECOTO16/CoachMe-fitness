@@ -13,7 +13,7 @@
  * real login identifier, so the deleted account stays unreachable.
  */
 
-import type { Prisma } from "@prisma/client";
+import type { Prisma, UserRole } from "@prisma/client";
 
 const PREFIX = "deleted:";
 const UUID_LENGTH = 36;
@@ -35,15 +35,22 @@ export function originalIdentifier<T extends string | null>(value: T): T {
 type Db = Prisma.TransactionClient;
 
 /**
- * Makes `email` / `phone` available for a new or converted account.
- * - Held by an active (non-deleted) user → throws a 409 (unchanged behaviour).
- * - Held by an admin-deleted user        → archived on that row, freeing it.
+ * Makes `email` / `phone` available for a new or converted account of `role`.
+ * Email and phone are unique per role, so only accounts of the same role
+ * can conflict (a client account never blocks a coach signup).
+ * - Held by an active (non-deleted) account of that role → throws a 409.
+ * - Held by an admin-deleted account of that role        → archived, freeing it.
  *
  * Call inside the same transaction that writes the new identifiers.
  */
 export async function releaseIdentifiersFromDeletedUsers(
   db: Db,
-  { email, phone, exceptUserId }: { email?: string | null; phone?: string | null; exceptUserId?: string }
+  {
+    email,
+    phone,
+    role,
+    exceptUserId,
+  }: { email?: string | null; phone?: string | null; role: UserRole; exceptUserId?: string }
 ): Promise<void> {
   const or: Prisma.UserWhereInput[] = [];
   if (email) or.push({ email });
@@ -51,7 +58,7 @@ export async function releaseIdentifiersFromDeletedUsers(
   if (or.length === 0) return;
 
   const holders = await db.user.findMany({
-    where: { OR: or, ...(exceptUserId ? { id: { not: exceptUserId } } : {}) },
+    where: { role, OR: or, ...(exceptUserId ? { id: { not: exceptUserId } } : {}) },
     select: { id: true, email: true, phone: true, deletedAt: true },
   });
 
@@ -59,10 +66,13 @@ export async function releaseIdentifiersFromDeletedUsers(
   for (const h of holders) {
     if (h.deletedAt) continue;
     if (email && h.email === email) {
-      throw Object.assign(new Error("Email already registered"), { code: "ALREADY_EXISTS", status: 409 });
+      throw Object.assign(new Error("An account with this email already exists for this role"), {
+        code: "ALREADY_EXISTS",
+        status: 409,
+      });
     }
     if (phone && h.phone === phone) {
-      throw Object.assign(new Error("Phone number already registered"), {
+      throw Object.assign(new Error("An account with this phone number already exists for this role"), {
         code: "PHONE_ALREADY_EXISTS",
         status: 409,
       });

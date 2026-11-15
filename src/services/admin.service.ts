@@ -182,7 +182,7 @@ export async function softDeleteUser(userId: string) {
 export async function restoreUser(userId: string) {
   const user = await prisma.user.findUnique({
     where: { id: userId },
-    select: { deletedAt: true, email: true, phone: true },
+    select: { deletedAt: true, email: true, phone: true, role: true },
   });
 
   if (!user) {
@@ -199,9 +199,11 @@ export async function restoreUser(userId: string) {
   const phone = originalIdentifier(user.phone);
 
   if (email !== user.email || phone !== user.phone) {
+    // Unique per role: only an account of the same role can hold them.
     const holder = await prisma.user.findFirst({
       where: {
         id: { not: userId },
+        role: user.role,
         OR: [
           ...(email !== user.email ? [{ email }] : []),
           ...(phone && phone !== user.phone ? [{ phone }] : []),
