@@ -41,6 +41,11 @@ export const metadata: Metadata = {
     apple: "/coachMe-logo.png?v=2",
   },
   manifest: "/manifest.json",
+  other: {
+    // Meta Business domain verification (rendered server-side in <head>,
+    // as Meta requires). Replace this value if Meta issues a new code.
+    "facebook-domain-verification": "0n257xvi39uasunkobthsaifv4ldl8",
+  },
 };
 
 export function generateStaticParams() {
