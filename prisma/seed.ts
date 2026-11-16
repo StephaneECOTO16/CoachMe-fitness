@@ -55,7 +55,7 @@ async function main() {
   const adminPassword = "Admin123!";
 
   const existingAdmin = await prisma.user.findUnique({
-    where: { email: adminEmail },
+    where: { email_role: { email: adminEmail, role: "ADMIN" } },
   });
 
   if (existingAdmin) {
@@ -170,7 +170,7 @@ async function main() {
 
   for (const coachData of coaches) {
     const existingCoach = await prisma.user.findUnique({
-      where: { email: coachData.email },
+      where: { email_role: { email: coachData.email, role: "COACH" } },
     });
 
     if (!existingCoach) {
@@ -225,7 +225,7 @@ async function main() {
   const clientPassword = "Client123!";
 
   const existingClient = await prisma.user.findUnique({
-    where: { email: clientEmail },
+    where: { email_role: { email: clientEmail, role: "PROSPECT" } },
   });
 
   if (!existingClient) {

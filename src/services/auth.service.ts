@@ -23,6 +23,7 @@ import { createHash, randomBytes } from "crypto";
 import { type RegisterInput } from "@/lib/validation/schemas";
 import { getPublicUrl } from "@/lib/storage";
 import { sendNotification } from "@/lib/notifications";
+import { releaseIdentifiersFromDeletedUsers } from "@/lib/archived-identifiers";
 
 // ─── Registration ─────────────────────────────────────────────────────────────
 
@@ -36,8 +37,14 @@ export async function registerProspect(
   const normalizedEmail = data.email.toLowerCase().trim();
   const normalizedPhone = data.phone?.trim() || null;
 
+  // Fast-fail on identifiers held by an *active* account of the SAME role
+  // (email/phone are unique per role: a coach account with this email does
+  // not block a client signup). Identifiers of admin-deleted accounts are
+  // released inside the transaction below.
   const existing = await prisma.user.findFirst({
     where: {
+      role: "PROSPECT",
+      deletedAt: null,
       OR: [
         { email: normalizedEmail },
         ...(normalizedPhone ? [{ phone: normalizedPhone }] : []),
@@ -47,14 +54,14 @@ export async function registerProspect(
   });
 
   if (existing?.email === normalizedEmail) {
-    throw Object.assign(new Error("Email already registered"), {
+    throw Object.assign(new Error("An account with this email already exists for this role"), {
       code: "ALREADY_EXISTS",
       status: 409,
     });
   }
 
   if (normalizedPhone && existing?.phone === normalizedPhone) {
-    throw Object.assign(new Error("Phone number already registered"), {
+    throw Object.assign(new Error("An account with this phone number already exists for this role"), {
       code: "PHONE_ALREADY_EXISTS",
       status: 409,
     });
@@ -63,6 +70,8 @@ export async function registerProspect(
   const hashed = await hashPassword(data.password);
 
   const user = await prisma.$transaction(async (tx) => {
+    await releaseIdentifiersFromDeletedUsers(tx, { email: normalizedEmail, phone: normalizedPhone, role: "PROSPECT" });
+
     const created = await tx.user.create({
       data: {
         email: normalizedEmail,
@@ -129,22 +138,25 @@ export async function registerCoach(
   const normalizedEmail = data.email.toLowerCase().trim();
   const normalizedPhone = data.phone.trim();
 
+  // Fast-fail on active COACH accounts only (see registerProspect).
   const existing = await prisma.user.findFirst({
     where: {
+      role: "COACH",
+      deletedAt: null,
       OR: [{ email: normalizedEmail }, { phone: normalizedPhone }],
     },
     select: { id: true, email: true, phone: true },
   });
 
   if (existing?.email === normalizedEmail) {
-    throw Object.assign(new Error("Email already registered"), {
+    throw Object.assign(new Error("An account with this email already exists for this role"), {
       code: "ALREADY_EXISTS",
       status: 409,
     });
   }
 
   if (existing?.phone === normalizedPhone) {
-    throw Object.assign(new Error("Phone number already registered"), {
+    throw Object.assign(new Error("An account with this phone number already exists for this role"), {
       code: "PHONE_ALREADY_EXISTS",
       status: 409,
     });
@@ -165,6 +177,8 @@ export async function registerCoach(
   const hashed = await hashPassword(data.password);
 
   const user = await prisma.$transaction(async (tx) => {
+    await releaseIdentifiersFromDeletedUsers(tx, { email: normalizedEmail, phone: normalizedPhone, role: "COACH" });
+
     const created = await tx.user.create({
       data: {
         email: normalizedEmail,
@@ -236,42 +250,54 @@ export async function registerCoach(
  */
 export async function initiatePasswordReset(email: string): Promise<void> {
   const normalised = email.toLowerCase().trim();
-  const user = await prisma.user.findUnique({
-    where: { email: normalised },
-    select: { id: true, name: true },
+
+  // An email can own one account per role (e.g. client + coach): send one
+  // reset link per account, labelled with its type when there are several.
+  const users = await prisma.user.findMany({
+    where: { email: normalised, deletedAt: null },
+    select: { id: true, name: true, role: true },
+    orderBy: { createdAt: "asc" },
   });
 
   // No user → silently return (no error, no timing difference)
-  if (!user) return;
+  if (users.length === 0) return;
 
-  // Invalidate any existing unused tokens
-  await prisma.passwordResetToken.updateMany({
-    where: { userId: user.id, used: false },
-    data: { used: true },
-  });
+  const { getForgotPasswordTemplate } = await import("@/lib/mail/index");
+  let firstError: unknown = null;
 
-  const token = randomBytes(32).toString("hex");
-  const tokenHash = createHash("sha256").update(token).digest("hex");
-  const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+  for (const user of users) {
+    // Invalidate any existing unused tokens
+    await prisma.passwordResetToken.updateMany({
+      where: { userId: user.id, used: false },
+      data: { used: true },
+    });
 
-  const resetToken = await prisma.passwordResetToken.create({
-    data: { userId: user.id, token: tokenHash, expiresAt },
-  });
+    const token = randomBytes(32).toString("hex");
+    const tokenHash = createHash("sha256").update(token).digest("hex");
+    const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
 
-  const resetUrl = `${env.NEXT_PUBLIC_APP_URL}/reset-password?token=${token}`;
+    const resetToken = await prisma.passwordResetToken.create({
+      data: { userId: user.id, token: tokenHash, expiresAt },
+    });
 
-  try {
-    await sendMail({
-      to: normalised,
-      subject: "Reset Your Password — CoachMe",
-      html: (await import("@/lib/mail/index")).getForgotPasswordTemplate(resetUrl),
-    }, { throwOnError: true });
-  } catch (error) {
-    await prisma.passwordResetToken.update({ where: { id: resetToken.id }, data: { used: true } });
-    throw error;
+    const resetUrl = `${env.NEXT_PUBLIC_APP_URL}/reset-password?token=${token}`;
+    const label =
+      users.length > 1 ? (user.role === "COACH" ? "coach" : user.role === "ADMIN" ? "admin" : "client") : undefined;
+
+    try {
+      await sendMail({
+        to: normalised,
+        subject: label ? `Reset Your Password (${label} account) — CoachMe` : "Reset Your Password — CoachMe",
+        html: getForgotPasswordTemplate(resetUrl, label),
+      }, { throwOnError: true });
+      logger.info({ userId: user.id }, "Password reset initiated");
+    } catch (error) {
+      await prisma.passwordResetToken.update({ where: { id: resetToken.id }, data: { used: true } });
+      firstError ??= error;
+    }
   }
 
-  logger.info({ userId: user.id }, "Password reset initiated");
+  if (firstError) throw firstError;
 }
 
 /**

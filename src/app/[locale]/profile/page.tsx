@@ -47,6 +47,15 @@ const createEditCoachSchema = (t: (key: string) => string) => z.object({
   youtube: z.string().url(t('validation.invalidUrl')).or(z.literal('')).optional(),
 });
 
+const createBecomeCoachSchema = (t: (key: string) => string) => z.object({
+  discipline: z.string().min(1, t('validation.disciplineRequired')),
+  phone: z.string().regex(/^\+[1-9]\d{6,14}$/, t('validation.invalidPhone')),
+  bio: z.string().max(2000).optional(),
+  portfolio: z.string().url(t('validation.invalidUrl')).or(z.literal('')).optional(),
+  confirm: z.literal(true, { errorMap: () => ({ message: t('becomeCoach.confirmRequired') }) }),
+});
+type BecomeCoachForm = z.infer<ReturnType<typeof createBecomeCoachSchema>>;
+
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const createEditClientSchema = (_t: (key: string) => string) => z.object({
   ageRange: z.string().optional(),
@@ -104,6 +113,8 @@ export default function ProfilePage() {
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [activeTab, setActiveTab] = useState<'profile' | 'media' | 'account'>('profile');
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+  const [isBecomeCoachOpen, setIsBecomeCoachOpen] = useState(false);
+  const [isBecomingCoach, setIsBecomingCoach] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const getDisciplineName = (discipline: unknown): string => {
@@ -136,6 +147,7 @@ export default function ProfilePage() {
     handleSubmit: handleSubmitCoach,
     formState: { errors: errorsCoach },
     reset: resetCoach,
+    watch: watchCoach,
   } = useForm({
     resolver: zodResolver(createEditCoachSchema(t)),
   });
@@ -147,6 +159,15 @@ export default function ProfilePage() {
     reset: resetClient,
   } = useForm({
     resolver: zodResolver(createEditClientSchema(t)),
+  });
+
+  const {
+    register: registerBecomeCoach,
+    handleSubmit: handleSubmitBecomeCoach,
+    formState: { errors: errorsBecomeCoach },
+    reset: resetBecomeCoach,
+  } = useForm<BecomeCoachForm>({
+    resolver: zodResolver(createBecomeCoachSchema(t)),
   });
 
   // Check if modal should be opened from query parameter
@@ -402,7 +423,11 @@ export default function ProfilePage() {
       const result = await response.json();
 
       if (result.success) {
-        toast.success(tToast('success.coachProfileUpdated'));
+        if (result.reviewRequired) {
+          toast.warning(t('disciplineChange.toast'), { duration: 8000 });
+        } else {
+          toast.success(tToast('success.coachProfileUpdated'));
+        }
         setProfileData(result);
         login();
         setIsEditModalOpen(false);
@@ -414,6 +439,58 @@ export default function ProfilePage() {
       toast.error(tToast('error.profileUpdateFailed'));
     } finally {
       setIsEditingProfile(false);
+    }
+  };
+
+  const openBecomeCoach = () => {
+    resetBecomeCoach({
+      discipline: '',
+      phone: profileData?.user.phone || '',
+      bio: '',
+      portfolio: '',
+    });
+    setIsBecomeCoachOpen(true);
+  };
+
+  const onSubmitBecomeCoach = async (data: BecomeCoachForm) => {
+    setIsBecomingCoach(true);
+    try {
+      const response = await fetch('/api/coach/onboarding', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          discipline: data.discipline,
+          phone: data.phone,
+          bio: data.bio || null,
+          portfolio: data.portfolio || null,
+        }),
+      });
+      const result = await response.json();
+
+      if (result.success) {
+        toast.success(t('becomeCoach.success'));
+        setIsBecomeCoachOpen(false);
+        await login(); // pick up the new COACH role from the refreshed cookie
+        router.push('/coach/dashboard');
+        return;
+      }
+
+      const code = result.error?.code as string | undefined;
+      if (code === 'COACH_ACCOUNT_EXISTS') {
+        toast.error(t('becomeCoach.errors.coachAccountExists'), { duration: 8000 });
+      } else if (code === 'PHONE_ALREADY_EXISTS') {
+        toast.error(t('becomeCoach.errors.phoneTaken'));
+      } else if (code === 'ALREADY_EXISTS') {
+        toast.error(t('becomeCoach.errors.alreadyCoach'));
+      } else {
+        toast.error(t('becomeCoach.errors.generic'));
+      }
+    } catch (error) {
+      console.error('Error becoming coach:', error);
+      toast.error(t('becomeCoach.errors.generic'));
+    } finally {
+      setIsBecomingCoach(false);
     }
   };
 
@@ -728,7 +805,126 @@ export default function ProfilePage() {
               </div>
             </section>
           )}
+
+          {/* Become a coach (PROSPECT only) */}
+          {profileData.user.role === "PROSPECT" && (
+            <section className={styles.section}>
+              <div className={`${styles.infoCard} ${styles.becomeCoachCard}`}>
+                <div className={styles.becomeCoachText}>
+                  <h2 className={styles.sectionTitle}>{t("becomeCoach.title")}</h2>
+                  <p className={styles.bioText}>{t("becomeCoach.description")}</p>
+                </div>
+                <Button variant="primary" onClick={openBecomeCoach}>
+                  {t("becomeCoach.button")}
+                </Button>
+              </div>
+            </section>
+          )}
         </div>
+
+        {/* Become Coach Modal */}
+        <Modal
+          isOpen={isBecomeCoachOpen}
+          onClose={() => !isBecomingCoach && setIsBecomeCoachOpen(false)}
+          title={t('becomeCoach.modalTitle')}
+          size="lg"
+        >
+          <form onSubmit={handleSubmitBecomeCoach(onSubmitBecomeCoach)} className={styles.form}>
+            <p className={styles.bioText}>{t('becomeCoach.modalIntro')}</p>
+
+            <div className={styles.formGroup}>
+              <label htmlFor="bc-discipline" className={styles.label}>
+                {t('labels.discipline')} *
+              </label>
+              <select
+                {...registerBecomeCoach('discipline')}
+                id="bc-discipline"
+                className={styles.select}
+                disabled={loadingDisciplines}
+              >
+                <option value="">
+                  {loadingDisciplines ? t('placeholders.loadingDisciplines') : t('placeholders.selectDiscipline')}
+                </option>
+                {disciplines.map((disc) => (
+                  <option key={disc.id} value={disc.name}>
+                    {disc.name}
+                  </option>
+                ))}
+              </select>
+              {errorsBecomeCoach.discipline && (
+                <span className={styles.fieldError}>{errorsBecomeCoach.discipline.message}</span>
+              )}
+            </div>
+
+            <div className={styles.formGroup}>
+              <label htmlFor="bc-phone" className={styles.label}>
+                {t('labels.phone')} *
+              </label>
+              <input
+                {...registerBecomeCoach('phone')}
+                type="tel"
+                id="bc-phone"
+                className={styles.input}
+                placeholder="+2376XXXXXXXX"
+              />
+              <span className={styles.avatarHint}>{t('becomeCoach.phoneHint')}</span>
+              {errorsBecomeCoach.phone && (
+                <span className={styles.fieldError}>{errorsBecomeCoach.phone.message}</span>
+              )}
+            </div>
+
+            <div className={styles.formGroup}>
+              <label htmlFor="bc-bio" className={styles.label}>
+                {t('labels.bio')}
+              </label>
+              <textarea
+                {...registerBecomeCoach('bio')}
+                id="bc-bio"
+                className={styles.textarea}
+                rows={4}
+                placeholder={t('placeholders.bio')}
+              />
+              {errorsBecomeCoach.bio && (
+                <span className={styles.fieldError}>{errorsBecomeCoach.bio.message}</span>
+              )}
+            </div>
+
+            <div className={styles.formGroup}>
+              <label htmlFor="bc-portfolio" className={styles.label}>
+                {t('labels.portfolio')}
+              </label>
+              <input
+                {...registerBecomeCoach('portfolio')}
+                type="url"
+                id="bc-portfolio"
+                className={styles.input}
+                placeholder={t('placeholders.portfolio')}
+              />
+              {errorsBecomeCoach.portfolio && (
+                <span className={styles.fieldError}>{errorsBecomeCoach.portfolio.message}</span>
+              )}
+            </div>
+
+            <div className={styles.formGroup}>
+              <label className={styles.becomeCoachConfirm}>
+                <input type="checkbox" {...registerBecomeCoach('confirm')} />
+                <span>{t('becomeCoach.confirmLabel')}</span>
+              </label>
+              {errorsBecomeCoach.confirm && (
+                <span className={styles.fieldError}>{errorsBecomeCoach.confirm.message}</span>
+              )}
+            </div>
+
+            <Button
+              type="submit"
+              variant="primary"
+              disabled={isBecomingCoach}
+              className={styles.submitButton}
+            >
+              {isBecomingCoach ? t('becomeCoach.submitting') : t('becomeCoach.submit')}
+            </Button>
+          </form>
+        </Modal>
 
         {/* Edit Profile Modal */}
         <Modal
@@ -773,6 +969,13 @@ export default function ProfilePage() {
                       {errorsCoach.discipline && (
                         <span className={styles.error}>{errorsCoach.discipline.message as string}</span>
                       )}
+                      {profileData.profile?.status === 'APPROVED' &&
+                        watchCoach('discipline') &&
+                        watchCoach('discipline') !== getDisciplineName(profileData.profile?.discipline) && (
+                          <div className={styles.disciplineWarning} role="alert">
+                            {t('disciplineChange.warning')}
+                          </div>
+                        )}
                     </div>
 
                     <div className={styles.formGroup}>

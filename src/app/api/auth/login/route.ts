@@ -77,92 +77,30 @@ export async function POST(req: Request) {
     return NextResponse.json({ success: false, error }, { status: 400 });
   }
 
-  const { identifier, password, rememberMe } = data!;
+  const { identifier, password, rememberMe, role } = data!;
 
-  // ── Detect identifier type and find user ──────────────────────────────────
+  // ── Detect identifier type and find candidate accounts ────────────────────
+  // Email and phone are unique per role, so one identifier can map to
+  // several accounts (e.g. a client account AND a coach account).
   const identifierType = detectIdentifierType(identifier);
   const normalizedIdentifier = identifier.toLowerCase().trim();
 
-  let user = null;
-
-  if (identifierType === "email") {
-    user = await prisma.user.findUnique({
-      where: { email: normalizedIdentifier },
-    });
-
-    // Constant-time-ish path: always run one compare
-    const passwordMatch = user
-      ? await comparePassword(password, user.password)
-      : await comparePassword(
-          password,
-          "$2b$12$invalidhashfortimingattackprevention",
-        );
-
-    if (!user || !passwordMatch) {
-      // Vague message — don't reveal whether the identifier exists
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            code: "INVALID_CREDENTIALS",
-            message: "Invalid email/phone or password",
+  const candidates = await prisma.user.findMany({
+    where:
+      identifierType === "email"
+        ? { email: normalizedIdentifier }
+        : {
+            OR: [
+              { phone: normalizePhoneIdentifier(identifier) },
+              { phone: identifier.trim() },
+            ],
           },
-        },
-        { status: 401 },
-      );
-    }
-  } else {
-    // Phone lookup - tolerate legacy duplicate phone numbers by checking all matches
-    const normalizedPhone = normalizePhoneIdentifier(identifier);
+    orderBy: { createdAt: "desc" },
+  });
 
-    const users = await prisma.user.findMany({
-      where: {
-        OR: [{ phone: normalizedPhone }, { phone: identifier.trim() }],
-      },
-      orderBy: { createdAt: "desc" },
-    });
-
-    if (users.length === 0) {
-      await comparePassword(
-        password,
-        "$2b$12$invalidhashfortimingattackprevention",
-      );
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            code: "INVALID_CREDENTIALS",
-            message: "Invalid email/phone or password",
-          },
-        },
-        { status: 401 },
-      );
-    }
-
-    for (const candidate of users) {
-      if (await comparePassword(password, candidate.password)) {
-        user = candidate;
-        break;
-      }
-    }
-
-    if (!user) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            code: "INVALID_CREDENTIALS",
-            message: "Invalid email/phone or password",
-          },
-        },
-        { status: 401 },
-      );
-    }
-  }
-
-  if (!user) {
+  const invalidCredentials = () =>
     // Vague message — don't reveal whether the identifier exists
-    return NextResponse.json(
+    NextResponse.json(
       {
         success: false,
         error: {
@@ -172,7 +110,42 @@ export async function POST(req: Request) {
       },
       { status: 401 },
     );
+
+  if (candidates.length === 0) {
+    // Constant-time-ish path: always run one compare
+    await comparePassword(password, "$2b$12$invalidhashfortimingattackprevention");
+    return invalidCredentials();
   }
+
+  // Accounts whose password matches (each account has its own password).
+  const matches = [];
+  for (const candidate of candidates) {
+    if (await comparePassword(password, candidate.password)) matches.push(candidate);
+  }
+
+  const roleMatches = role ? matches.filter((m) => m.role === role) : matches;
+  if (roleMatches.length === 0) return invalidCredentials();
+
+  // Prefer usable accounts; only report deleted/deactivated status when
+  // every matching account is unusable.
+  const usable = roleMatches.filter((m) => !m.deletedAt && m.isActive);
+
+  if (usable.length > 1) {
+    // Same identifier + same password on several accounts: let the user pick.
+    return NextResponse.json(
+      {
+        success: false,
+        error: {
+          code: "ROLE_REQUIRED",
+          message: "Several accounts use these credentials. Choose which one to open.",
+          roles: usable.map((u) => u.role),
+        },
+      },
+      { status: 409 },
+    );
+  }
+
+  const user = usable[0] ?? roleMatches[0];
 
   // ── Account status gate ─────────────────────────────────────────────────────
   // Deleted/deactivated accounts authenticate correctly (right password) but

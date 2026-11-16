@@ -99,7 +99,22 @@
     "passwordResetSuccess": "Your password has been reset successfully!",
     "redirectingToLogin": "Redirecting you to login...",
     "invalidResetLink": "This reset link is invalid or has expired.",
-    "requestNewLink": "Request a new reset link"
+    "requestNewLink": "Request a new reset link",
+    "chooseAccount": {
+      "title": "Several accounts use these credentials",
+      "hint": "Choose which account to open:",
+      "roles": {
+        "PROSPECT": "My client account",
+        "COACH": "My coach account",
+        "ADMIN": "My admin account"
+      }
+    },
+    "accountExists": {
+      "clientEmail": "A client account already exists with this email. Log in, or sign up as a coach if that is what you want.",
+      "coachEmail": "A coach account already exists with this email. Log in to that account.",
+      "clientPhone": "A client account already uses this phone number.",
+      "coachPhone": "A coach account already uses this phone number."
+    }
   },
   "home": {
     "hero": {
@@ -578,6 +593,29 @@
       "twitterPlaceholder": "https://x.com/yourprofile",
       "youtubeLabel": "YouTube",
       "youtubePlaceholder": "https://youtube.com/@yourprofile"
+    },
+    "becomeCoach": {
+      "title": "Are you a coach?",
+      "description": "Turn your account into a coach account without creating a new one. You keep the same email, password and history.",
+      "button": "Become a coach",
+      "modalTitle": "Become a coach",
+      "modalIntro": "Enter your discipline and phone number. Your coach profile will be reviewed by an administrator before it is visible on the platform.",
+      "phoneHint": "Required for coaches, in international format (e.g. +2376XXXXXXXX).",
+      "confirmLabel": "I understand my client account will become a coach account pending approval.",
+      "confirmRequired": "Please confirm to continue",
+      "submit": "Submit my application",
+      "submitting": "Submitting...",
+      "success": "Application sent! Your coach profile is pending approval.",
+      "errors": {
+        "phoneTaken": "This phone number is already used by another account.",
+        "alreadyCoach": "Your account is already a coach account.",
+        "generic": "We could not process your request. Please try again later.",
+        "coachAccountExists": "You already have a coach account with this email. Log out and log in to your coach account."
+      }
+    },
+    "disciplineChange": {
+      "warning": "Warning: your profile is already approved. If you change discipline, it will go back to pending admin review. Until then it will be hidden from clients and messaging will be unavailable.",
+      "toast": "Discipline updated. Your profile is pending admin re-review."
     }
   },
   "admin": {
@@ -721,7 +759,9 @@
         "activateError": "Failed to activate account",
         "deactivateError": "Failed to deactivate account",
         "restoreError": "Failed to restore account",
-        "deletedOn": "Deleted on {date}"
+        "deletedOn": "Deleted on {date}",
+        "restoreEmailTaken": "Cannot restore: a new account was created with this email since the deletion.",
+        "restorePhoneTaken": "Cannot restore: a new account uses this phone number since the deletion."
       }
     },
     "coaches": {

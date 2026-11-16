@@ -100,7 +100,22 @@
     "fileTooLarge": "Fichier trop volumineux. La taille maximale est de {size}Mo",
     "redirectingToLogin": "Redirection vers la connexion...",
     "invalidResetLink": "Ce lien de réinitialisation est invalide ou a expiré.",
-    "requestNewLink": "Demander un nouveau lien"
+    "requestNewLink": "Demander un nouveau lien",
+    "chooseAccount": {
+      "title": "Plusieurs comptes utilisent ces identifiants",
+      "hint": "Choisissez le compte à ouvrir :",
+      "roles": {
+        "PROSPECT": "Mon compte client",
+        "COACH": "Mon compte coach",
+        "ADMIN": "Mon compte administrateur"
+      }
+    },
+    "accountExists": {
+      "clientEmail": "Un compte client existe déjà avec cet email. Connectez-vous, ou inscrivez-vous comme coach si c’est ce que vous voulez.",
+      "coachEmail": "Un compte coach existe déjà avec cet email. Connectez-vous à ce compte.",
+      "clientPhone": "Un compte client utilise déjà ce numéro de téléphone.",
+      "coachPhone": "Un compte coach utilise déjà ce numéro de téléphone."
+    }
   },
   "home": {
     "hero": {
@@ -592,6 +607,29 @@
       "twitterPlaceholder": "https://x.com/votreprofil",
       "youtubeLabel": "YouTube",
       "youtubePlaceholder": "https://youtube.com/@votreprofil"
+    },
+    "becomeCoach": {
+      "title": "Vous êtes coach ?",
+      "description": "Transformez votre compte en compte coach sans en recréer un nouveau. Vous gardez le même email, le même mot de passe et votre historique.",
+      "button": "Devenir coach",
+      "modalTitle": "Devenir coach",
+      "modalIntro": "Renseignez votre discipline et votre téléphone. Votre profil coach sera examiné par un administrateur avant d’être visible sur la plateforme.",
+      "phoneHint": "Obligatoire pour les coachs, au format international (ex. +2376XXXXXXXX).",
+      "confirmLabel": "Je comprends que mon compte client deviendra un compte coach en attente de validation.",
+      "confirmRequired": "Veuillez confirmer pour continuer",
+      "submit": "Envoyer ma candidature",
+      "submitting": "Envoi...",
+      "success": "Candidature envoyée ! Votre profil coach est en attente de validation.",
+      "errors": {
+        "phoneTaken": "Ce numéro de téléphone est déjà utilisé par un autre compte.",
+        "alreadyCoach": "Votre compte est déjà un compte coach.",
+        "generic": "Impossible de traiter votre demande. Réessayez plus tard.",
+        "coachAccountExists": "Vous avez déjà un compte coach avec cet email. Déconnectez-vous et connectez-vous à votre compte coach."
+      }
+    },
+    "disciplineChange": {
+      "warning": "Attention : votre profil est déjà validé. Si vous changez de discipline, il repassera en attente de validation par un administrateur. En attendant, il ne sera plus visible par les clients et la messagerie sera indisponible.",
+      "toast": "Discipline modifiée. Votre profil est en attente de revalidation par un administrateur."
     }
   },
   "admin": {
@@ -735,7 +773,9 @@
         "activateError": "Échec de l'activation du compte",
         "deactivateError": "Échec de la désactivation du compte",
         "restoreError": "Échec de la restauration du compte",
-        "deletedOn": "Supprimé le {date}"
+        "deletedOn": "Supprimé le {date}",
+        "restoreEmailTaken": "Impossible de restaurer : un nouveau compte a été créé avec cet email depuis la suppression.",
+        "restorePhoneTaken": "Impossible de restaurer : un nouveau compte utilise ce numéro de téléphone depuis la suppression."
       }
     },
     "coaches": {

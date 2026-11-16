@@ -50,6 +50,11 @@ export const LoginRequestSchema = z.object({
   identifier: z.string().min(1, "Email or phone number is required"),
   password: z.string().min(1, "Password is required"),
   rememberMe: z.boolean().optional(),
+  /**
+   * Which account to open when the same email/phone + password match
+   * several accounts (one per role). Sent after a ROLE_REQUIRED response.
+   */
+  role: z.enum(["PROSPECT", "COACH", "ADMIN"]).optional(),
 });
 export type LoginInput = z.infer<typeof LoginRequestSchema>;
 
@@ -139,6 +144,19 @@ export const UpdateCoachProfileSchema = z.object({
   youtube: optionalUrl.nullable(),
 });
 export type UpdateCoachProfileInput = z.infer<typeof UpdateCoachProfileSchema>;
+
+/**
+ * Converts an existing PROSPECT account into a (pending) COACH account.
+ * Phone is optional here because the user may already have one on file;
+ * the service enforces that a coach always ends up with a phone number.
+ */
+export const BecomeCoachSchema = z.object({
+  discipline: z.string().min(2, "Discipline is required"),
+  phone: e164PhoneOptional.nullable(),
+  bio: z.string().max(2000).optional().nullable(),
+  portfolio: optionalUrl.nullable(),
+});
+export type BecomeCoachInput = z.infer<typeof BecomeCoachSchema>;
 
 export const UpdateClientProfileSchema = z.object({
   ageRange: z.string().optional().nullable(),

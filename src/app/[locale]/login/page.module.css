@@ -513,3 +513,33 @@
   border: 1px solid rgba(59, 130, 246, 0.3);
   color: #1e40af;
 }
+/* Account picker — shown when the same credentials open several accounts
+   (e.g. a client account and a coach account with the same email). */
+.roleChoice {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  border: 2px solid var(--primary);
+  border-radius: var(--radius-lg);
+  margin-top: var(--space-1);
+}
+
+.roleChoiceTitle {
+  font-weight: var(--font-semibold);
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.roleChoiceHint {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.roleChoiceButtons {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}

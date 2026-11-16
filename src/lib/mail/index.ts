@@ -165,6 +165,25 @@ export function getAdminNewCoachAlertTemplate(coachName: string, email: string):
   `);
 }
 
+export function getAdminCoachDisciplineChangedTemplate(
+  coachName: string,
+  email: string,
+  oldDiscipline: string,
+  newDiscipline: string
+): string {
+  return layout("Coach Discipline Changed", /* html */ `
+    <h2 style="color:#00A650;margin-top:0;">Coach Discipline Changed — Review Required</h2>
+    <p>An approved coach changed their discipline. Their profile is back to <strong>pending</strong> and hidden until you review it again.</p>
+    <table cellpadding="0" cellspacing="0" style="width:100%;border-collapse:collapse;">
+      <tr><td style="padding:8px 0;color:#666;width:120px;">Name</td><td style="padding:8px 0;font-weight:600;">${escapeHtml(coachName)}</td></tr>
+      <tr><td style="padding:8px 0;color:#666;">Email</td><td style="padding:8px 0;">${escapeHtml(email)}</td></tr>
+      <tr><td style="padding:8px 0;color:#666;">Before</td><td style="padding:8px 0;">${escapeHtml(oldDiscipline)}</td></tr>
+      <tr><td style="padding:8px 0;color:#666;">After</td><td style="padding:8px 0;font-weight:600;">${escapeHtml(newDiscipline)}</td></tr>
+    </table>
+    ${btn(`${env.NEXT_PUBLIC_APP_URL}/admin/coaches`, "Review in Dashboard")}
+  `);
+}
+
 export function getNewMessageTemplate(senderName: string, content: string): string {
   return layout("New Message", /* html */ `
     <h2 style="color:#00A650;margin-top:0;">New message from ${escapeHtml(senderName)}</h2>
@@ -191,10 +210,18 @@ export function getContactInquiryTemplate(
   `);
 }
 
-export function getForgotPasswordTemplate(resetUrl: string): string {
+/**
+ * @param accountLabel Optional account type ("client" / "coach"). Shown when
+ *   the same email owns several accounts, so the user knows which one the
+ *   link resets.
+ */
+export function getForgotPasswordTemplate(resetUrl: string, accountLabel?: string): string {
+  const forAccount = accountLabel
+    ? ` for your <strong>${escapeHtml(accountLabel)}</strong> account`
+    : "";
   return layout("Reset Your Password", /* html */ `
     <h2 style="color:#00A650;margin-top:0;">Reset Your Password</h2>
-    <p>We received a request to reset your CoachMe password. Click below — this link expires in <strong>1 hour</strong>.</p>
+    <p>We received a request to reset your CoachMe password${forAccount}. Click below — this link expires in <strong>1 hour</strong>.</p>
     ${btn(resetUrl, "Reset Password")}
     <p style="color:#666;font-size:13px;">If you didn't request this, you can safely ignore this email.</p>
   `);

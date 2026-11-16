@@ -161,6 +161,10 @@ export default function AdminUsersPage() {
       if (data.success) {
         toast.success(tUsers(`${action}Success`));
         fetchUsers();
+      } else if (data.error?.code === "RESTORE_EMAIL_TAKEN") {
+        toast.error(tUsers("restoreEmailTaken"));
+      } else if (data.error?.code === "RESTORE_PHONE_TAKEN") {
+        toast.error(tUsers("restorePhoneTaken"));
       } else {
         toast.error(data.error?.message || tUsers(`${action}Error`));
       }
