@@ -30,7 +30,12 @@ export interface JwtPayload {
   email: string;
   name: string | null;
   avatar: string | null;
+  /** "Remember me" session: persistent cookie with a long, sliding lifetime. */
+  remember?: boolean;
 }
+
+/** Decoded token, including the standard JWT timestamps (seconds). */
+type DecodedJwt = JwtPayload & { iat?: number; exp?: number };
 
 export interface AuthOptions {
   /**
@@ -91,21 +96,92 @@ const COOKIE_OPTIONS = {
   // maxAge is set dynamically based on 'rememberMe'
 } as const;
 
+// ─── Session lifetime ─────────────────────────────────────────────────────────
+//
+// Sessions use a *sliding* expiration: /api/auth/me (called every time the
+// app or the installed PWA is opened or brought back to the foreground)
+// re-issues the token once it is older than SESSION_REFRESH_AFTER. An active
+// user is therefore never logged out; only REMEMBER_TTL of inactivity ends
+// a remembered session.
+
+/** Remembered sessions (default on mobile/PWA): 60 days since last use. */
+const REMEMBER_TTL_SECONDS = 60 * 24 * 60 * 60;
+/** Non-remembered sessions: 1 day since last use, cookie dropped on browser close. */
+const SESSION_TTL_SECONDS = 24 * 60 * 60;
+/** Re-issue the token at most every 12 hours. */
+const SESSION_REFRESH_AFTER_SECONDS = 12 * 60 * 60;
+
 /**
  * Sets the session cookie in a Next.js route handler response.
- * Call this after login or token refresh.
+ * Prefer issueSession() / reissueSession(), which keep token and cookie
+ * lifetimes consistent.
  */
 export async function setSessionCookie(token: string, rememberMe: boolean = false): Promise<void> {
   const cookieStore = await cookies();
-  
-  // 30 days if rememberMe is true. If false, omit maxAge so it becomes a pure session cookie 
-  // that the browser clears when it closes.
-  const options: any = { ...COOKIE_OPTIONS };
-  if (rememberMe) {
-    options.maxAge = 60 * 60 * 24 * 30; // 30 days
+
+  // Remembered: persistent cookie that survives closing the app/browser.
+  // Otherwise omit maxAge so it is a pure session cookie the browser clears on close.
+  cookieStore.set(SESSION_COOKIE, token, {
+    ...COOKIE_OPTIONS,
+    ...(rememberMe ? { maxAge: REMEMBER_TTL_SECONDS } : {}),
+  });
+}
+
+/** Whether a decoded token belongs to a "remember me" session. */
+function isRememberedSession(decoded: DecodedJwt): boolean {
+  if (typeof decoded.remember === "boolean") return decoded.remember;
+  // Tokens issued before the `remember` claim existed: long-lived ones
+  // (30-day "remember me" logins, 7-day re-issues) are treated as remembered.
+  if (decoded.iat && decoded.exp) return decoded.exp - decoded.iat > 2 * 24 * 60 * 60;
+  return true;
+}
+
+function stripJwtTimestamps(decoded: DecodedJwt): JwtPayload {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { iat, exp, ...claims } = decoded;
+  return claims;
+}
+
+/** Signs a new session token and sets the matching cookie. */
+export async function issueSession(claims: JwtPayload, remember: boolean): Promise<void> {
+  const token = signJwt(
+    { ...stripJwtTimestamps(claims), remember },
+    remember ? REMEMBER_TTL_SECONDS : SESSION_TTL_SECONDS,
+  );
+  await setSessionCookie(token, remember);
+}
+
+/** Reads and verifies the current request's session cookie, if any. */
+async function readSessionCookie(): Promise<DecodedJwt | null> {
+  try {
+    const cookieStore = await cookies();
+    const raw = cookieStore.get(SESSION_COOKIE)?.value;
+    return raw ? (verifyJwt(raw) as DecodedJwt | null) : null;
+  } catch {
+    return null;
   }
-  
-  cookieStore.set(SESSION_COOKIE, token, options);
+}
+
+/**
+ * Re-issues the session with fresh claims (name, avatar, role...) while
+ * keeping the current session's persistence. Use after profile updates
+ * instead of signJwt + setSessionCookie, which would silently turn a
+ * remembered session into a short browser-session one.
+ */
+export async function reissueSession(claims: JwtPayload): Promise<void> {
+  const current = await readSessionCookie();
+  await issueSession(claims, current ? isRememberedSession(current) : true);
+}
+
+/**
+ * Sliding expiration: renews the session when the current token is older
+ * than SESSION_REFRESH_AFTER_SECONDS. Called from /api/auth/me.
+ */
+export async function refreshSessionIfStale(freshClaims: JwtPayload): Promise<void> {
+  const current = await readSessionCookie();
+  if (!current?.iat) return;
+  if (Date.now() / 1000 - current.iat < SESSION_REFRESH_AFTER_SECONDS) return;
+  await issueSession(freshClaims, isRememberedSession(current));
 }
 
 /**
@@ -182,12 +258,26 @@ export async function requireAuth(
     select: {
       isActive: true,
       deletedAt: true,
+      passwordChangedAt: true,
       coachProfile: { select: { status: true } },
     },
   });
 
   if (!user || user.deletedAt || !user.isActive) {
     logger.warn({ userId: payload.userId }, "Account inactive or deleted — access denied");
+    return null;
+  }
+
+  // Password changed/reset after this token was issued → session revoked
+  // (logs out every other device). JWT iat is in whole seconds, so compare
+  // at second precision: the session re-issued right after the change stays valid.
+  const issuedAt = (payload as DecodedJwt).iat;
+  if (
+    user.passwordChangedAt &&
+    issuedAt !== undefined &&
+    issuedAt < Math.floor(user.passwordChangedAt.getTime() / 1000)
+  ) {
+    logger.info({ userId: payload.userId }, "Session issued before password change — access denied");
     return null;
   }
 

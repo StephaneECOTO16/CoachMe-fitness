@@ -23,7 +23,7 @@ import styles from './page.module.css';
 export default function SettingsPage() {
     const t = useTranslations('settings');
     const tCommon = useTranslations('common');
-    const { user, isAuthenticated } = useAuth();
+    const { user, isAuthenticated, refreshUser } = useAuth();
     const [isUpdatingEmail, setIsUpdatingEmail] = useState(false);
     const [isChangingPassword, setIsChangingPassword] = useState(false);
 
@@ -68,7 +68,8 @@ export default function SettingsPage() {
 
             if (result.success) {
                 toast.success(t('credentials.email.success'));
-                // In a real app, you might want to refresh the user context here
+                // Show the new email everywhere (header, profile) right away.
+                void refreshUser();
             } else {
                 if (result.error?.code === 'EMAIL_IN_USE') {
                     toast.error(t('errors.emailInUse'));

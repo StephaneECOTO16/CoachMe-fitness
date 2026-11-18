@@ -5,7 +5,7 @@
 
 import { prisma } from "@/lib/db";
 // import { getPublicUrl, deleteFromStorage } from "@/lib/storage";
-import { signJwt, setSessionCookie } from "@/lib/auth";
+import { reissueSession } from "@/lib/auth";
 import { logger } from "@/lib/logger";
 import type {
   UpdateBasicInfoInput,
@@ -106,14 +106,13 @@ export async function updateBasicInfo(
   });
 
   // Refresh the session token so name change is reflected immediately
-  const token = signJwt({
+  await reissueSession({
     userId: user.id,
     role: user.role,
     email: user.email,
     name: user.name,
     avatar: user.avatar ? getPublicUrl(user.avatar) : null,
   });
-  await setSessionCookie(token);
 
   logger.info({ userId }, "Basic info updated");
   return { ...user, avatar: user.avatar ? getPublicUrl(user.avatar) : null };
@@ -151,14 +150,13 @@ export async function updateAvatar(userId: string, newKey: string | null) {
 
   // Refresh session cookie with new avatar URL
   const avatarUrl = user.avatar ? getPublicUrl(user.avatar) : null;
-  const token = signJwt({
+  await reissueSession({
     userId: user.id,
     role: user.role,
     email: user.email,
     name: user.name,
     avatar: avatarUrl,
   });
-  await setSessionCookie(token);
 
   logger.info({ userId, hadPrevious: Boolean(existing?.avatar) }, "Avatar updated");
   return { ...user, avatar: avatarUrl };
@@ -329,14 +327,13 @@ export async function becomeCoach(userId: string, data: BecomeCoachInput) {
   });
 
   // Refresh the session so the new COACH role applies without re-login
-  const token = signJwt({
+  await reissueSession({
     userId: updated.id,
     role: updated.role,
     email: updated.email,
     name: updated.name,
     avatar: updated.avatar ? getPublicUrl(updated.avatar) : null,
   });
-  await setSessionCookie(token);
 
   logger.info({ userId }, "Prospect converted to coach — pending approval");
   return updated;

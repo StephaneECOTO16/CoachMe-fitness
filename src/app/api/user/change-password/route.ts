@@ -7,7 +7,8 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
-import { requireAuth, comparePassword, hashPassword } from "@/lib/auth";
+import { requireAuth, comparePassword, hashPassword, reissueSession } from "@/lib/auth";
+import { getPublicUrl } from "@/lib/storage";
 import { parseRequestBody, ChangePasswordRequestSchema } from "@/lib/validation/schemas";
 import { logger } from "@/lib/logger";
 
@@ -30,7 +31,7 @@ export async function POST(req: NextRequest) {
   try {
     const user = await prisma.user.findUnique({
       where: { id: payload.userId },
-      select: { password: true },
+      select: { password: true, email: true, name: true, role: true, avatar: true },
     });
 
     if (!user) {
@@ -56,11 +57,12 @@ export async function POST(req: NextRequest) {
 
     const hashed = await hashPassword(newPassword);
 
-    // Atomic transaction: update password + invalidate all reset tokens
+    // Atomic transaction: update password + invalidate all reset tokens.
+    // passwordChangedAt revokes every session issued before now (other devices).
     await prisma.$transaction([
       prisma.user.update({
         where: { id: payload.userId },
-        data: { password: hashed },
+        data: { password: hashed, passwordChangedAt: new Date() },
       }),
       // Purge reset tokens — if the account was compromised, any outstanding
       // reset links are now dead even if they haven't expired yet
@@ -70,7 +72,16 @@ export async function POST(req: NextRequest) {
       }),
     ]);
 
-    logger.info({ userId: payload.userId }, "Password changed — reset tokens purged");
+    // Keep THIS device logged in with a fresh session (other devices are out).
+    await reissueSession({
+      userId: payload.userId,
+      role: user.role,
+      email: user.email,
+      name: user.name,
+      avatar: user.avatar ? getPublicUrl(user.avatar) : null,
+    });
+
+    logger.info({ userId: payload.userId }, "Password changed — reset tokens purged, other sessions revoked");
 
     return NextResponse.json({ success: true, message: "Password changed successfully" });
   } catch (err) {

@@ -7,8 +7,7 @@
 import { prisma } from "@/lib/db";
 import {
   hashPassword,
-  signJwt,
-  setSessionCookie,
+  issueSession,
   type JwtPayload,
 } from "@/lib/auth";
 import {
@@ -287,7 +286,9 @@ export async function initiatePasswordReset(email: string): Promise<void> {
     try {
       await sendMail({
         to: normalised,
-        subject: label ? `Reset Your Password (${label} account) — CoachMe` : "Reset Your Password — CoachMe",
+        subject: label
+          ? `Réinitialisation du mot de passe (compte ${label}) — CoachMe`
+          : "Réinitialisation de votre mot de passe — CoachMe",
         html: getForgotPasswordTemplate(resetUrl, label),
       }, { throwOnError: true });
       logger.info({ userId: user.id }, "Password reset initiated");
@@ -343,9 +344,11 @@ export async function completePasswordReset(
   const hashed = await hashPassword(newPassword);
 
   await prisma.$transaction([
+    // passwordChangedAt logs out every device still using the old password
+    // (e.g. someone who had access to the account).
     prisma.user.update({
       where: { id: record.userId },
-      data: { password: hashed },
+      data: { password: hashed, passwordChangedAt: new Date() },
     }),
     // Purge all reset tokens for this user
     prisma.passwordResetToken.updateMany({
@@ -383,8 +386,7 @@ export async function createSession(userId: string): Promise<JwtPayload> {
     avatar: user.avatar ? getPublicUrl(user.avatar) : null,
   };
 
-  const token = signJwt(payload);
-  await setSessionCookie(token);
+  await issueSession(payload, true);
 
   return payload;
 }

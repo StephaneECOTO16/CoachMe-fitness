@@ -41,9 +41,17 @@ export default function LoginPage() {
     defaultValues: {
       identifier: "",
       password: "",
-      rememberMe: false,
+      // Checked by default: most users sign in from their own phone.
+      rememberMe: true,
     },
   });
+
+  // In the installed app (PWA) the session must survive closing the app,
+  // like a native app: always remember, whatever the checkbox says.
+  const isInstalledApp = () =>
+    typeof window !== "undefined" &&
+    (window.matchMedia?.("(display-mode: standalone)").matches ||
+      (navigator as Navigator & { standalone?: boolean }).standalone === true);
 
   const submitLogin = async (data: LoginInput, role?: AccountRole) => {
     try {
@@ -55,7 +63,7 @@ export default function LoginPage() {
         body: JSON.stringify({
           identifier: data.identifier,
           password: data.password,
-          rememberMe: Boolean(data.rememberMe),
+          rememberMe: Boolean(data.rememberMe) || isInstalledApp(),
           ...(role ? { role } : {}),
         }),
       });

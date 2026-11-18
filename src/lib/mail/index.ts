@@ -26,6 +26,11 @@ const transporter = nodemailer.createTransport({
     user: mailUser,
     pass: mailPassword,
   },
+  // Fail fast instead of nodemailer's minutes-long defaults, so an
+  // unreachable SMTP server never keeps a request (or after()) hanging.
+  connectionTimeout: 10_000,
+  greetingTimeout: 10_000,
+  socketTimeout: 20_000,
 });
 
 // ─── Send helper ──────────────────────────────────────────────────────────────
@@ -215,15 +220,22 @@ export function getContactInquiryTemplate(
  *   the same email owns several accounts, so the user knows which one the
  *   link resets.
  */
+/** Bilingual (French first, the platform's main language, then English). */
 export function getForgotPasswordTemplate(resetUrl: string, accountLabel?: string): string {
-  const forAccount = accountLabel
+  const frLabel: Record<string, string> = { client: "client", coach: "coach", admin: "admin" };
+  const forAccountFr = accountLabel
+    ? ` pour votre compte <strong>${escapeHtml(frLabel[accountLabel] ?? accountLabel)}</strong>`
+    : "";
+  const forAccountEn = accountLabel
     ? ` for your <strong>${escapeHtml(accountLabel)}</strong> account`
     : "";
-  return layout("Reset Your Password", /* html */ `
-    <h2 style="color:#00A650;margin-top:0;">Reset Your Password</h2>
-    <p>We received a request to reset your CoachMe password${forAccount}. Click below — this link expires in <strong>1 hour</strong>.</p>
-    ${btn(resetUrl, "Reset Password")}
-    <p style="color:#666;font-size:13px;">If you didn't request this, you can safely ignore this email.</p>
+  return layout("Réinitialisation du mot de passe / Reset your password", /* html */ `
+    <h2 style="color:#00A650;margin-top:0;">Réinitialisation du mot de passe</h2>
+    <p>Nous avons reçu une demande de réinitialisation de votre mot de passe CoachMe${forAccountFr}. Cliquez sur le bouton ci-dessous : ce lien expire dans <strong>1 heure</strong>.</p>
+    ${btn(resetUrl, "Choisir un nouveau mot de passe")}
+    <p style="color:#666;font-size:13px;">Si vous n'êtes pas à l'origine de cette demande, ignorez simplement cet email : votre mot de passe ne change pas.</p>
+    <hr style="border:none;border-top:1px solid #eee;margin:28px 0;">
+    <p style="color:#666;font-size:13px;"><strong>Reset your password</strong> — We received a request to reset your CoachMe password${forAccountEn}. Use the button above; the link expires in 1 hour. If you didn't request this, you can safely ignore this email.</p>
   `);
 }
 

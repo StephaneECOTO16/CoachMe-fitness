@@ -16,8 +16,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import {
   comparePassword,
-  signJwt,
-  setSessionCookie,
+  issueSession,
   type JwtPayload,
 } from "@/lib/auth";
 import { parseRequestBody, LoginRequestSchema } from "@/lib/validation/schemas";
@@ -188,10 +187,9 @@ export async function POST(req: Request) {
     avatar: avatarUrl,
   };
 
-  const token = signJwt(jwtPayload, rememberMe ? "30d" : "1d");
-
-  // Cookie is set on the response — the token never appears in the body
-  await setSessionCookie(token, rememberMe);
+  // Cookie is set on the response — the token never appears in the body.
+  // Remembered sessions persist across app/browser restarts (sliding 60 days).
+  await issueSession(jwtPayload, Boolean(rememberMe));
 
   logger.info(
     {

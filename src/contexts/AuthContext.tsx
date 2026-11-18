@@ -72,25 +72,67 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         headers: { "Cache-Control": "no-cache" },
       });
 
-      if (!res.ok) {
+      // Only a real "not authenticated" answer logs the user out. A server
+      // error (5xx) or a flaky mobile connection keeps the current state,
+      // otherwise reopening the PWA on a weak network looks like a logout.
+      if (res.status === 401 || res.status === 403) {
         setUser(null);
         return;
       }
+      if (!res.ok) return;
 
       const data = await res.json();
       setUser(data.user ?? null);
-    } catch (err) {
-      // Network error — don't crash the app, just clear user
-      setUser(null);
+    } catch {
+      // Network error (offline, app resuming): keep the current user.
     }
   }, []);
 
-  // Hydrate on mount — single fetch, not polled
+  // Hydrate on mount — retry a few times if the network is not ready yet
+  // (common when an installed PWA is cold-started from a notification).
   useEffect(() => {
     if (hydrated.current) return;
     hydrated.current = true;
 
-    refreshUser().finally(() => setIsLoading(false));
+    const hydrate = async () => {
+      for (let attempt = 0; attempt < 3; attempt++) {
+        try {
+          const res = await fetch("/api/auth/me", {
+            credentials: "include",
+            headers: { "Cache-Control": "no-cache" },
+          });
+          if (res.ok) {
+            const data = await res.json();
+            setUser(data.user ?? null);
+            return;
+          }
+          if (res.status === 401 || res.status === 403) {
+            setUser(null);
+            return;
+          }
+        } catch {
+          // offline / network not ready — retry below
+        }
+        await new Promise((resolve) => setTimeout(resolve, 1000 * (attempt + 1)));
+      }
+    };
+
+    hydrate().finally(() => setIsLoading(false));
+  }, []);
+
+  // Re-check (and slide) the session whenever the app comes back to the
+  // foreground or the connection returns.
+  useEffect(() => {
+    const onVisible = () => {
+      if (document.visibilityState === "visible") void refreshUser();
+    };
+    const onOnline = () => void refreshUser();
+    document.addEventListener("visibilitychange", onVisible);
+    window.addEventListener("online", onOnline);
+    return () => {
+      document.removeEventListener("visibilitychange", onVisible);
+      window.removeEventListener("online", onOnline);
+    };
   }, [refreshUser]);
 
   const logout = useCallback(async (): Promise<void> => {

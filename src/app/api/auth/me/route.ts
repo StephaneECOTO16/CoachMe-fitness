@@ -8,7 +8,7 @@
  */
 
 import { NextResponse } from "next/server";
-import { requireAuth } from "@/lib/auth";
+import { requireAuth, refreshSessionIfStale } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { getPublicUrl } from "@/lib/storage";
 
@@ -46,12 +46,24 @@ export async function GET(req: Request) {
     );
   }
 
+  const avatarUrl = user.avatar ? getPublicUrl(user.avatar) : null;
+
+  // Sliding session: every app open / resume renews an aging token, so an
+  // active user (installed PWA included) is never logged out unexpectedly.
+  await refreshSessionIfStale({
+    userId: user.id,
+    role: user.role,
+    email: user.email,
+    name: user.name,
+    avatar: avatarUrl,
+  });
+
   return NextResponse.json({
     success: true,
     user: {
       ...user,
       // Resolve R2 key to full public URL for the client
-      avatar: user.avatar ? getPublicUrl(user.avatar) : null,
+      avatar: avatarUrl,
     },
   });
 }
