@@ -11,27 +11,63 @@ import { escapeHtml } from "./sanitize";
 
 // ─── Transport ────────────────────────────────────────────────────────────────
 
-const mailHost = process.env.MAIL_HOST || process.env.SMTP_HOST;
-const mailPort = Number.parseInt(process.env.MAIL_PORT || process.env.SMTP_PORT || "587", 10);
-const mailEncryption = (process.env.MAIL_ENCRYPTION || "tls").toLowerCase();
-const mailUser = process.env.MAIL_USERNAME || process.env.MAIL_USER || process.env.SMTP_USER;
-const mailPassword = process.env.MAIL_PASSWORD || process.env.SMTP_PASS;
+// Two SMTP configurations can exist side by side:
+//   - SMTP_HOST / SMTP_PORT / SMTP_USER / SMTP_PASS  (primary, Brevo)
+//   - MAIL_HOST / MAIL_PORT / MAIL_USERNAME / MAIL_PASSWORD / MAIL_ENCRYPTION (fallback)
+// The primary is tried first; if it fails (bad credentials, server down),
+// the email is retried once with the fallback.
 
-const transporter = nodemailer.createTransport({
-  host: mailHost,
-  port: mailPort,
-  secure: mailEncryption === "ssl" || mailPort === 465,
-  requireTLS: mailEncryption === "tls" && mailPort !== 465,
-  auth: {
-    user: mailUser,
-    pass: mailPassword,
+type Transporter = ReturnType<typeof nodemailer.createTransport>;
+
+interface SmtpConfig {
+  name: string;
+  host?: string;
+  port: number;
+  user?: string;
+  pass?: string;
+  /** "ssl" = implicit TLS, "tls" = STARTTLS, "none" = plain. */
+  encryption: string;
+}
+
+function createTransporter(config: SmtpConfig): Transporter | null {
+  if (!config.host || !config.user || !config.pass) return null;
+  // Port 465 is always implicit TLS; any other port uses STARTTLS unless
+  // explicitly disabled ("ssl" on 587 is a common misconfiguration that fails).
+  const implicitTls = config.port === 465;
+  return nodemailer.createTransport({
+    host: config.host,
+    port: config.port,
+    secure: implicitTls,
+    requireTLS: !implicitTls && config.encryption !== "none",
+    auth: { user: config.user, pass: config.pass },
+    // Fail fast instead of nodemailer's minutes-long defaults, so an
+    // unreachable SMTP server never keeps a request (or after()) hanging.
+    connectionTimeout: 10_000,
+    greetingTimeout: 10_000,
+    socketTimeout: 20_000,
+  });
+}
+
+const transporters = [
+  {
+    name: "SMTP_*",
+    host: process.env.SMTP_HOST,
+    port: Number.parseInt(process.env.SMTP_PORT || "587", 10),
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASS,
+    encryption: "tls",
   },
-  // Fail fast instead of nodemailer's minutes-long defaults, so an
-  // unreachable SMTP server never keeps a request (or after()) hanging.
-  connectionTimeout: 10_000,
-  greetingTimeout: 10_000,
-  socketTimeout: 20_000,
-});
+  {
+    name: "MAIL_*",
+    host: process.env.MAIL_HOST,
+    port: Number.parseInt(process.env.MAIL_PORT || "587", 10),
+    user: process.env.MAIL_USERNAME || process.env.MAIL_USER,
+    pass: process.env.MAIL_PASSWORD,
+    encryption: (process.env.MAIL_ENCRYPTION || "tls").toLowerCase(),
+  },
+]
+  .map((config) => ({ name: config.name, transporter: createTransporter(config) }))
+  .filter((t): t is { name: string; transporter: Transporter } => t.transporter !== null);
 
 // ─── Send helper ──────────────────────────────────────────────────────────────
 
@@ -51,19 +87,31 @@ interface SendMailOptions {
  * fire-and-forget notification emails, but await when delivery matters.
  */
 export async function sendMail(options: MailOptions, settings: SendMailOptions = {}): Promise<void> {
-  try {
-    const info = await transporter.sendMail({
-      from: `"${env.MAIL_FROM_NAME}" <${env.MAIL_FROM_ADDRESS}>`,
-      to: options.to,
-      subject: options.subject,
-      html: options.html,
-    });
-    logger.info({ messageId: info.messageId, to: options.to }, "Email sent");
-  } catch (err) {
-    // Log but don't throw — a failed notification should never crash a request
-    logger.error({ err, to: options.to, subject: options.subject }, "Email send failed");
-    if (settings.throwOnError) throw err;
+  let lastError: unknown = new Error("No SMTP configuration (set SMTP_* or MAIL_*)");
+
+  for (const { name, transporter } of transporters) {
+    try {
+      const info = await transporter.sendMail({
+        from: `"${env.MAIL_FROM_NAME}" <${env.MAIL_FROM_ADDRESS}>`,
+        to: options.to,
+        subject: options.subject,
+        html: options.html,
+      });
+      logger.info({ messageId: info.messageId, to: options.to, smtp: name }, "Email sent");
+      return;
+    } catch (err) {
+      lastError = err;
+      const e = err as { code?: string; responseCode?: number; response?: string };
+      logger.warn(
+        { smtp: name, code: e.code, responseCode: e.responseCode, response: e.response, to: options.to },
+        "SMTP send failed, trying next configuration",
+      );
+    }
   }
+
+  // Log but don't throw — a failed notification should never crash a request
+  logger.error({ err: lastError, to: options.to, subject: options.subject }, "Email send failed");
+  if (settings.throwOnError) throw lastError;
 }
 
 // ─── Layout wrapper ───────────────────────────────────────────────────────────
