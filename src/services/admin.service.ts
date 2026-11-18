@@ -71,16 +71,9 @@ export async function getDashboardStats() {
 /**
  * Returns a paginated list of all non-admin users with role-specific context.
  */
-export async function listUsers(options: {
-  search?: string;
-  page?: number;
-  limit?: number;
-  view?: "active" | "deleted";
-}) {
-  const { search = "", page = 1, limit = 25, view = "active" } = options;
-  const offset = (page - 1) * limit;
-
-  const where: Prisma.UserWhereInput = {
+/** Filter shared by the admin user list and its Excel export. */
+function buildUserListWhere(search: string, view: "active" | "deleted"): Prisma.UserWhereInput {
+  return {
     role: { in: ["COACH", "PROSPECT"] as UserRole[] },
     deletedAt: view === "deleted" ? { not: null } : null,
     ...(search && {
@@ -90,6 +83,58 @@ export async function listUsers(options: {
       ],
     }),
   };
+}
+
+/**
+ * Every non-admin user matching the admin list filters, unpaginated,
+ * for the Excel export. Archived identifiers are shown in their original form.
+ */
+export async function listUsersForExport(options: {
+  search?: string;
+  view?: "active" | "deleted";
+}) {
+  const { search = "", view = "active" } = options;
+
+  const users = await prisma.user.findMany({
+    where: buildUserListWhere(search, view),
+    select: {
+      name: true,
+      email: true,
+      phone: true,
+      role: true,
+      isActive: true,
+      createdAt: true,
+      deletedAt: true,
+      coachProfile: {
+        select: {
+          status: true,
+          experienceYears: true,
+          city: true,
+          country: true,
+          discipline: { select: { name: true } },
+        },
+      },
+    },
+    orderBy: { createdAt: "desc" },
+  });
+
+  return users.map((u) => ({
+    ...u,
+    email: originalIdentifier(u.email),
+    phone: originalIdentifier(u.phone),
+  }));
+}
+
+export async function listUsers(options: {
+  search?: string;
+  page?: number;
+  limit?: number;
+  view?: "active" | "deleted";
+}) {
+  const { search = "", page = 1, limit = 25, view = "active" } = options;
+  const offset = (page - 1) * limit;
+
+  const where = buildUserListWhere(search, view);
 
   const [users, total] = await prisma.$transaction([
     prisma.user.findMany({

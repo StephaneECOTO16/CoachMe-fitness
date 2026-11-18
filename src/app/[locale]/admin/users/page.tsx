@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState, useMemo, useEffect, useCallback } from "react";
-import { useTranslations } from "next-intl";
-import { Eye, CheckCircle, XCircle, MoreVertical, Trash2, Power, RotateCcw } from "lucide-react";
+import React, { useState, useEffect, useCallback } from "react";
+import { useLocale, useTranslations } from "next-intl";
+import { Eye, CheckCircle, XCircle, MoreVertical, Trash2, Power, RotateCcw, Download, FileSpreadsheet, FileText, FileDown } from "lucide-react";
 import { parsePhoneNumber } from "react-phone-number-input";
 import flags from "react-phone-number-input/flags";
 import {
@@ -46,8 +46,12 @@ export default function AdminUsersPage() {
   const [users, setUsers] = useState<UserData[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchValue, setSearchValue] = useState("");
+  // Search sent to the API, updated shortly after the admin stops typing.
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [view, setView] = useState<"active" | "deleted">("active");
+  const [totalItems, setTotalItems] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
   const itemsPerPage = 10;
 
   // Modal states
@@ -57,16 +61,62 @@ export default function AdminUsersPage() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [rejectionReason, setRejectionReason] = useState("");
   const [isActionLoading, setIsActionLoading] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
+  const locale = useLocale();
 
+  // Downloads every user matching the current view and search (all pages).
+  const handleExport = async (format: "xlsx" | "csv" | "pdf") => {
+    setIsExporting(true);
+    try {
+      const params = new URLSearchParams({ format, view, locale });
+      if (searchValue.trim()) params.set("search", searchValue.trim());
+      const res = await fetch(`/api/admin/users/export?${params}`, { credentials: "include" });
+      if (!res.ok) throw new Error(`Export failed (${res.status})`);
+
+      const blob = await res.blob();
+      const disposition = res.headers.get("Content-Disposition") ?? "";
+      const filename = /filename="([^"]+)"/.exec(disposition)?.[1] ?? `users.${format}`;
+
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Error exporting users:", error);
+      toast.error(tUsers("exportError"));
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  // Server-side pagination and search: the API only returns the requested
+  // page, so every user in the database is reachable (not just the latest few).
   const fetchUsers = useCallback(async () => {
     try {
       setLoading(true);
-      const res = await fetch(`/api/admin/users?view=${view}`, {
+      const params = new URLSearchParams({
+        view,
+        page: String(currentPage),
+        limit: String(itemsPerPage),
+      });
+      if (debouncedSearch) params.set("search", debouncedSearch);
+      const res = await fetch(`/api/admin/users?${params}`, {
         credentials: "include",
       });
       const data = await res.json();
       if (data.success) {
+        // The last page can become empty after a delete/restore: step back.
+        if (data.users.length === 0 && currentPage > 1 && data.totalPages > 0) {
+          setCurrentPage(Math.min(currentPage - 1, data.totalPages));
+          return;
+        }
         setUsers(data.users);
+        setTotalItems(data.total);
+        setTotalPages(data.totalPages);
       } else {
         toast.error(tUsers("loadError"));
       }
@@ -77,12 +127,28 @@ export default function AdminUsersPage() {
       setLoading(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [view]);
+  }, [view, currentPage, debouncedSearch]);
 
   useEffect(() => {
-    setCurrentPage(1);
     fetchUsers();
   }, [fetchUsers]);
+
+  // Debounce the search box and go back to the first page of results.
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const next = searchValue.trim();
+      if (next === debouncedSearch) return;
+      setDebouncedSearch(next);
+      setCurrentPage(1);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchValue, debouncedSearch]);
+
+  const changeView = (next: "active" | "deleted") => {
+    if (next === view) return;
+    setView(next);
+    setCurrentPage(1);
+  };
 
   const handleApprove = async (userId: string) => {
     if (!confirm(tCoaches("confirmApprove"))) return;
@@ -304,17 +370,6 @@ export default function AdminUsersPage() {
     },
   ];
 
-  const filteredData = useMemo(() => {
-    return users.filter(
-      (user) =>
-        user.name?.toLowerCase().includes(searchValue.toLowerCase()) ||
-        "" ||
-        user.email.toLowerCase().includes(searchValue.toLowerCase()),
-    );
-  }, [users, searchValue]);
-
-  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
-
   const handleOpenView = (user: UserData) => {
     setSelectedUser(user);
     setIsViewModalOpen(true);
@@ -453,10 +508,7 @@ export default function AdminUsersPage() {
       <h1 className={styles.title}>{tUsers("title")}</h1>
 
       <DataTable
-        data={filteredData.slice(
-          (currentPage - 1) * itemsPerPage,
-          currentPage * itemsPerPage,
-        )}
+        data={users}
         columns={columns}
         isLoading={loading}
         searchPlaceholder={tUsers("searchPlaceholder")}
@@ -465,7 +517,7 @@ export default function AdminUsersPage() {
         pagination={{
           currentPage,
           totalPages,
-          totalItems: filteredData.length,
+          totalItems,
           itemsPerPage,
           onPageChange: setCurrentPage,
         }}
@@ -476,7 +528,7 @@ export default function AdminUsersPage() {
               type="button"
               variant={view === "active" ? "primary" : "outline"}
               size="sm"
-              onClick={() => setView("active")}
+              onClick={() => changeView("active")}
             >
               {tUsers("activeAccounts")}
             </Button>
@@ -484,10 +536,44 @@ export default function AdminUsersPage() {
               type="button"
               variant={view === "deleted" ? "primary" : "outline"}
               size="sm"
-              onClick={() => setView("deleted")}
+              onClick={() => changeView("deleted")}
             >
               {tUsers("deletedAccounts")}
             </Button>
+            <Dropdown
+              trigger={
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  disabled={isExporting}
+                  title={tUsers("exportHint")}
+                  leftIcon={<Download size={16} />}
+                >
+                  {isExporting ? tUsers("exporting") : tUsers("export")}
+                </Button>
+              }
+              items={[
+                {
+                  label: tUsers("exportExcel"),
+                  icon: <FileSpreadsheet size={16} />,
+                  disabled: isExporting,
+                  onClick: () => handleExport("xlsx"),
+                },
+                {
+                  label: tUsers("exportCsv"),
+                  icon: <FileText size={16} />,
+                  disabled: isExporting,
+                  onClick: () => handleExport("csv"),
+                },
+                {
+                  label: tUsers("exportPdf"),
+                  icon: <FileDown size={16} />,
+                  disabled: isExporting,
+                  onClick: () => handleExport("pdf"),
+                },
+              ]}
+            />
           </>
         )}
       />
