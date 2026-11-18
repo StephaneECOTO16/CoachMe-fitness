@@ -100,6 +100,8 @@ export async function sendWhatsAppMessage(phone: string, text: string) {
         const response = await fetch(`${API_URL}/message/sendText/${INSTANCE_NAME}`, {
             method: 'POST',
             headers,
+            // Never let an unreachable WhatsApp gateway hang the request.
+            signal: AbortSignal.timeout(10_000),
             body: JSON.stringify({
                 number: formattedPhone,
                 text: text,

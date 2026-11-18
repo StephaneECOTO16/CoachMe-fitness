@@ -7,6 +7,9 @@ self.addEventListener('push', function (event) {
       badge: '/coachMe.png',
       vibrate: [100, 50, 100],
       requireInteraction: true, // Keep on screen until user interacts
+      // One notification per conversation: a new message replaces the
+      // previous one and still rings/vibrates (renotify).
+      ...(data.tag ? { tag: data.tag, renotify: true } : {}),
       data: {
         url: data.url || '/notifications', // Store URL for click event
         dateOfArrival: Date.now(),

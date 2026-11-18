@@ -99,22 +99,25 @@ export async function POST(req: Request, { params }: { params: Promise<{ chatId:
         // Vercel can freeze the function the instant the response below
         // is returned, which would silently drop these before they run.
         const recipient = isCoach ? chat.client.user : chat.coach.user;
+        // Push and email run in parallel: a slow SMTP server must not delay
+        // the push notification on the recipient's phone.
         after(async () => {
-            if (recipient.email) {
-                await sendMail({
-                    to: recipient.email,
-                    subject: `New message from ${message.sender.name || 'CoachMe User'}`,
-                    html: getNewMessageTemplate(message.sender.name || 'CoachMe User', content.trim()),
-                }).catch((err) => console.error('[POST /api/chat/:chatId/messages] sendMail failed:', err));
-            }
-
-            await sendNotification({
-                userId: recipient.id,
-                title: `Nouveau message de ${message.sender.name || 'Coach'}`,
-                body: content.trim(),
-                type: 'CHAT',
-                url: `/messages/${chatId}`
-            });
+            await Promise.allSettled([
+                sendNotification({
+                    userId: recipient.id,
+                    title: `Nouveau message de ${message.sender.name || 'Coach'}`,
+                    body: content.trim(),
+                    type: 'CHAT',
+                    url: `/messages/${chatId}`
+                }),
+                recipient.email
+                    ? sendMail({
+                        to: recipient.email,
+                        subject: `New message from ${message.sender.name || 'CoachMe User'}`,
+                        html: getNewMessageTemplate(message.sender.name || 'CoachMe User', content.trim()),
+                    }).catch((err) => console.error('[POST /api/chat/:chatId/messages] sendMail failed:', err))
+                    : Promise.resolve(),
+            ]);
         });
 
         return NextResponse.json({ success: true, message: messageWithAvatar });

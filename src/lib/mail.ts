@@ -7,6 +7,11 @@ const transporter = nodemailer.createTransport({
     user: process.env.SMTP_USER,
     pass: process.env.SMTP_PASS,
   },
+  // Fail fast instead of nodemailer's minutes-long defaults, so an
+  // unreachable SMTP server never keeps a request (or after()) hanging.
+  connectionTimeout: 10_000,
+  greetingTimeout: 10_000,
+  socketTimeout: 20_000,
 });
 
 interface SendMailParams {

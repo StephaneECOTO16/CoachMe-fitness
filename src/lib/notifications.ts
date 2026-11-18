@@ -47,17 +47,30 @@ export async function sendNotification({ userId, title, body, type, icon, url }:
     // covers the app-closed / background case.
     void broadcastNotification(userId, notification);
 
-    // 2. Fetch User to send WhatsApp if they have a phone number
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-      select: { phone: true }
-    });
-    
-    if (user?.phone) {
-      await sendWhatsAppMessage(user.phone, `*${title}*\n\n${body}`);
-    }
+    // 2. Web Push (app closed / in background) and WhatsApp run in parallel:
+    // a slow or unreachable WhatsApp gateway must never delay or drop the
+    // push notification on the user's phone.
+    await Promise.allSettled([
+      sendWebPush({ userId, title, body, type, icon, url }),
+      sendWhatsApp(userId, title, body),
+    ]);
+  } catch (error) {
+    console.error('Failed to send notification:', error);
+  }
+}
 
-    // 2. Fetch User's Push Subscriptions
+async function sendWhatsApp(userId: string, title: string, body: string) {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { phone: true }
+  });
+  if (user?.phone) {
+    await sendWhatsAppMessage(user.phone, `*${title}*\n\n${body}`);
+  }
+}
+
+async function sendWebPush({ userId, title, body, type, icon, url }: SendNotificationParams) {
+  try {
     const subscriptions = await prisma.pushSubscription.findMany({
       where: { userId }
     });
@@ -76,6 +89,8 @@ export async function sendNotification({ userId, title, body, type, icon, url }:
       body,
       icon: icon || '/coachMe.png',
       url: url || '/notifications',
+      // Lets the service worker group notifications per conversation/page.
+      tag: type === 'CHAT' && url ? url : undefined,
       unreadCount
     });
 
@@ -89,7 +104,15 @@ export async function sendNotification({ userId, title, body, type, icon, url }:
               p256dh: sub.p256dh,
             }
           },
-          payload
+          payload,
+          {
+            // "high" asks FCM/APNs/Mozilla to wake the phone right away even
+            // in battery-saving (Doze) mode; "normal" may be held for minutes.
+            urgency: type === 'CHAT' ? 'high' : 'normal',
+            // If the phone is offline, keep the push for 24h and deliver it
+            // as soon as it reconnects.
+            TTL: 24 * 60 * 60,
+          }
         );
       } catch (error: any) {
         // If subscription is invalid/expired (410), delete it
@@ -104,6 +127,6 @@ export async function sendNotification({ userId, title, body, type, icon, url }:
     await Promise.allSettled(sendPromises);
 
   } catch (error) {
-    console.error('Failed to send notification:', error);
+    console.error('Failed to send web push:', error);
   }
 }
