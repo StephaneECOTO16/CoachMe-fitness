@@ -74,12 +74,18 @@ interface LimiterConfig {
   windowSeconds: number;
   /** Whether to fail closed (block) when Redis is unavailable */
   failClosed: boolean;
+  /**
+   * When Redis is unavailable, use the per-instance in-memory limiter instead
+   * of blocking everything. For flows that must keep working (password reset:
+   * failing closed would silently drop every reset email during an outage).
+   */
+  memoryFallback?: boolean;
 }
 
 const LIMITER_CONFIGS: Record<string, LimiterConfig> = {
   auth:     { max: 5,  windowSeconds: 60,  failClosed: true  }, // 5/min — login
   register: { max: 3,  windowSeconds: 300, failClosed: true  }, // 3/5min — register
-  "password-reset": { max: 3, windowSeconds: 900, failClosed: true }, // 3/15min
+  "password-reset": { max: 3, windowSeconds: 900, failClosed: true, memoryFallback: true }, // 3/15min
   api:      { max: 60, windowSeconds: 60,  failClosed: false }, // 60/min — general
 };
 
@@ -143,7 +149,7 @@ export async function checkRateLimit(
     // we allow in-memory so registration isn't blocked by missing infrastructure.
     const isDev = process.env.NODE_ENV === "development";
 
-    if (config.failClosed && !isDev) {
+    if (config.failClosed && !isDev && !config.memoryFallback) {
       logger.warn({ key, type }, "Redis unavailable — failing closed (Production)");
       return false;
     }
@@ -185,7 +191,7 @@ export async function checkRateLimit(
     );
 
     // Even on error, if we are in dev, fallback to memory instead of blocking
-    if (process.env.NODE_ENV === "development") {
+    if (process.env.NODE_ENV === "development" || config.memoryFallback) {
       return checkMemoryRateLimit(`mem:${type}:${key}`, config.max, config.windowSeconds);
     }
 

@@ -35,11 +35,18 @@ export async function POST(req: Request) {
   const isAllowed = await checkRateLimit(rateLimitKey, "password-reset");
 
   if (!isAllowed) {
-    // Still return success to prevent enumeration
-    return NextResponse.json({
-      success: true,
-      message: "If an account exists with this email, a reset link will be sent.",
-    });
+    // Tell the user instead of pretending a link was sent. This does not
+    // reveal whether the account exists: the limit applies to any email.
+    return NextResponse.json(
+      {
+        success: false,
+        error: {
+          code: "RATE_LIMITED",
+          message: "Too many reset requests for this email. Try again in 15 minutes.",
+        },
+      },
+      { status: 429, headers: { "Retry-After": "900" } },
+    );
   }
 
   try {

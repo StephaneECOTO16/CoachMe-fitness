@@ -45,14 +45,19 @@ export default function ForgotPasswordPage() {
 
       const result = await response.json();
 
+      if (response.status === 429 || result.error?.code === "RATE_LIMITED") {
+        toast.error(t("tooManyResetRequests"), t("tooManyResetRequestsHint"));
+        return;
+      }
       if (!response.ok) {
-        throw new Error(result.error?.message || "Failed to send reset link");
+        toast.error(t("resetLinkFailed"), t("resetLinkFailedHint"));
+        return;
       }
 
       toast.success(t("resetLinkSent"), t("checkEmailInstructions"));
       reset();
-    } catch (err) {
-      toast.error("Error", err instanceof Error ? err.message : "An error occurred");
+    } catch {
+      toast.error(t("resetLinkFailed"), t("resetLinkFailedHint"));
     }
   };
 
