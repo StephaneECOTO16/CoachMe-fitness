@@ -3,8 +3,46 @@ import { prisma } from '@/lib/db';
 import { requireAuth } from '@/lib/auth';
 import { broadcastMessage } from '@/lib/pusher';
 import { getPublicUrl } from '@/lib/storage';
-import { sendMail, getNewMessageTemplate } from '@/lib/mail';
+import { sendMail, getNewMessageTemplate } from '@/lib/mail/index';
 import { sendNotification } from '@/lib/notifications';
+
+/** The recipient is considered active in the conversation if they wrote within this window. */
+const ACTIVE_CONVERSATION_MS = 10 * 60 * 1000;
+
+/**
+ * "New message" emails are limited to save the email quota (Brevo) for
+ * essential emails such as password resets. Push notifications are still
+ * sent for every message. An email goes out only when:
+ *  - this is the first message the recipient has not read yet in this chat
+ *    (the next ones wait until they open the conversation), and
+ *  - the recipient has not written in this chat recently (they are already
+ *    in the conversation and get real-time/push updates).
+ */
+async function shouldEmailNewMessage(
+    chatId: number,
+    senderId: string,
+    recipientId: string,
+    messageId: number,
+): Promise<boolean> {
+    try {
+        const [earlierUnread, recentReply] = await Promise.all([
+            prisma.message.count({
+                where: { chatId, senderId, isRead: false, id: { not: messageId } },
+            }),
+            prisma.message.count({
+                where: {
+                    chatId,
+                    senderId: recipientId,
+                    createdAt: { gte: new Date(Date.now() - ACTIVE_CONVERSATION_MS) },
+                },
+            }),
+        ]);
+        return earlierUnread === 0 && recentReply === 0;
+    } catch (err) {
+        console.error('[POST /api/chat/:chatId/messages] email throttle check failed:', err);
+        return false;
+    }
+}
 
 /**
  * POST /api/chat/[chatId]/messages
@@ -102,6 +140,10 @@ export async function POST(req: Request, { params }: { params: Promise<{ chatId:
         // Push and email run in parallel: a slow SMTP server must not delay
         // the push notification on the recipient's phone.
         after(async () => {
+            const emailRecipient = recipient.email
+                ? await shouldEmailNewMessage(chatId, payload.userId, recipient.id, message.id)
+                : false;
+
             await Promise.allSettled([
                 sendNotification({
                     userId: recipient.id,
@@ -110,7 +152,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ chatId:
                     type: 'CHAT',
                     url: `/messages/${chatId}`
                 }),
-                recipient.email
+                emailRecipient && recipient.email
                     ? sendMail({
                         to: recipient.email,
                         subject: `New message from ${message.sender.name || 'CoachMe User'}`,
