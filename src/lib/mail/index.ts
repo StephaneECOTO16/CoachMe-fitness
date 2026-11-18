@@ -48,7 +48,7 @@ function createTransporter(config: SmtpConfig): Transporter | null {
   });
 }
 
-const transporters = [
+const smtpConfigs: SmtpConfig[] = [
   {
     name: "SMTP_*",
     host: process.env.SMTP_HOST,
@@ -65,9 +65,80 @@ const transporters = [
     pass: process.env.MAIL_PASSWORD,
     encryption: (process.env.MAIL_ENCRYPTION || "tls").toLowerCase(),
   },
-]
-  .map((config) => ({ name: config.name, transporter: createTransporter(config) }))
-  .filter((t): t is { name: string; transporter: Transporter } => t.transporter !== null);
+];
+
+const transporters: { name: string; config: SmtpConfig; transporter: Transporter }[] = [];
+for (const config of smtpConfigs) {
+  const transporter = createTransporter(config);
+  if (transporter) transporters.push({ name: config.name, config, transporter });
+}
+
+// ─── Diagnostics (admin only) ─────────────────────────────────────────────────
+
+export interface MailCheckResult {
+  name: string;
+  host?: string;
+  port: number;
+  /** Masked login, e.g. "9ea4…@smtp-brevo.com". */
+  user?: string;
+  login: { ok: boolean; code?: string; responseCode?: number; response?: string };
+  send?: { ok: boolean; code?: string; responseCode?: number; response?: string };
+}
+
+function maskLogin(user?: string): string | undefined {
+  if (!user) return undefined;
+  const [local, domain] = user.split("@");
+  return `${local.slice(0, 4)}…${domain ? `@${domain}` : ""}`;
+}
+
+function describeError(err: unknown) {
+  const e = err as { code?: string; responseCode?: number; response?: string; message?: string };
+  return { ok: false, code: e.code, responseCode: e.responseCode, response: e.response ?? e.message };
+}
+
+/**
+ * Checks every configured SMTP account: login, and optionally a real send
+ * (a login check alone does not catch quota or unverified-sender errors).
+ * Never returns passwords.
+ */
+export async function checkMailConfigs(sendTo?: string): Promise<{
+  from: string;
+  configs: MailCheckResult[];
+}> {
+  const from = `"${env.MAIL_FROM_NAME}" <${env.MAIL_FROM_ADDRESS}>`;
+  const configs: MailCheckResult[] = [];
+
+  for (const { name, config, transporter } of transporters) {
+    const result: MailCheckResult = {
+      name,
+      host: config.host,
+      port: config.port,
+      user: maskLogin(config.user),
+      login: { ok: true },
+    };
+    try {
+      await transporter.verify();
+    } catch (err) {
+      result.login = describeError(err);
+    }
+    if (sendTo && result.login.ok) {
+      try {
+        await transporter.sendMail({
+          from,
+          to: sendTo,
+          subject: `CoachMe — test SMTP (${name})`,
+          html: `<p>Test d'envoi via <strong>${escapeHtml(name)}</strong> : OK.</p>`,
+        });
+        result.send = { ok: true };
+      } catch (err) {
+        result.send = describeError(err);
+      }
+    }
+    configs.push(result);
+  }
+
+  return { from, configs };
+}
 
 // ─── Send helper ──────────────────────────────────────────────────────────────
 
